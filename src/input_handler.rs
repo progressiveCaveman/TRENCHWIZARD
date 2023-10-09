@@ -1,8 +1,7 @@
-use engine::worldgen;
 use winit::event::VirtualKeyCode;
 use winit_input_helper::WinitInputHelper;
 
-use crate::{Game, screen::UIState};
+use crate::{screen::UIState, game::Game};
 
 pub enum Action {
     None,

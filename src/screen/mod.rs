@@ -6,7 +6,7 @@ use crate::{
         sprites::Drawable,
         Assets,
     },
-    Image, Game, HEIGHT, WIDTH, colors::{Color, self},
+    Image, HEIGHT, WIDTH, colors::{Color, self}, game::Game,
 };
 
 use self::console::{Console, ConsoleMode};
@@ -49,10 +49,17 @@ impl Screen {
 
     pub fn setup_consoles(&mut self) {
 
-        // log console
+        // player stats console
         let x = 0;
         let y = 0;
-        let w = self.size.0 - 1;
+        let w = self.size.0 - 1 / 2;
+        let h = 10 * GLYPH_SIZE - 1;
+        self.consoles.push(Console::new((w, h), (x, y), ConsoleMode::PlayerStats));
+
+        // log console
+        let x = w;
+        let y = 0;
+        let w = self.size.0 - w;
         let h = 10 * GLYPH_SIZE - 1;
         self.consoles.push(Console::new((w, h), (x, y), ConsoleMode::Log));
 

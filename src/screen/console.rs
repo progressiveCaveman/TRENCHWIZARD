@@ -49,9 +49,10 @@ label
 
 */
 
-use engine::map::TileType;
+use engine::map::{TileType, Map};
+use shipyard::UniqueView;
 
-use crate::{colors::{self, Scale}, Game, WIDTH, assets::cp437_converter::to_cp437};
+use crate::{colors::{self, Scale}, WIDTH, assets::cp437_converter::to_cp437, game::Game};
 
 use super::{Glyph, GLYPH_SIZE, DEBUG_OUTLINES, UIState};
 
@@ -60,6 +61,7 @@ pub enum ConsoleMode {
     MainMenu,
     WorldMap,
     Log,
+    PlayerStats
 }
 
 #[derive(Debug)]
@@ -99,6 +101,9 @@ impl Console {
             ConsoleMode::Log => {
                 self.render_log(frame, game);
             }
+            ConsoleMode::PlayerStats => {
+                self.render_player_stats(frame, game);
+            },
         }
 
         if DEBUG_OUTLINES {
@@ -167,7 +172,7 @@ impl Console {
     }
 
     pub fn render_map(&self, frame: &mut [u8], game: &Game) {
-        let map = &game.engine.map;
+        let map = game.engine.world.borrow::<UniqueView<Map>>().unwrap();
         let screen = &game.screen;
 
         let zoom = self.zoom; // each tile takes up zoom x zoom pixels
@@ -184,13 +189,14 @@ impl Console {
                     let xmap = self.map_pos.0 + (xscreen - self.pos.0) / zoom;
                     let ymap = self.map_pos.1 + (yscreen - self.pos.1) / zoom;
 
-                    if map.in_bounds((xmap, ymap)) { 
+                    if map.in_bounds_new((xmap, ymap)) { 
 
                         let rgba = match map.get_tile((xmap, ymap)) {
                             TileType::Water => colors::COLOR_WATER,
                             TileType::Sand => colors::COLOR_SAND,
                             TileType::Dirt => colors::COLOR_DIRT,
                             TileType::Stone => colors::COLOR_STONE,
+                            _ => unreachable!()
                         };
 
                         pixel.copy_from_slice(&rgba);
@@ -205,12 +211,13 @@ impl Console {
                 for y in 0 .. heightchars {
                     let pos = (x + self.map_pos.0, y + self.map_pos.1);
                     // let idx = map.point_idx(point);
-                    if x < self.pos.0 + self.size.0 + zoom && y < self.pos.1 + self.size.1 + zoom && map.in_bounds(pos){
+                    if x < self.pos.0 + self.size.0 + zoom && y < self.pos.1 + self.size.1 + zoom && map.in_bounds_new(pos){
                         let rgba = match map.get_tile(pos) {
                             TileType::Water => colors::COLOR_WATER,
                             TileType::Sand => colors::COLOR_SAND,
                             TileType::Dirt => colors::COLOR_DIRT,
                             TileType::Stone => colors::COLOR_STONE,
+                            _ => unreachable!()
                         };
                         screen.print_cp437(
                             &game.assets,
@@ -258,6 +265,27 @@ impl Console {
                 }
             }
         }
+    }
+
+    pub fn render_player_stats(&self, frame: &mut [u8], game: &Game) {
+        let screen = &game.screen;
+
+        screen.draw_box(
+            &game.assets,
+            frame,
+            (self.pos.0, self.pos.1),
+            (self.size.0, self.size.1),
+            colors::COLOR_UI_1,
+            colors::COLOR_CLEAR
+        );
+
+        screen.print_string(
+            &game.assets,
+            frame,
+            "Player Stats",
+            (self.pos.0 + GLYPH_SIZE, self.pos.1 + GLYPH_SIZE),
+            colors::COLOR_UI_2
+        );
     }
 
     pub fn in_bounds(&self, pos: (usize, usize)) -> bool {
