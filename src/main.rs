@@ -1,4 +1,6 @@
 use assets::Assets;
+use engine::game_modes::{get_settings, GameMode};
+use engine::map::Map;
 use engine::{worldgen, Engine};
 use error_iter::ErrorIter as _;
 use input_handler::{handle_input, Action};
@@ -6,6 +8,7 @@ use log::error;
 use pixels::{Error, Pixels, SurfaceTexture};
 
 use screen::Screen;
+use shipyard::UniqueViewMut;
 use winit::dpi::LogicalSize;
 use winit::event::Event;
 use winit::event_loop::{ControlFlow, EventLoop};
@@ -13,7 +16,6 @@ use winit::window::WindowBuilder;
 use winit_input_helper::WinitInputHelper;
 
 pub mod assets;
-pub mod colors;
 pub mod input_handler;
 pub mod screen;
 
@@ -37,7 +39,7 @@ pub struct Game {
 impl Game {
     fn new() -> Self {
         Self {
-            engine: Engine::new((WIDTH, HEIGHT)),
+            engine: Engine::new(get_settings(GameMode::RL)),
             screen: Screen::new((WIDTH, HEIGHT)),
             assets: Assets::new(),
             tick: 0,
@@ -99,7 +101,8 @@ fn main() -> Result<(), Error> {
 
     // Generate a world map
     let mut game = Game::new();
-    worldgen::basic_fill(&mut game.engine.map);
+    game.engine.reset_engine(get_settings(GameMode::RL));
+    worldgen::basic_fill(&mut game.engine.world.borrow::<UniqueViewMut<Map>>().unwrap());
     game.screen.setup_consoles();
     game.game_log.push("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.".to_string());
 

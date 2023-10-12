@@ -49,9 +49,10 @@ label
 
 */
 
-use engine::map::TileType;
+use engine::{map::{TileType, Map}, colors::{self, ColorUtils}};
+use shipyard::UniqueView;
 
-use crate::{colors::{self, Scale}, Game, WIDTH, assets::cp437_converter::to_cp437};
+use crate::{Game, WIDTH, assets::cp437_converter::to_cp437};
 
 use super::{Glyph, GLYPH_SIZE, DEBUG_OUTLINES, UIState};
 
@@ -167,7 +168,7 @@ impl Console {
     }
 
     pub fn render_map(&self, frame: &mut [u8], game: &Game) {
-        let map = &game.engine.map;
+        let map = game.engine.world.borrow::<UniqueView<Map>>().unwrap();
         let screen = &game.screen;
 
         let zoom = self.zoom; // each tile takes up zoom x zoom pixels
@@ -191,6 +192,7 @@ impl Console {
                             TileType::Sand => colors::COLOR_SAND,
                             TileType::Dirt => colors::COLOR_DIRT,
                             TileType::Stone => colors::COLOR_STONE,
+                            _ => todo!()
                         };
 
                         pixel.copy_from_slice(&rgba);
@@ -206,11 +208,12 @@ impl Console {
                     let pos = (x + self.map_pos.0, y + self.map_pos.1);
                     // let idx = map.point_idx(point);
                     if x < self.pos.0 + self.size.0 + zoom && y < self.pos.1 + self.size.1 + zoom && map.in_bounds(pos){
-                        let rgba = match map.get_tile(pos) {
+                        let color = match map.get_tile(pos) {
                             TileType::Water => colors::COLOR_WATER,
                             TileType::Sand => colors::COLOR_SAND,
                             TileType::Dirt => colors::COLOR_DIRT,
                             TileType::Stone => colors::COLOR_STONE,
+                            _ => todo!()
                         };
                         screen.print_cp437(
                             &game.assets,
@@ -218,8 +221,8 @@ impl Console {
                             Glyph {
                                 pos: (self.pos.0 + x * zoom, self.pos.1 + y * zoom),
                                 ch: to_cp437(map.get_glyph(pos)),
-                                fg: rgba,
-                                bg: rgba.scale(0.5),
+                                fg: color,
+                                bg: color.scale(0.5),
                             }
                         );
                     }

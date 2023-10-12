@@ -25,7 +25,7 @@ pub fn basic_fill(map: &mut Map) {
     fill_recursive(map, 0);
 }
 
-fn fill_recursive(map: &mut Map, depth: i32) {
+fn fill_recursive(map: &mut Map, depth: usize) {
     if depth > 200 {
         return;
     }
