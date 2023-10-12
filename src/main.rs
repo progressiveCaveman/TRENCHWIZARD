@@ -22,8 +22,6 @@ pub mod screen;
 const SCALE: usize = 2;
 const WIDTH: usize = 640 * SCALE;
 const HEIGHT: usize = 480 * SCALE;
-// const WIDTH: usize = 320;
-// const HEIGHT: usize = 320;
 
 type Image = (Vec<[u8; 4]>, (usize, usize));
 
@@ -31,8 +29,17 @@ pub struct Game {
     pub engine: Engine,
     pub screen: Screen,
     pub assets: Assets,
-    pub tick: i32,
-    pub image: Image,
+    pub tick: usize,
+    pub state: GameState,
+    pub history_timer: usize,
+    pub history_step: usize
+}
+
+#[derive(PartialEq, Copy, Clone, Debug)]
+pub enum GameState {
+    Waiting,
+    MainMenu,
+    ShowMapHistory
 }
 
 impl Game {
@@ -42,14 +49,22 @@ impl Game {
             screen: Screen::new((WIDTH, HEIGHT)),
             assets: Assets::new(),
             tick: 0,
-            image: (Vec::new(), (0, 0)),
+            state: GameState::MainMenu,
+            history_timer: 0,
+            history_step: 0,
         }
     }
 
     /// Update the game state
     fn update(&mut self) {
-        // automatically zoom in on small maps
+        self.tick += 1;
+        if self.tick % 100 == 0 {
+            self.engine.get_log_mut().messages.push(format!("Test {}", self.tick / 100));
+        }
+
         let map = self.engine.get_map();
+
+        // automatically zoom in on small maps
         for c in self.screen.consoles.iter_mut() {
             if c.mode == ConsoleMode::WorldMap {
                 while c.zoom < MAX_ZOOM && (c.zoom + 1) * map.size.0 < c.size.0 && (c.zoom + 1) * map.size.1 < c.size.1 {
@@ -58,9 +73,22 @@ impl Game {
             }
         }
 
-        self.tick += 1;
-        if self.tick % 100 == 0 {
-            self.engine.get_log_mut().messages.push(format!("Test {}", self.tick / 100));
+        // Main loop
+        match self.state {
+            GameState::Waiting => {
+
+            },
+            GameState::MainMenu => {
+
+            },
+            GameState::ShowMapHistory => {
+                self.history_timer += 1;
+                self.history_step = self.history_timer / 10;
+                
+                if self.history_step > map.history.len() {
+                    self.state = GameState::Waiting;
+                }
+            },
         }
     }
 

@@ -27,7 +27,7 @@ pub fn get_settings(mode: GameMode) -> GameSettings {
         },
         GameMode::RL => GameSettings {
             mode,
-            mapsize: (80, 40),
+            mapsize: (160, 80),
             follow_player: true,
             use_player_los: true,
             show_player: true,

@@ -12,7 +12,6 @@ pub struct BspInteriorBuilder {
     starting_position: Position,
     depth: usize,
     rooms: Vec<Rect>,
-    history: Vec<Map>,
     rects: Vec<Rect>,
 }
 
@@ -37,13 +36,9 @@ impl MapBuilder for BspInteriorBuilder {
         });
     }
 
-    fn get_map_history(&self) -> Vec<Map> {
-        self.history.clone()
-    }
-
     fn take_snapshot(&mut self) {
         if SHOW_MAPGEN_ANIMATION {
-            self.history.push(self.map.clone());
+            self.map.history.push(self.map.tiles.clone());
         }
     }
 }
@@ -57,7 +52,6 @@ impl BspInteriorBuilder {
             },
             depth: new_depth,
             rooms: Vec::new(),
-            history: Vec::new(),
             rects: Vec::new(),
         }
     }

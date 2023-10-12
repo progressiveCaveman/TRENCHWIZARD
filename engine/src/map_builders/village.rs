@@ -11,7 +11,6 @@ use super::{Map, MapBuilder, Position};
 pub struct VillageBuilder {
     map: Map,
     starting_position: Position,
-    history: Vec<Map>,
 }
 
 impl MapBuilder for VillageBuilder {
@@ -61,13 +60,9 @@ impl MapBuilder for VillageBuilder {
         });
     }
 
-    fn get_map_history(&self) -> Vec<Map> {
-        self.history.clone()
-    }
-
     fn take_snapshot(&mut self) {
         if SHOW_MAPGEN_ANIMATION {
-            self.history.push(self.map.clone());
+            self.map.history.push(self.map.tiles.clone());
         }
     }
 }
@@ -79,7 +74,6 @@ impl VillageBuilder {
             starting_position: Position {
                 ps: vec![Point::new(0, 0)],
             },
-            history: Vec::new(),
         }
     }
 

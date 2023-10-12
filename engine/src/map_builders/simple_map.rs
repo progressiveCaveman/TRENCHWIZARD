@@ -12,7 +12,6 @@ pub struct SimpleMapBuilder {
     starting_position: Position,
     depth: usize,
     rooms: Vec<Rect>,
-    history: Vec<Map>,
 }
 
 impl MapBuilder for SimpleMapBuilder {
@@ -36,13 +35,9 @@ impl MapBuilder for SimpleMapBuilder {
         });
     }
 
-    fn get_map_history(&self) -> Vec<Map> {
-        self.history.clone()
-    }
-
     fn take_snapshot(&mut self) {
         if SHOW_MAPGEN_ANIMATION {
-            self.history.push(self.map.clone());
+            self.map.history.push(self.map.tiles.clone());
         }
     }
 }
@@ -56,7 +51,6 @@ impl SimpleMapBuilder {
             },
             depth: new_depth,
             rooms: Vec::new(),
-            history: Vec::new(),
         }
     }
 

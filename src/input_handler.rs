@@ -1,7 +1,7 @@
 use winit::event::VirtualKeyCode;
 use winit_input_helper::WinitInputHelper;
 
-use crate::{Game, screen::UIState};
+use crate::{Game, screen::UIState, GameState};
 
 pub enum Action {
     None,
@@ -92,6 +92,8 @@ pub fn handle_input(input: &WinitInputHelper, game: &mut Game) -> Action {
             UIState::MainMenu { selection } => {
                 if selection == 0 { //play game
                     game.screen.ui_state = UIState::Game;
+                    game.history_timer = 0;
+                    game.state = GameState::ShowMapHistory;
                 }else if selection == 1 { // exit
                     return Action::Exit;
                 }

@@ -11,7 +11,6 @@ use super::{Map, MapBuilder, Position};
 pub struct AernaBuilder {
     map: Map,
     starting_position: Position,
-    history: Vec<Map>,
 }
 
 impl MapBuilder for AernaBuilder {
@@ -49,13 +48,9 @@ impl MapBuilder for AernaBuilder {
         });
     }
 
-    fn get_map_history(&self) -> Vec<Map> {
-        self.history.clone()
-    }
-
     fn take_snapshot(&mut self) {
         if SHOW_MAPGEN_ANIMATION {
-            self.history.push(self.map.clone());
+            self.map.history.push(self.map.tiles.clone());
         }
     }
 }
@@ -67,7 +62,6 @@ impl AernaBuilder {
             starting_position: Position {
                 ps: vec![Point::new(0, 0)],
             },
-            history: Vec::new(),
         }
     }
 

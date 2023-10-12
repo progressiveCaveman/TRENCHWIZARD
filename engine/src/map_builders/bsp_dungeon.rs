@@ -10,7 +10,6 @@ pub struct BspDungeonBuilder {
     starting_position: Position,
     depth: usize,
     rooms: Vec<Rect>,
-    history: Vec<Map>,
     rects: Vec<Rect>,
 }
 
@@ -35,13 +34,9 @@ impl MapBuilder for BspDungeonBuilder {
         });
     }
 
-    fn get_map_history(&self) -> Vec<Map> {
-        self.history.clone()
-    }
-
     fn take_snapshot(&mut self) {
         if SHOW_MAPGEN_ANIMATION {
-            self.history.push(self.map.clone());
+            self.map.history.push(self.map.tiles.clone());
         }
     }
 }
@@ -55,7 +50,6 @@ impl BspDungeonBuilder {
             },
             depth: new_depth,
             rooms: Vec::new(),
-            history: Vec::new(),
             rects: Vec::new(),
         }
     }
@@ -139,7 +133,7 @@ impl BspDungeonBuilder {
     }
 
     fn get_random_sub_rect(&self, rect: Rect, rng: &mut RandomNumberGenerator) -> Rect {
-        let mut result = rect;
+        let mut result = rect.clone();
         let rect_width = (rect.x1 - rect.x2) as i32;
         let rect_height = (rect.y1 - rect.y2) as i32;
 

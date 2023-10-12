@@ -11,7 +11,6 @@ pub struct CellularAutomataBuilder {
     map: Map,
     starting_position: Position,
     depth: usize,
-    history: Vec<Map>,
     noise_areas: HashMap<i32, Vec<usize>>,
 }
 
@@ -35,13 +34,9 @@ impl MapBuilder for CellularAutomataBuilder {
         });
     }
 
-    fn get_map_history(&self) -> Vec<Map> {
-        self.history.clone()
-    }
-
     fn take_snapshot(&mut self) {
         if SHOW_MAPGEN_ANIMATION {
-            self.history.push(self.map.clone());
+            self.map.history.push(self.map.tiles.clone());
         }
     }
 }
@@ -54,7 +49,6 @@ impl CellularAutomataBuilder {
                 ps: vec![Point::new(0, 0)],
             },
             depth: new_depth,
-            history: Vec::new(),
             noise_areas: HashMap::new(),
         }
     }

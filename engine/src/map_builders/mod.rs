@@ -32,18 +32,11 @@ use shipyard::World;
 use crate::components::Position;
 use crate::map::Map;
 
-pub struct MapGenData {
-    pub history: Vec<Map>,
-    pub index: usize,
-    pub timer: f32,
-}
-
 pub trait MapBuilder {
     fn build_map(&mut self);
     fn spawn_entities(&mut self, world: &mut World);
     fn get_map(&mut self) -> Map;
     fn get_starting_position(&mut self) -> Position;
-    fn get_map_history(&self) -> Vec<Map>;
     fn take_snapshot(&mut self);
 }
 

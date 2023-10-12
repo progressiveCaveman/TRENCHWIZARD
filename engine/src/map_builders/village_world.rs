@@ -8,7 +8,6 @@ use super::{Map, MapBuilder, Position};
 pub struct VillageWorldBuilder {
     map: Map,
     starting_position: Position,
-    history: Vec<Map>,
 }
 
 impl MapBuilder for VillageWorldBuilder {
@@ -66,14 +65,10 @@ impl MapBuilder for VillageWorldBuilder {
         //     }
         // });
     }
-
-    fn get_map_history(&self) -> Vec<Map> {
-        self.history.clone()
-    }
-
+    
     fn take_snapshot(&mut self) {
         if SHOW_MAPGEN_ANIMATION {
-            self.history.push(self.map.clone());
+            self.map.history.push(self.map.tiles.clone());
         }
     }
 }
@@ -85,7 +80,6 @@ impl VillageWorldBuilder {
             starting_position: Position {
                 ps: vec![Point::new(0, 0)],
             },
-            history: Vec::new(),
         }
     }
 

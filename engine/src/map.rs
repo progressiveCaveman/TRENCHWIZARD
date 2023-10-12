@@ -14,6 +14,8 @@ pub struct Map {
     #[serde(skip_serializing)]
     #[serde(skip_deserializing)]
     pub tile_content: Vec<Vec<EntityId>>,
+
+    pub history: Vec<Vec<TileType>>,
 }
 
 impl Map {
@@ -24,7 +26,8 @@ impl Map {
             size,
             blocked: Vec::new(),
             fire_turns: Vec::new(),
-            tile_content: Vec::new(), 
+            tile_content: Vec::new(),
+            history: Vec::new(),
         }
     }
 
@@ -141,11 +144,11 @@ impl Map {
         min
     }
 
-    fn is_exit_valid(&self, x: usize, y: usize) -> bool {
-        if x < 1 || x >= self.size.0 || y < 1 || y >= self.size.1 {
+    fn is_exit_valid(&self, x: i32, y: i32) -> bool {
+        if x < 1 || x >= self.size.0 as i32 || y < 1 || y >= self.size.1 as i32{
             return false;
         }
-        let idx = self.xy_idx((x, y));
+        let idx = self.xy_idx((x as usize, y as usize));
         !self.blocked[idx]
     }
 }
@@ -173,7 +176,7 @@ impl BaseMap for Map {
 
     fn get_available_exits(&self, idx: usize) -> rltk::SmallVec<[(usize, f32); 10]> {
         let mut exits = rltk::SmallVec::new();
-        let (x, y) = self.idx_xy(idx);
+        let (x, y) = (self.idx_xy(idx).0 as i32, self.idx_xy(idx).1 as i32);
         let w = self.size.0 as usize;
 
         if self.is_exit_valid(x - 1, y) {

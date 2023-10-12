@@ -52,7 +52,7 @@ label
 use engine::{map::Map, colors::{self}};
 use shipyard::UniqueView;
 
-use crate::{Game, WIDTH, assets::cp437_converter::to_cp437};
+use crate::{Game, WIDTH, assets::cp437_converter::to_cp437, GameState};
 
 use super::{Glyph, GLYPH_SIZE, DEBUG_OUTLINES, UIState};
 
@@ -171,6 +171,12 @@ impl Console {
         let map = game.engine.world.borrow::<UniqueView<Map>>().unwrap();
         let screen = &game.screen;
 
+        let tiles = if game.history_step >= map.history.len() || game.state != GameState::ShowMapHistory {
+            map.tiles.clone()
+        } else {
+            map.history[game.history_step].clone()
+        };
+
         if self.zoom < GLYPH_SIZE {
             for (i, pixel) in frame.chunks_exact_mut(4).enumerate() {
                 let xscreen = i % WIDTH;
@@ -184,7 +190,8 @@ impl Console {
                     let ymap = self.map_pos.1 + (yscreen - self.pos.1) / self.zoom;
 
                     if map.in_bounds((xmap, ymap)) { 
-                        pixel.copy_from_slice(&map.get_tile((xmap, ymap)).renderable().2);
+                        let r = tiles[map.xy_idx((xmap, ymap))].renderable();
+                        pixel.copy_from_slice(&r.2);
                     }
                 }
             }
@@ -197,7 +204,7 @@ impl Console {
                     let pos = (x + self.map_pos.0, y + self.map_pos.1);
                     // let idx = map.point_idx(point);
                     if x < self.pos.0 + self.size.0 + self.zoom && y < self.pos.1 + self.size.1 + self.zoom && map.in_bounds(pos){
-                        let render = map.get_tile(pos).renderable();
+                        let render = tiles[map.xy_idx(pos)].renderable();
                         screen.print_cp437(
                             &game.assets,
                             frame,

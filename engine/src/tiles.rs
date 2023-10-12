@@ -19,8 +19,10 @@ pub enum TileType {
     WoodFloor,
 }
 
+pub type TileRenderable = (char, Color, Color);
+
 impl TileType {
-    pub fn renderable(self) -> (char, Color, Color) {
+    pub fn renderable(self) -> TileRenderable {
         match self {
             TileType::Water => ('~', colors::COLOR_CYAN, colors::COLOR_WATER),
             TileType::Sand => ('.', colors::COLOR_SAND, colors::COLOR_BG),
@@ -38,14 +40,3 @@ impl TileType {
         }
     }
 }
-
-pub trait Renderable {
-
-}
-
-pub struct TileRenderable {
-    pub glyph: char,
-    pub fg_color: Color,
-    pub bg_color: Color,
-}
-
