@@ -34,6 +34,7 @@ pub fn handle_input(input: &WinitInputHelper, game: &mut Game) -> Action {
     // R : reset
     if input.key_pressed_os(VirtualKeyCode::R) {
         game.engine.reset_engine(game.engine.settings);
+        game.set_state(GameState::ShowMapHistory);
     }
 
     let movemod = if input.held_shift() {
@@ -92,8 +93,7 @@ pub fn handle_input(input: &WinitInputHelper, game: &mut Game) -> Action {
             UIState::MainMenu { selection } => {
                 if selection == 0 { //play game
                     game.screen.ui_state = UIState::Game;
-                    game.history_timer = 0;
-                    game.state = GameState::ShowMapHistory;
+                    game.set_state(GameState::ShowMapHistory);
                 }else if selection == 1 { // exit
                     return Action::Exit;
                 }

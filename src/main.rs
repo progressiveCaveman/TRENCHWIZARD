@@ -62,13 +62,15 @@ impl Game {
             self.engine.get_log_mut().messages.push(format!("Test {}", self.tick / 100));
         }
 
-        let map = self.engine.get_map();
+        {
+            let map = self.engine.get_map();
 
-        // automatically zoom in on small maps
-        for c in self.screen.consoles.iter_mut() {
-            if c.mode == ConsoleMode::WorldMap {
-                while c.zoom < MAX_ZOOM && (c.zoom + 1) * map.size.0 < c.size.0 && (c.zoom + 1) * map.size.1 < c.size.1 {
-                    c.zoom += 1;
+            // automatically zoom in on small maps
+            for c in self.screen.consoles.iter_mut() {
+                if c.mode == ConsoleMode::WorldMap {
+                    while c.zoom < MAX_ZOOM && (c.zoom + 1) * map.size.0 < c.size.0 && (c.zoom + 1) * map.size.1 < c.size.1 {
+                        c.zoom += 1;
+                    }
                 }
             }
         }
@@ -84,6 +86,7 @@ impl Game {
             GameState::ShowMapHistory => {
                 self.history_timer += 1;
                 self.history_step = self.history_timer / 10;
+                let map = self.engine.get_map();
                 
                 if self.history_step > map.history.len() {
                     self.state = GameState::Waiting;
@@ -96,6 +99,15 @@ impl Game {
     /// Assumes the default texture format: `wgpu::TextureFormat::Rgba8UnormSrgb`
     fn draw(&self, frame: &mut [u8]) {
         self.screen.draw(frame, &self);
+    }
+
+    pub fn set_state(&mut self, state: GameState) {
+        match state {
+            GameState::ShowMapHistory => self.history_timer = 0,
+            _ => {}
+        }
+
+        self.state = state;
     }
 }
 

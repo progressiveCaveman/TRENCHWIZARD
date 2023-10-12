@@ -22,11 +22,11 @@ impl Map {
     pub fn new(size: (usize, usize)) -> Map {
         let count = (size.0 * size.1) as usize;
         Map {
-            tiles: vec![TileType::Water; count],
+            tiles: vec![TileType::Wall; count],
             size,
-            blocked: Vec::new(),
-            fire_turns: Vec::new(),
-            tile_content: Vec::new(),
+            blocked: vec![false; count],
+            fire_turns: vec![0; count],
+            tile_content: vec![Vec::new(); count],
             history: Vec::new(),
         }
     }
