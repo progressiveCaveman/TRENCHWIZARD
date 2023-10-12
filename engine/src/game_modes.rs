@@ -1,6 +1,4 @@
-use shipyard::Unique;
-
-#[derive(Copy, Clone, PartialEq, Unique)]
+#[derive(Copy, Clone, PartialEq)]
 pub struct GameSettings {
     pub mode: GameMode,
     pub mapsize: (usize, usize),

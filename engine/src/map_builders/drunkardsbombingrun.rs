@@ -27,7 +27,7 @@ impl MapBuilder for DrunkardsBombingRunBuilder {
     }
 
     fn build_map(&mut self) {
-        self.rooms_and_corridors(20, 4, 8);
+        self.rooms_and_corridors(50, 4, 8);
     }
 
     fn spawn_entities(&mut self, world: &mut World) {

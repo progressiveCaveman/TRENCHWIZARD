@@ -37,24 +37,18 @@ pub fn apply_horizontal_corridor(map: &mut Map, x1: i32, x2: i32, y: i32) {
 pub fn apply_drunkards_corrider(map: &mut Map, x1: i32, y1: i32, x2: i32, y2: i32) {
     let mut rng = RandomNumberGenerator::new();
 
-    let mut xdir = 1;
-    let mut ydir = 1;
-
-    if x1 > x2 {
-        xdir = -1;
-    }
-
-    if y1 > y2 {
-        ydir = -1;
-    }
-
     let mut x = x1;
     let mut y = y1;
 
     while x != x2 || y != y2 {
-        if x == x2 {
+        let xdir = if x1 > x2 { -1 }else{ 1 };
+        let ydir = if y1 > y2 { -1 }else{ 1 };
+        let xdiff = i32::abs(x - x2);
+        let ydiff = i32::abs(y - y2);
+    
+        if ydiff > 3 * xdiff {
             y += ydir;
-        } else if y == y2 {
+        } else if xdiff > 3 * ydiff {
             x += xdir;
         } else {
             if rng.range(0, 2) == 0 {

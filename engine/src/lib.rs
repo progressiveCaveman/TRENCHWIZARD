@@ -137,44 +137,34 @@ impl Engine {
         ids_to_delete
     }
 
-    pub fn generate_map(world: &mut World, new_depth: usize) {
+    pub fn generate_map(&mut self, new_depth: usize) {
         // delete all entities
-        let ids_to_delete = Self::entities_to_delete_on_level_change(world);
+        let ids_to_delete = Self::entities_to_delete_on_level_change(&mut self.world);
         for id in ids_to_delete {
-            world.delete_entity(id);
+            self.world.delete_entity(id);
         }
 
-        // self.mapgen_data.index = 0;
-        // self.mapgen_data.timer = 0.0;
-        // self.mapgen_data.history.clear();
-
-        // get game mode
-        let settings = *world.borrow::<UniqueView<GameSettings>>().unwrap();
-
         // Generate map
-        // TODO eventually this should not look at mode, but use map vonfig info from settings
-        let mut map_builder = match settings.mode {
-            GameMode::VillageSim => map_builders::village_builder(new_depth, settings.mapsize),
-            GameMode::RL => map_builders::rl_builder(new_depth, settings.mapsize),
-            GameMode::OrcHalls => map_builders::orc_halls_builder(new_depth, settings.mapsize),
+        let mut map_builder = match self.settings.mode {
+            GameMode::VillageSim => map_builders::village_builder(new_depth, self.settings.mapsize),
+            GameMode::RL => map_builders::rl_builder(new_depth, self.settings.mapsize),
+            GameMode::OrcHalls => map_builders::orc_halls_builder(new_depth, self.settings.mapsize),
         };
 
         map_builder.build_map();
 
-        // self.mapgen_data.history = map_builder.get_map_history();
-
         let start_pos;
         {
-            let mut map = world.borrow::<UniqueViewMut<Map>>().unwrap();
+            let mut map = self.world.borrow::<UniqueViewMut<Map>>().unwrap();
             *map = map_builder.get_map();
             start_pos = map_builder.get_starting_position().ps.first().unwrap().clone();
         }
 
         // Spawn monsters and items
-        map_builder.spawn_entities(world);
+        map_builder.spawn_entities(&mut self.world);
 
         // Update player position
-        world.run(
+        self.world.run(
             |mut ppos: UniqueViewMut<PPoint>,
              player_id: UniqueView<PlayerID>,
              mut vpos: ViewMut<Position>,
@@ -221,7 +211,6 @@ impl Engine {
             .run(|mut store: AllStoragesViewMut| entity_factory::player(&mut store, (0, 0)));
         self.world.add_unique(PlayerID(player_id));
 
-        self.world.add_unique(settings);
         self.world.add_unique(GameLog { messages: vec![] });
         // self.world.add_unique(system_particle::ParticleBuilder::new());
         self.world.add_unique(FrameTime(0.));
@@ -234,6 +223,6 @@ impl Engine {
         }
 
         // Generate new map
-        Self::generate_map(&mut self.world, 1);
+        self.generate_map( 1);
     }
 }
