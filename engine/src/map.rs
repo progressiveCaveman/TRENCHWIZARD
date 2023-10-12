@@ -2,25 +2,7 @@ use rltk::{Algorithm2D, Point, BaseMap};
 use serde::{Serialize, Deserialize};
 use shipyard::{Unique, EntityId, View, Get};
 
-use crate::{components::Position, utils::Target};
-
-
-#[derive(PartialEq, Copy, Clone, Debug, Serialize, Deserialize)]
-pub enum TileType {
-    Water,
-    Sand,
-    Dirt,
-    Stone,
-    Wall,
-    Floor,
-    StairsDown,
-    StairsUp,
-    Grass,
-    Wheat,
-    WoodWall,
-    WoodDoor,
-    WoodFloor,
-}
+use crate::{components::Position, utils::Target, tiles::TileType};
 
 #[derive(Default, Serialize, Deserialize, Clone, Unique)]
 pub struct Map {
@@ -44,6 +26,10 @@ impl Map {
             fire_turns: Vec::new(),
             tile_content: Vec::new(), 
         }
+    }
+
+    pub fn reset_tiles(&mut self, tile: TileType) {
+        self.tiles.iter().for_each(|mut t| t = &tile);
     }
 
     pub fn len(&self) -> usize {

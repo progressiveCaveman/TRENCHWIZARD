@@ -7,7 +7,7 @@ use map::Map;
 
 use rltk::Point;
 use shipyard::{
-    EntitiesView, EntityId, Get, UniqueView, UniqueViewMut, View, ViewMut, World,
+    EntitiesView, EntityId, Get, UniqueView, UniqueViewMut, View, ViewMut, World, AllStoragesViewMut,
 };
 
 pub mod components;
@@ -18,6 +18,7 @@ pub mod entity_factory;
 pub mod colors;
 pub mod worldgen;
 pub mod game_modes;
+pub mod tiles;
 
 pub const SHOW_MAPGEN_ANIMATION: bool = true;
 pub const MAPGEN_FRAME_TIME: f32 = 25.0;
@@ -195,10 +196,10 @@ impl Engine {
         self.world.add_unique(Turn(0));
         self.world.add_unique(RNG(rltk::RandomNumberGenerator::new()));
 
-        // let player_id = self
-        //     .world
-        //     .run(|mut store: AllStoragesViewMut| entity_factory::player(&mut store, (0, 0)));
-        // self.world.add_unique(PlayerID(player_id));
+        let player_id = self
+            .world
+            .run(|mut store: AllStoragesViewMut| entity_factory::player(&mut store, (0, 0)));
+        self.world.add_unique(PlayerID(player_id));
 
         self.world.add_unique(settings);
         self.world.add_unique(GameLog { messages: vec![] });
@@ -213,6 +214,6 @@ impl Engine {
         }
 
         // Generate new map
-        // Self::generate_map(&mut self.world, 1);
+        Self::generate_map(&mut self.world, 1);
     }
 }

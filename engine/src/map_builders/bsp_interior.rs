@@ -1,9 +1,9 @@
 use rltk::{Point, RandomNumberGenerator};
 use shipyard::{AllStoragesViewMut, World};
 
-use crate::{entity_factory, SHOW_MAPGEN_ANIMATION, utils::rect::Rect};
+use crate::{entity_factory, SHOW_MAPGEN_ANIMATION, utils::rect::Rect, tiles::TileType};
 
-use super::{Map, MapBuilder, Position, TileType};
+use super::{Map, MapBuilder, Position};
 
 const MIN_ROOM_SIZE: i32 = 4;
 

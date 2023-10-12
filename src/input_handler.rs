@@ -1,5 +1,3 @@
-use engine::{worldgen, map::Map};
-use shipyard::UniqueViewMut;
 use winit::event::VirtualKeyCode;
 use winit_input_helper::WinitInputHelper;
 
@@ -33,10 +31,9 @@ pub fn handle_input(input: &WinitInputHelper, game: &mut Game) -> Action {
         game.screen.decrement_zoom();
     }
 
-    // R : refresh worldgen
+    // R : reset
     if input.key_pressed_os(VirtualKeyCode::R) {
-        let mut map = game.engine.world.borrow::<UniqueViewMut<Map>>().unwrap();
-        worldgen::basic_fill(&mut map);
+        game.engine.reset_engine(game.engine.settings);
     }
 
     let movemod = if input.held_shift() {

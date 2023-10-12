@@ -1,9 +1,9 @@
 use rltk::{Point, RandomNumberGenerator};
 use shipyard::{AllStoragesViewMut, World};
 
-use crate::{entity_factory, SHOW_MAPGEN_ANIMATION};
+use crate::{entity_factory, SHOW_MAPGEN_ANIMATION, tiles::TileType};
 
-use super::{Map, MapBuilder, Position, TileType};
+use super::{Map, MapBuilder, Position};
 
 pub struct VillageWorldBuilder {
     map: Map,

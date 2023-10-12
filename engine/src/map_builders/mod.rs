@@ -30,7 +30,7 @@ use common::*;
 use shipyard::World;
 
 use crate::components::Position;
-use crate::map::{Map, TileType};
+use crate::map::Map;
 
 pub struct MapGenData {
     pub history: Vec<Map>,

@@ -1,3 +1,4 @@
+use crate::tiles::TileType;
 use crate::utils::rect::Rect;
 use crate::{entity_factory, SHOW_MAPGEN_ANIMATION};
 use rand::seq::SliceRandom;
@@ -7,7 +8,7 @@ use shipyard::{AllStoragesViewMut, World};
 use std::cmp;
 
 use super::common::apply_drunkards_corrider;
-use super::{Map, MapBuilder, Position, TileType};
+use super::{Map, MapBuilder, Position};
 
 pub struct DrunkardsBombingRunBuilder {
     map: Map,
@@ -165,10 +166,12 @@ impl DrunkardsBombingRunBuilder {
 
         // find largest island and convert to grass
         islands.sort_by(|a, b| b.1.cmp(&a.1));
-        let i0 = &islands.remove(0).0;
-        for i in 0..self.map.tiles.len() {
-            if i0[i] {
-                self.map.tiles[i] = TileType::Water;
+        if !islands.is_empty() {
+            let i0 = &islands.remove(0).0;
+            for i in 0..self.map.tiles.len() {
+                if i0[i] {
+                    self.map.tiles[i] = TileType::Water;
+                }
             }
         }
 

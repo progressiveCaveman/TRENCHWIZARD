@@ -8,10 +8,11 @@ use crate::components::{
     LocomotionType, Locomotive, LumberMill, MeleeDefenseBonus, MeleePowerBonus, Name, PlankHouse, Player, Position,
     ProvidesHealing, Ranged, Renderable, SpatialKnowledge, Spawner, SpawnerType, Tree, Vision, RNG,
 };
-use crate::map::{Map, TileType};
+use crate::map::{Map};
 // use crate::systems::system_fire::NEW_FIRE_TURNS;
 // use crate::weighted_table::WeightedTable;
 use crate::RenderOrder;
+use crate::tiles::TileType;
 use crate::utils::rect::Rect;
 use crate::utils::weighted_table::WeightedTable;
 use rltk::{DijkstraMap, Point};

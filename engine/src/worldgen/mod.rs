@@ -2,7 +2,7 @@ use std::{vec, convert::TryInto};
 
 use rand::Rng;
 
-use crate::map::{Map, TileType};
+use crate::{map::Map, tiles::TileType};
 
 pub fn basic_fill(map: &mut Map) {
     let size = map.size;

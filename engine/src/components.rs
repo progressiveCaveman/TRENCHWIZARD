@@ -5,8 +5,8 @@ use serde::{Deserialize, Serialize};
 use shipyard::{Component, EntityId, IntoIter, View, Unique};
 
 use crate::{
-    map::{Map, TileType},
-    RenderOrder,
+    map::Map,
+    RenderOrder, tiles::TileType,
 };
 
 /// Unique components

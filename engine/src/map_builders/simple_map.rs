@@ -1,10 +1,10 @@
 use rltk::{Point, RandomNumberGenerator};
 use shipyard::{AllStoragesViewMut, World};
 
-use crate::{entity_factory, SHOW_MAPGEN_ANIMATION, utils::rect::Rect};
+use crate::{entity_factory, SHOW_MAPGEN_ANIMATION, utils::rect::Rect, tiles::TileType};
 
 use super::{
-    apply_horizontal_corridor, apply_room_to_map, apply_vertical_corridor, Map, MapBuilder, Position, TileType,
+    apply_horizontal_corridor, apply_room_to_map, apply_vertical_corridor, Map, MapBuilder, Position,
 };
 
 pub struct SimpleMapBuilder {

@@ -1,6 +1,6 @@
-use crate::utils::rect::Rect;
+use crate::{utils::rect::Rect, tiles::TileType};
 
-use super::{Map, TileType};
+use super::Map;
 use rltk::RandomNumberGenerator;
 use std::cmp;
 

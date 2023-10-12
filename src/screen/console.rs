@@ -49,7 +49,7 @@ label
 
 */
 
-use engine::{map::{TileType, Map}, colors::{self, ColorUtils}};
+use engine::{map::Map, colors::{self, ColorUtils}, tiles::TileType};
 use shipyard::UniqueView;
 
 use crate::{Game, WIDTH, assets::cp437_converter::to_cp437};
@@ -192,7 +192,7 @@ impl Console {
                             TileType::Sand => colors::COLOR_SAND,
                             TileType::Dirt => colors::COLOR_DIRT,
                             TileType::Stone => colors::COLOR_STONE,
-                            _ => todo!()
+                            _ => colors::COLOR_CLEAR
                         };
 
                         pixel.copy_from_slice(&rgba);
@@ -213,7 +213,7 @@ impl Console {
                             TileType::Sand => colors::COLOR_SAND,
                             TileType::Dirt => colors::COLOR_DIRT,
                             TileType::Stone => colors::COLOR_STONE,
-                            _ => todo!()
+                            _ => colors::COLOR_CLEAR
                         };
                         screen.print_cp437(
                             &game.assets,

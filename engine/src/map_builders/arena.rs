@@ -3,10 +3,10 @@ use shipyard::{AllStoragesViewMut, World};
 
 use crate::{
     components::{Faction, SpawnerType},
-    entity_factory, SHOW_MAPGEN_ANIMATION,
+    entity_factory, SHOW_MAPGEN_ANIMATION, tiles::TileType,
 };
 
-use super::{Map, MapBuilder, Position, TileType};
+use super::{Map, MapBuilder, Position};
 
 pub struct AernaBuilder {
     map: Map,
