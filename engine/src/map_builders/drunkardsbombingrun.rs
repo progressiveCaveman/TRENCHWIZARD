@@ -7,7 +7,7 @@ use rltk::{Point, RandomNumberGenerator};
 use shipyard::{AllStoragesViewMut, World};
 use std::cmp;
 
-use super::common::apply_drunkards_corrider;
+use super::common::{apply_drunkards_corrider, apply_room_to_map};
 use super::{Map, MapBuilder, Position};
 
 pub struct DrunkardsBombingRunBuilder {
@@ -77,7 +77,9 @@ impl DrunkardsBombingRunBuilder {
             }
 
             if place_room {
-                // apply_room_to_map(&mut self.map, &new_room);
+                // apply_room_to_map(&mut self.map, &new_room, TileType::Floor, true);
+                self.map.set_tile((new_room.center().0 as usize, new_room.center().1 as usize), TileType::Floor);
+
                 self.rooms.push(new_room);
             }
             self.take_snapshot();
@@ -191,9 +193,7 @@ impl DrunkardsBombingRunBuilder {
             }
         }
 
-        candidates.shuffle(&mut thread_rng());
-
-        let iteration_number = candidates.len() as f32 * 1.8;
+        let iteration_number = candidates.len() as f32 * 3.8;
 
         for _ in 0..iteration_number as i32 {
             let mut random_offset: usize;
