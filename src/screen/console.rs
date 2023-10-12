@@ -227,9 +227,9 @@ impl Console {
             colors::COLOR_UI_1,
             colors::COLOR_CLEAR
         );
-
+        
         let mut y = 1;
-        for m in game.game_log.iter().rev() {
+        for m in game.engine.get_log().messages.iter().rev() {
             for ms in m.chars().collect::<Vec<_>>().chunks(self.size.0 / GLYPH_SIZE - 2) {
                 if y * GLYPH_SIZE < self.size.1 - GLYPH_SIZE {
                     let s: String = ms.into_iter().collect();

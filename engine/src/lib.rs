@@ -54,6 +54,22 @@ impl Engine {
         }
     }
 
+    pub fn get_log(&self) -> UniqueView<'_, GameLog> {
+        self.world.borrow::<UniqueView<GameLog>>().unwrap()
+    }
+
+    pub fn get_log_mut(&self) -> UniqueViewMut<'_, GameLog> {
+        self.world.borrow::<UniqueViewMut<GameLog>>().unwrap()
+    }
+
+    pub fn get_map(&self) -> UniqueView<'_, Map> {
+        self.world.borrow::<UniqueView<Map>>().unwrap()
+    }
+
+    pub fn get_player_id(&self) -> UniqueView<'_, PlayerID> {
+        self.world.borrow::<UniqueView<PlayerID>>().unwrap()
+    }
+
     pub fn run_systems(world: &mut World, _player_turn: bool, ai_turn: bool) {
         // // if player_turn {
         // world.run(system_fire::run_fire_system);

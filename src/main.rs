@@ -32,7 +32,6 @@ pub struct Game {
     pub assets: Assets,
     pub tick: i32,
     pub image: Image,
-    pub game_log: Vec<String>
 }
 
 impl Game {
@@ -43,7 +42,6 @@ impl Game {
             assets: Assets::new(),
             tick: 0,
             image: (Vec::new(), (0, 0)),
-            game_log: Vec::new(),
         }
     }
 
@@ -51,7 +49,7 @@ impl Game {
     fn update(&mut self) {
         self.tick += 1;
         if self.tick % 100 == 0 {
-            self.game_log.push(format!("Test {}", self.tick / 100));
+            self.engine.get_log_mut().messages.push(format!("Test {}", self.tick / 100));
         }
     }
 
@@ -85,15 +83,10 @@ fn main() -> Result<(), Error> {
         Pixels::new(WIDTH as u32, HEIGHT as u32, surface_texture)?
     };
 
-    // Generate a world map
     let mut game = Game::new();
     game.engine.reset_engine(get_settings(GameMode::RL));
-    // worldgen::basic_fill(&mut game.engine.world.borrow::<UniqueViewMut<Map>>().unwrap());
+    game.engine.get_log_mut().messages.push("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.".to_string());
     game.screen.setup_consoles();
-    game.game_log.push("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.".to_string());
-
-    // Generate a texture
-    // world.image = worldgen::world::basic();
 
     // main event loop
     event_loop.run(move |event, _, control_flow| {
