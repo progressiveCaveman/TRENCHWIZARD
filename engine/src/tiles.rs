@@ -1,6 +1,6 @@
 use serde::{Serialize, Deserialize};
 
-use crate::colors::{Color, self};
+use crate::colors::{Color, self, ColorUtils};
 
 #[derive(PartialEq, Copy, Clone, Debug, Serialize, Deserialize)]
 pub enum TileType {
@@ -32,7 +32,7 @@ impl TileType {
             TileType::Floor => ('.', colors::COLOR_WALL, colors::COLOR_BG),
             TileType::StairsDown => ('>', colors::COLOR_WALL, colors::COLOR_BG),
             TileType::StairsUp => ('<', colors::COLOR_WALL, colors::COLOR_BG),
-            TileType::Grass => (',', colors::COLOR_GREEN, colors::COLOR_BG),
+            TileType::Grass => (',', colors::COLOR_GREEN, colors::COLOR_GREEN.scale(0.5)),
             TileType::Wheat => ('{', colors::COLOR_AMBER, colors::COLOR_BG),
             TileType::WoodWall => ('#', colors::COLOR_DARKEST_AMBER, colors::COLOR_BG),
             TileType::WoodDoor => ('+', colors::COLOR_DARKEST_AMBER, colors::COLOR_BG),

@@ -189,9 +189,10 @@ impl Console {
                     let xmap = self.map_pos.0 + (xscreen - self.pos.0) / self.zoom;
                     let ymap = self.map_pos.1 + (yscreen - self.pos.1) / self.zoom;
 
+                    // calculate whether we're on a border for glyph fg render
                     let xmod = self.map_pos.0 + (xscreen - self.pos.0) % self.zoom;
                     let ymod = self.map_pos.1 + (yscreen - self.pos.1) % self.zoom;
-                    let border = xmod == 0 || xmod == GLYPH_SIZE - 1 || ymod == 0 || ymod == GLYPH_SIZE - 1;
+                    let border = xmod < self.zoom / 4 || xmod >= self.zoom * 3 / 4 || ymod < self.zoom / 4 || ymod >= self.zoom * 3 / 4;
 
                     if map.in_bounds((xmap, ymap)) { 
                         let r = tiles[map.xy_idx((xmap, ymap))].renderable();

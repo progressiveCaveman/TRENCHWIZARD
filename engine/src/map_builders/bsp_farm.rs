@@ -63,7 +63,7 @@ impl BspFarmBuilder {
         for x in 1..self.map.size.0 - 1 {
             for y in 1..self.map.size.1 - 1 {
                 let idx = self.map.xy_idx((x, y));
-                self.map.tiles[idx] = TileType::Dirt;
+                self.map.tiles[idx] = TileType::Grass;
             }
         }
 

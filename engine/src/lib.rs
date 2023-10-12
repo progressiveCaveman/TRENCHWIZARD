@@ -155,7 +155,7 @@ impl Engine {
         // TODO eventually this should not look at mode, but use map vonfig info from settings
         let mut map_builder = match settings.mode {
             GameMode::VillageSim => map_builders::village_builder(new_depth, settings.mapsize),
-            GameMode::RL => map_builders::random_builder(new_depth, settings.mapsize),
+            GameMode::RL => map_builders::rl_builder(new_depth, settings.mapsize),
             GameMode::OrcHalls => map_builders::orc_halls_builder(new_depth, settings.mapsize),
         };
 
