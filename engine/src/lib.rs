@@ -9,6 +9,7 @@ use rltk::Point;
 use shipyard::{
     EntitiesView, EntityId, Get, UniqueView, UniqueViewMut, View, ViewMut, World, AllStoragesViewMut,
 };
+use systems::system_map_indexing;
 
 pub mod components;
 pub mod map;
@@ -19,6 +20,7 @@ pub mod colors;
 pub mod worldgen;
 pub mod game_modes;
 pub mod tiles;
+pub mod systems;
 
 pub const SHOW_MAPGEN_ANIMATION: bool = true;
 pub const MAPGEN_FRAME_TIME: f32 = 25.0;
@@ -70,7 +72,9 @@ impl Engine {
         self.world.borrow::<UniqueView<PlayerID>>().unwrap()
     }
 
-    pub fn run_systems(world: &mut World, _player_turn: bool, ai_turn: bool) {
+    pub fn run_systems(&self) {
+        self.world.run(system_map_indexing::run_map_indexing_system);
+
         // // if player_turn {
         // world.run(system_fire::run_fire_system);
         // // }
@@ -151,7 +155,7 @@ impl Engine {
         // TODO eventually this should not look at mode, but use map vonfig info from settings
         let mut map_builder = match settings.mode {
             GameMode::VillageSim => map_builders::village_builder(new_depth, settings.mapsize),
-            GameMode::RL => map_builders::rl_builder(new_depth, settings.mapsize),
+            GameMode::RL => map_builders::random_builder(new_depth, settings.mapsize),
             GameMode::OrcHalls => map_builders::orc_halls_builder(new_depth, settings.mapsize),
         };
 

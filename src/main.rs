@@ -76,7 +76,7 @@ impl Game {
         // Main loop
         match self.state {
             GameState::Waiting => {
-
+                self.engine.run_systems();
             },
             GameState::MainMenu => {
 
