@@ -180,7 +180,7 @@ impl Engine {
                     pos.ps[0] = ppos.0;
                 }
 
-                if let Ok(mut vs) = (&mut vvs).get(player_id.0) {
+                if let Ok(vs) = (&mut vvs).get(player_id.0) {
                     vs.dirty = true;
                 }
             },

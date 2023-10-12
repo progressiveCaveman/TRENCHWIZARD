@@ -56,7 +56,7 @@ use crate::{Game, WIDTH, assets::cp437_converter::to_cp437};
 
 use super::{Glyph, GLYPH_SIZE, DEBUG_OUTLINES, UIState};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ConsoleMode {
     MainMenu,
     WorldMap,
@@ -171,9 +171,7 @@ impl Console {
         let map = game.engine.world.borrow::<UniqueView<Map>>().unwrap();
         let screen = &game.screen;
 
-        let zoom = self.zoom; // each tile takes up zoom x zoom pixels
-
-        if zoom < GLYPH_SIZE {
+        if self.zoom < GLYPH_SIZE {
             for (i, pixel) in frame.chunks_exact_mut(4).enumerate() {
                 let xscreen = i % WIDTH;
                 let yscreen = i / WIDTH;
@@ -182,8 +180,8 @@ impl Console {
                 let yrange = self.pos.1..self.pos.1 + self.size.1;
 
                 if xrange.contains(&xscreen) && yrange.contains(&yscreen) {
-                    let xmap = self.map_pos.0 + (xscreen - self.pos.0) / zoom;
-                    let ymap = self.map_pos.1 + (yscreen - self.pos.1) / zoom;
+                    let xmap = self.map_pos.0 + (xscreen - self.pos.0) / self.zoom;
+                    let ymap = self.map_pos.1 + (yscreen - self.pos.1) / self.zoom;
 
                     if map.in_bounds((xmap, ymap)) { 
                         pixel.copy_from_slice(&map.get_tile((xmap, ymap)).renderable().2);
@@ -191,20 +189,20 @@ impl Console {
                 }
             }
         } else {
-            let widthchars = self.size.0 / zoom;
-            let heightchars = self.size.1 / zoom;
+            let widthchars = self.size.0 / self.zoom;
+            let heightchars = self.size.1 / self.zoom;
 
             for x in 0 .. widthchars {
                 for y in 0 .. heightchars {
                     let pos = (x + self.map_pos.0, y + self.map_pos.1);
                     // let idx = map.point_idx(point);
-                    if x < self.pos.0 + self.size.0 + zoom && y < self.pos.1 + self.size.1 + zoom && map.in_bounds(pos){
+                    if x < self.pos.0 + self.size.0 + self.zoom && y < self.pos.1 + self.size.1 + self.zoom && map.in_bounds(pos){
                         let render = map.get_tile(pos).renderable();
                         screen.print_cp437(
                             &game.assets,
                             frame,
                             Glyph {
-                                pos: (self.pos.0 + x * zoom, self.pos.1 + y * zoom),
+                                pos: (self.pos.0 + x * self.zoom, self.pos.1 + y * self.zoom),
                                 ch: to_cp437(render.0),
                                 fg: render.1,
                                 bg: render.2,

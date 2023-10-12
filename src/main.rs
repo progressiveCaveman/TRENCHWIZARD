@@ -7,7 +7,8 @@ use input_handler::{handle_input, Action};
 use log::error;
 use pixels::{Error, Pixels, SurfaceTexture};
 
-use screen::Screen;
+use screen::{Screen, MAX_ZOOM};
+use screen::console::ConsoleMode;
 use winit::dpi::LogicalSize;
 use winit::event::Event;
 use winit::event_loop::{ControlFlow, EventLoop};
@@ -45,8 +46,18 @@ impl Game {
         }
     }
 
-    /// Update the `World` internal state
+    /// Update the game state
     fn update(&mut self) {
+        // automatically zoom in on small maps
+        let map = self.engine.get_map();
+        for c in self.screen.consoles.iter_mut() {
+            if c.mode == ConsoleMode::WorldMap {
+                while c.zoom < MAX_ZOOM && (c.zoom + 1) * map.size.0 < c.size.0 && (c.zoom + 1) * map.size.1 < c.size.1 {
+                    c.zoom += 1;
+                }
+            }
+        }
+
         self.tick += 1;
         if self.tick % 100 == 0 {
             self.engine.get_log_mut().messages.push(format!("Test {}", self.tick / 100));

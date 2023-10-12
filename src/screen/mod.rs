@@ -15,7 +15,7 @@ use self::console::{Console, ConsoleMode};
 
 pub mod console;
 
-const MAX_ZOOM: usize = 8;
+pub const MAX_ZOOM: usize = 8;
 const GLYPH_SIZE: usize = 8;
 const DEBUG_OUTLINES: bool = false;
 
@@ -27,7 +27,7 @@ pub enum UIState {
 pub struct Screen {
     pub size: (usize, usize),
     pub input_blocking: bool,
-    consoles: Vec<Console>,
+    pub consoles: Vec<Console>,
     pub ui_state: UIState,
 }
 
@@ -111,7 +111,7 @@ impl Screen {
             let rgba = [0x00, 0x00, 0x00, 0x00];
             pixel.copy_from_slice(&rgba);
         }
-        
+
         for c in self.consoles.iter() {
             if !c.hidden {
                 c.render(frame, game);
