@@ -37,4 +37,8 @@ impl Rect {
     pub fn height(&self) -> i32 {
         self.y2 - self.y1
     }
+
+    pub fn size(&self) -> i32 {
+        self.width() * self.height()
+    }
 }

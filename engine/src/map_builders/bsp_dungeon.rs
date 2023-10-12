@@ -68,6 +68,9 @@ impl BspDungeonBuilder {
         let mut n_rooms = 0;
         while n_rooms < 240 {
             let rect = self.get_random_rect(&mut rng);
+            if rect.size() < 8 {
+                continue;
+            }
             let candidate = self.get_random_sub_rect(rect, &mut rng);
 
             if self.is_possible(candidate) {
@@ -134,8 +137,8 @@ impl BspDungeonBuilder {
 
     fn get_random_sub_rect(&self, rect: Rect, rng: &mut RandomNumberGenerator) -> Rect {
         let mut result = rect.clone();
-        let rect_width = (rect.x1 - rect.x2) as i32;
-        let rect_height = (rect.y1 - rect.y2) as i32;
+        let rect_width = i32::abs(rect.x1 - rect.x2);
+        let rect_height = i32::abs(rect.y1 - rect.y2);
 
         let w = i32::max(3, rng.roll_dice(1, i32::min(rect_width, 10)) - 1) + 1;
         let h = i32::max(3, rng.roll_dice(1, i32::min(rect_height, 10)) - 1) + 1;
