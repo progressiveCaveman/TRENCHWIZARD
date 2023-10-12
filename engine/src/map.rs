@@ -29,7 +29,7 @@ impl Map {
     }
 
     pub fn reset_tiles(&mut self, tile: TileType) {
-        self.tiles.iter().for_each(|mut t| t = &tile);
+        self.tiles.iter_mut().for_each(|t| *t = tile);
     }
 
     pub fn len(&self) -> usize {
@@ -71,16 +71,6 @@ impl Map {
     //     }
     //     return true;
     // }
-
-    pub fn get_glyph(&self, p: (usize, usize)) -> char {
-        match self.tiles[self.xy_idx(p)] {
-            TileType::Water => '~',
-            TileType::Sand => '.',
-            TileType::Dirt => '.',
-            TileType::Stone => '#',
-            _ => '!'
-        }
-    }
 
     pub fn is_wall(&self, x: usize, y: usize) -> bool {
         let idx = self.xy_idx((x, y));

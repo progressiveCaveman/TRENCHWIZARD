@@ -8,7 +8,7 @@ use crate::components::{
     LocomotionType, Locomotive, LumberMill, MeleeDefenseBonus, MeleePowerBonus, Name, PlankHouse, Player, Position,
     ProvidesHealing, Ranged, Renderable, SpatialKnowledge, Spawner, SpawnerType, Tree, Vision, RNG,
 };
-use crate::map::{Map};
+use crate::map::Map;
 // use crate::systems::system_fire::NEW_FIRE_TURNS;
 // use crate::weighted_table::WeightedTable;
 use crate::RenderOrder;

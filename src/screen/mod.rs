@@ -106,6 +106,12 @@ impl Screen {
     }
 
     pub fn draw(&self, frame: &mut [u8], game: &Game) {
+        // clear screen
+        for (_, pixel) in frame.chunks_exact_mut(4).enumerate() {
+            let rgba = [0x00, 0x00, 0x00, 0x00];
+            pixel.copy_from_slice(&rgba);
+        }
+        
         for c in self.consoles.iter() {
             if !c.hidden {
                 c.render(frame, game);

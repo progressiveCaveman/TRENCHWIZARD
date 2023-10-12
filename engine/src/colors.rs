@@ -225,6 +225,7 @@ pub const COLOR_DIRT: Color = COLOR_DARKER_GREEN;
 pub const COLOR_STONE: Color = COLOR_GREY;
 pub const COLOR_BG: Color = COLOR_CLEAR;
 pub const COLOR_ITEM: Color = COLOR_GREY;
+pub const COLOR_WALL: Color = COLOR_WHITE;
 
 pub const COLOR_FIRE: RGBA = RGBA {
     r: 0.88,
