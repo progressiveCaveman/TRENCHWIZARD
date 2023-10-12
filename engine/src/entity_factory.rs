@@ -1,24 +1,26 @@
 use std::collections::HashMap;
 
-use crate::ai::labors::AIBehaviors;
+use crate::colors::{*};
+// use crate::ai::labors::AIBehaviors;
 use crate::components::{
     Actor, ActorType, AreaOfEffect, BlocksTile, ChiefHouse, CombatStats, Confusion, Consumable, DealsDamage,
     DijkstraMapToMe, EquipmentSlot, Equippable, Faction, Fire, FishCleaner, Flammable, Inventory, Item, ItemType,
     LocomotionType, Locomotive, LumberMill, MeleeDefenseBonus, MeleePowerBonus, Name, PlankHouse, Player, Position,
-    ProvidesHealing, Ranged, Renderable, SpatialKnowledge, Spawner, SpawnerType, Tree, Vision,
+    ProvidesHealing, Ranged, Renderable, SpatialKnowledge, Spawner, SpawnerType, Tree, Vision, RNG,
 };
-use crate::map::{Map, TileType};
-use crate::palette::Palette;
-use crate::rect::Rect;
-use crate::systems::system_fire::NEW_FIRE_TURNS;
-use crate::weighted_table::WeightedTable;
+use crate::map::{Map};
+// use crate::systems::system_fire::NEW_FIRE_TURNS;
+// use crate::weighted_table::WeightedTable;
 use crate::RenderOrder;
-use rltk::{DijkstraMap, Point, RandomNumberGenerator};
-use shipyard::{AllStoragesViewMut, EntityId, UniqueView};
+use crate::tiles::TileType;
+use crate::utils::rect::Rect;
+use crate::utils::weighted_table::WeightedTable;
+use rltk::{DijkstraMap, Point};
+use shipyard::{AllStoragesViewMut, EntityId, UniqueView, UniqueViewMut};
 
-const MAX_MONSTERS: i32 = 4;
+const MAX_MONSTERS: usize = 4;
 
-pub fn room_table(depth: i32) -> WeightedTable {
+pub fn room_table(depth: usize) -> WeightedTable {
     WeightedTable::new()
         .add("Wolf", 10)
         .add("Goblin", 10)
@@ -33,13 +35,13 @@ pub fn room_table(depth: i32) -> WeightedTable {
         .add("Tower Shield", depth - 1)
 }
 
-pub fn spawn_room(store: &mut AllStoragesViewMut, map: &Map, room: &Rect, depth: i32) {
+pub fn spawn_room(store: &mut AllStoragesViewMut, map: &Map, room: &Rect, depth: usize) {
     let mut possible_targets: Vec<usize> = Vec::new();
     {
         // Borrow scope - to keep access to the map separated
         for y in room.y1 + 1..room.y2 {
             for x in room.x1 + 1..room.x2 {
-                let idx = map.xy_idx(x, y);
+                let idx = map.xy_idx((x as usize, y as usize));
                 if map.tiles[idx] == TileType::Floor {
                     possible_targets.push(idx);
                 }
@@ -50,17 +52,18 @@ pub fn spawn_room(store: &mut AllStoragesViewMut, map: &Map, room: &Rect, depth:
     spawn_region(store, &possible_targets, depth);
 }
 
-pub fn spawn_region(store: &mut AllStoragesViewMut, area: &[usize], map_depth: i32) {
+pub fn spawn_region(store: &mut AllStoragesViewMut, area: &[usize], map_depth: usize) {
     let spawn_table = room_table(map_depth);
     let mut spawn_points: HashMap<usize, String> = HashMap::new();
     let mut areas: Vec<usize> = Vec::from(area);
 
     // Scope to keep the borrow checker happy
     {
-        let mut rng = RandomNumberGenerator::new();
-        let num_spawns = i32::min(
-            areas.len() as i32,
-            rng.roll_dice(1, MAX_MONSTERS + 3) + (map_depth - 1) - 3,
+        let mut rng = &mut store.borrow::<UniqueViewMut<RNG>>().unwrap().0;
+
+        let num_spawns = usize::min(
+            areas.len() as usize,
+            rng.roll_dice(1, MAX_MONSTERS as i32 + 3) as usize + (map_depth - 1) - 3,
         );
         if num_spawns == 0 {
             return;
@@ -104,15 +107,15 @@ fn spawn_entity(store: &mut AllStoragesViewMut, spawn: &(&usize, &String)) {
     };
 }
 
-pub fn player(store: &mut AllStoragesViewMut, pos: (i32, i32)) -> EntityId {
+pub fn player(store: &mut AllStoragesViewMut, pos: (usize, usize)) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point { x: pos.0, y: pos.1 }],
+            ps: vec![Point::new(pos.0, pos.1)],
         },
         Renderable {
             glyph: rltk::to_cp437('@'),
-            fg: Palette::COLOR_PURPLE,
-            bg: Palette::MAIN_BG,
+            fg: COLOR_PURPLE.to_rgba(),
+            bg: COLOR_BG.to_rgba(),
             order: RenderOrder::Player,
             ..Default::default()
         },
@@ -120,7 +123,7 @@ pub fn player(store: &mut AllStoragesViewMut, pos: (i32, i32)) -> EntityId {
         Actor {
             faction: Faction::Player,
             atype: ActorType::Player,
-            behaviors: Vec::new(),
+            // //behaviors: Vec::new(),
         },
         Locomotive {
             mtype: LocomotionType::Ground,
@@ -151,15 +154,15 @@ pub fn player(store: &mut AllStoragesViewMut, pos: (i32, i32)) -> EntityId {
 
 /// Monsters
 
-pub fn villager(store: &mut AllStoragesViewMut, x: i32, y: i32) -> EntityId {
+pub fn villager(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point { x, y }],
+            ps: vec![Point::new( x, y )],
         },
         Renderable {
             glyph: rltk::to_cp437('v'),
-            fg: Palette::COLOR_RED,
-            bg: Palette::MAIN_BG,
+            fg: COLOR_RED.to_rgba(),
+            bg: COLOR_BG.to_rgba(),
             order: RenderOrder::NPC,
             ..Default::default()
         },
@@ -184,20 +187,20 @@ pub fn villager(store: &mut AllStoragesViewMut, x: i32, y: i32) -> EntityId {
         Actor {
             faction: Faction::Villager,
             atype: ActorType::Villager,
-            behaviors: vec![AIBehaviors::GatherWood, AIBehaviors::GatherFish, AIBehaviors::Wander],
+            //behaviors: vec![AIBehaviors::GatherWood, AIBehaviors::GatherFish, AIBehaviors::Wander],
         },
     ))
 }
 
-pub fn fish(store: &mut AllStoragesViewMut, x: i32, y: i32) -> EntityId {
+pub fn fish(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point { x, y }],
+            ps: vec![Point::new( x, y )],
         },
         Renderable {
             glyph: rltk::to_cp437('f'),
-            fg: Palette::COLOR_AMBER,
-            bg: Palette::MAIN_BG,
+            fg: COLOR_AMBER.to_rgba(),
+            bg: COLOR_BG.to_rgba(),
             order: RenderOrder::NPC,
             ..Default::default()
         },
@@ -216,29 +219,29 @@ pub fn fish(store: &mut AllStoragesViewMut, x: i32, y: i32) -> EntityId {
         Actor {
             faction: Faction::Nature,
             atype: ActorType::Fish,
-            behaviors: Vec::new(),
+            //behaviors: Vec::new(),
         },
         Item { typ: ItemType::Fish },
     ))
 }
 
-pub fn orc(store: &mut AllStoragesViewMut, x: i32, y: i32) -> EntityId {
+pub fn orc(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
     monster(store, x, y, rltk::to_cp437('o'), "Orc".to_string())
 }
 
-pub fn goblin(store: &mut AllStoragesViewMut, x: i32, y: i32) -> EntityId {
+pub fn goblin(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
     monster(store, x, y, rltk::to_cp437('g'), "Goblin".to_string())
 }
 
-pub fn monster(store: &mut AllStoragesViewMut, x: i32, y: i32, glyph: rltk::FontCharType, name: String) -> EntityId {
+pub fn monster(store: &mut AllStoragesViewMut, x: usize, y: usize, glyph: rltk::FontCharType, name: String) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point { x, y }],
+            ps: vec![Point::new( x, y )],
         },
         Renderable {
             glyph,
-            fg: Palette::COLOR_RED,
-            bg: Palette::MAIN_BG,
+            fg: COLOR_RED.to_rgba(),
+            bg: COLOR_BG.to_rgba(),
             order: RenderOrder::NPC,
             ..Default::default()
         },
@@ -250,7 +253,7 @@ pub fn monster(store: &mut AllStoragesViewMut, x: i32, y: i32, glyph: rltk::Font
         Actor {
             faction: Faction::Orcs,
             atype: ActorType::Orc,
-            behaviors: vec![AIBehaviors::AttackEnemies],
+            //behaviors: vec![AIBehaviors::AttackEnemies],
         },
         Locomotive {
             mtype: LocomotionType::Ground,
@@ -272,15 +275,15 @@ pub fn monster(store: &mut AllStoragesViewMut, x: i32, y: i32, glyph: rltk::Font
     ))
 }
 
-pub fn wolf(store: &mut AllStoragesViewMut, x: i32, y: i32) -> EntityId {
+pub fn wolf(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point { x, y }],
+            ps: vec![Point::new( x, y )],
         },
         Renderable {
             glyph: rltk::to_cp437('w'),
-            fg: Palette::COLOR_RED,
-            bg: Palette::MAIN_BG,
+            fg: COLOR_RED.to_rgba(),
+            bg: COLOR_BG.to_rgba(),
             order: RenderOrder::NPC,
             ..Default::default()
         },
@@ -292,7 +295,7 @@ pub fn wolf(store: &mut AllStoragesViewMut, x: i32, y: i32) -> EntityId {
         Actor {
             faction: Faction::Nature,
             atype: ActorType::Wolf,
-            behaviors: vec![AIBehaviors::AttackEnemies],
+            //behaviors: vec![AIBehaviors::AttackEnemies],
         },
         Locomotive {
             mtype: LocomotionType::Ground,
@@ -313,20 +316,20 @@ pub fn wolf(store: &mut AllStoragesViewMut, x: i32, y: i32) -> EntityId {
 }
 
 #[allow(dead_code)]
-pub fn big_monster(store: &mut AllStoragesViewMut, x: i32, y: i32) -> EntityId {
+pub fn big_monster(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
     store.add_entity((
         Position {
             ps: vec![
-                Point { x, y },
-                Point { x: x + 1, y },
-                Point { x, y: y + 1 },
-                Point { x: x + 1, y: y + 1 },
+                Point::new(x, y),
+                Point::new(x + 1, y),
+                Point::new(x, y + 1),
+                Point::new(x + 1, y + 1),
             ],
         },
         Renderable {
             glyph: rltk::to_cp437('o'),
-            fg: Palette::COLOR_RED,
-            bg: Palette::MAIN_BG,
+            fg: COLOR_RED.to_rgba(),
+            bg: COLOR_BG.to_rgba(),
             order: RenderOrder::NPC,
             ..Default::default()
         },
@@ -338,7 +341,7 @@ pub fn big_monster(store: &mut AllStoragesViewMut, x: i32, y: i32) -> EntityId {
         Actor {
             faction: Faction::Orcs,
             atype: ActorType::Orc,
-            behaviors: vec![AIBehaviors::AttackEnemies],
+            //behaviors: vec![AIBehaviors::AttackEnemies],
         },
         Locomotive {
             mtype: LocomotionType::Ground,
@@ -360,15 +363,15 @@ pub fn big_monster(store: &mut AllStoragesViewMut, x: i32, y: i32) -> EntityId {
 
 /// consumables
 
-pub fn health_potion(store: &mut AllStoragesViewMut, x: i32, y: i32) -> EntityId {
+pub fn health_potion(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point { x, y }],
+            ps: vec![Point::new( x, y )],
         },
         Renderable {
             glyph: rltk::to_cp437('p'),
-            fg: Palette::COLOR_4,
-            bg: Palette::MAIN_BG,
+            fg: COLOR_ITEM.to_rgba(),
+            bg: COLOR_BG.to_rgba(),
             order: RenderOrder::Items,
             ..Default::default()
         },
@@ -381,15 +384,15 @@ pub fn health_potion(store: &mut AllStoragesViewMut, x: i32, y: i32) -> EntityId
     ))
 }
 
-pub fn magic_missile_scroll(store: &mut AllStoragesViewMut, x: i32, y: i32) -> EntityId {
+pub fn magic_missile_scroll(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point { x, y }],
+            ps: vec![Point::new( x, y )],
         },
         Renderable {
             glyph: rltk::to_cp437('('),
-            fg: Palette::COLOR_4,
-            bg: Palette::MAIN_BG,
+            fg: COLOR_ITEM.to_rgba(),
+            bg: COLOR_BG.to_rgba(),
             order: RenderOrder::Items,
             ..Default::default()
         },
@@ -403,15 +406,15 @@ pub fn magic_missile_scroll(store: &mut AllStoragesViewMut, x: i32, y: i32) -> E
     ))
 }
 
-pub fn fireball_scroll(store: &mut AllStoragesViewMut, x: i32, y: i32) -> EntityId {
+pub fn fireball_scroll(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point { x, y }],
+            ps: vec![Point::new( x, y )],
         },
         Renderable {
             glyph: rltk::to_cp437('*'),
-            fg: Palette::COLOR_4,
-            bg: Palette::MAIN_BG,
+            fg: COLOR_ITEM.to_rgba(),
+            bg: COLOR_BG.to_rgba(),
             order: RenderOrder::Items,
             ..Default::default()
         },
@@ -426,15 +429,15 @@ pub fn fireball_scroll(store: &mut AllStoragesViewMut, x: i32, y: i32) -> Entity
     ))
 }
 
-pub fn confusion_scroll(store: &mut AllStoragesViewMut, x: i32, y: i32) -> EntityId {
+pub fn confusion_scroll(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point { x, y }],
+            ps: vec![Point::new( x, y )],
         },
         Renderable {
             glyph: rltk::to_cp437('&'),
-            fg: Palette::COLOR_4,
-            bg: Palette::MAIN_BG,
+            fg: COLOR_ITEM.to_rgba(),
+            bg: COLOR_BG.to_rgba(),
             order: RenderOrder::Items,
             ..Default::default()
         },
@@ -450,15 +453,15 @@ pub fn confusion_scroll(store: &mut AllStoragesViewMut, x: i32, y: i32) -> Entit
 
 /// equippables
 
-pub fn dagger(store: &mut AllStoragesViewMut, x: i32, y: i32) -> EntityId {
+pub fn dagger(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point { x, y }],
+            ps: vec![Point::new( x, y )],
         },
         Renderable {
             glyph: rltk::to_cp437('│'),
-            fg: Palette::COLOR_3,
-            bg: Palette::MAIN_BG,
+            fg: COLOR_ITEM.to_rgba(),
+            bg: COLOR_BG.to_rgba(),
             order: RenderOrder::Items,
             ..Default::default()
         },
@@ -473,15 +476,15 @@ pub fn dagger(store: &mut AllStoragesViewMut, x: i32, y: i32) -> EntityId {
     ))
 }
 
-pub fn longsword(store: &mut AllStoragesViewMut, x: i32, y: i32) -> EntityId {
+pub fn longsword(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point { x, y }],
+            ps: vec![Point::new( x, y )],
         },
         Renderable {
             glyph: rltk::to_cp437('│'),
-            fg: Palette::COLOR_3,
-            bg: Palette::MAIN_BG,
+            fg: COLOR_ITEM.to_rgba(),
+            bg: COLOR_BG.to_rgba(),
             order: RenderOrder::Items,
             ..Default::default()
         },
@@ -496,15 +499,15 @@ pub fn longsword(store: &mut AllStoragesViewMut, x: i32, y: i32) -> EntityId {
     ))
 }
 
-pub fn shield(store: &mut AllStoragesViewMut, x: i32, y: i32) -> EntityId {
+pub fn shield(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point { x, y }],
+            ps: vec![Point::new( x, y )],
         },
         Renderable {
             glyph: rltk::to_cp437('°'),
-            fg: Palette::COLOR_4,
-            bg: Palette::MAIN_BG,
+            fg: COLOR_ITEM.to_rgba(),
+            bg: COLOR_BG.to_rgba(),
             order: RenderOrder::Items,
             ..Default::default()
         },
@@ -519,15 +522,15 @@ pub fn shield(store: &mut AllStoragesViewMut, x: i32, y: i32) -> EntityId {
     ))
 }
 
-pub fn tower_shield(store: &mut AllStoragesViewMut, x: i32, y: i32) -> EntityId {
+pub fn tower_shield(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point { x, y }],
+            ps: vec![Point::new( x, y )],
         },
         Renderable {
             glyph: rltk::to_cp437('°'),
-            fg: Palette::COLOR_4,
-            bg: Palette::MAIN_BG,
+            fg: COLOR_ITEM.to_rgba(),
+            bg: COLOR_BG.to_rgba(),
             order: RenderOrder::Items,
             ..Default::default()
         },
@@ -542,15 +545,15 @@ pub fn tower_shield(store: &mut AllStoragesViewMut, x: i32, y: i32) -> EntityId 
     ))
 }
 
-pub fn log(store: &mut AllStoragesViewMut, x: i32, y: i32) -> EntityId {
+pub fn log(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point { x, y }],
+            ps: vec![Point::new( x, y )],
         },
         Renderable {
             glyph: rltk::to_cp437('='),
-            fg: Palette::COLOR_CEDAR,
-            bg: Palette::MAIN_BG,
+            fg: COLOR_CEDAR,
+            bg: COLOR_BG.to_rgba(),
             order: RenderOrder::Items,
             ..Default::default()
         },
@@ -566,20 +569,20 @@ pub fn log(store: &mut AllStoragesViewMut, x: i32, y: i32) -> EntityId {
 
 pub fn spawner(
     store: &mut AllStoragesViewMut,
-    x: i32,
-    y: i32,
+    x: usize,
+    y: usize,
     faction: Faction,
     typ: SpawnerType,
-    rate: i32,
+    rate: usize,
 ) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point { x, y }],
+            ps: vec![Point::new( x, y )],
         },
         Renderable {
             glyph: rltk::to_cp437('&'),
-            fg: Palette::FACTION_COLORS[faction as usize],
-            bg: Palette::MAIN_BG,
+            fg: FACTION_COLORS[faction as usize],
+            bg: COLOR_BG.to_rgba(),
             order: RenderOrder::Items,
             ..Default::default()
         },
@@ -590,20 +593,20 @@ pub fn spawner(
         Actor {
             atype: ActorType::Spawner,
             faction,
-            behaviors: Vec::new(),
+            //behaviors: Vec::new(),
         },
     ))
 }
 
-pub fn tree(store: &mut AllStoragesViewMut, x: i32, y: i32) -> EntityId {
+pub fn tree(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point { x, y }],
+            ps: vec![Point::new( x, y )],
         },
         Renderable {
             glyph: rltk::to_cp437('|'),
-            fg: Palette::COLOR_CEDAR,
-            bg: Palette::MAIN_BG,
+            fg: COLOR_CEDAR,
+            bg: COLOR_BG.to_rgba(),
             order: RenderOrder::Items,
             ..Default::default()
         },
@@ -615,11 +618,11 @@ pub fn tree(store: &mut AllStoragesViewMut, x: i32, y: i32) -> EntityId {
     ))
 }
 
-pub fn plank_house(store: &mut AllStoragesViewMut, x: i32, y: i32, width: i32, height: i32) -> EntityId {
+pub fn plank_house(store: &mut AllStoragesViewMut, x: usize, y: usize, width: usize, height: usize) -> EntityId {
     let mut ps = vec![];
     for xi in 0..width {
         for yi in 0..height {
-            ps.push(Point { x: x + xi, y: y + yi });
+            ps.push(Point::new( x + xi, y + yi));
         }
     }
 
@@ -629,8 +632,8 @@ pub fn plank_house(store: &mut AllStoragesViewMut, x: i32, y: i32, width: i32, h
         Position { ps },
         Renderable {
             glyph: rltk::to_cp437('#'),
-            fg: Palette::COLOR_CEDAR,
-            bg: Palette::MAIN_BG,
+            fg: COLOR_CEDAR,
+            bg: COLOR_BG.to_rgba(),
             order: RenderOrder::Items,
             ..Default::default()
         },
@@ -646,11 +649,11 @@ pub fn plank_house(store: &mut AllStoragesViewMut, x: i32, y: i32, width: i32, h
     ))
 }
 
-pub fn chief_house(store: &mut AllStoragesViewMut, x: i32, y: i32, width: i32, height: i32) -> EntityId {
+pub fn chief_house(store: &mut AllStoragesViewMut, x: usize, y: usize, width: usize, height: usize) -> EntityId {
     let mut ps = vec![];
     for xi in 0..width {
         for yi in 0..height {
-            ps.push(Point { x: x + xi, y: y + yi });
+            ps.push(Point::new(x + xi, y + yi));
         }
     }
 
@@ -660,8 +663,8 @@ pub fn chief_house(store: &mut AllStoragesViewMut, x: i32, y: i32, width: i32, h
         Position { ps },
         Renderable {
             glyph: rltk::to_cp437('#'),
-            fg: Palette::COLOR_CEDAR,
-            bg: Palette::MAIN_BG,
+            fg: COLOR_CEDAR,
+            bg: COLOR_BG.to_rgba(),
             order: RenderOrder::Items,
             ..Default::default()
         },
@@ -674,11 +677,11 @@ pub fn chief_house(store: &mut AllStoragesViewMut, x: i32, y: i32, width: i32, h
     ))
 }
 
-pub fn fish_cleaner(store: &mut AllStoragesViewMut, x: i32, y: i32, width: i32, height: i32) -> EntityId {
+pub fn fish_cleaner(store: &mut AllStoragesViewMut, x: usize, y: usize, width: usize, height: usize) -> EntityId {
     let mut ps = vec![];
     for xi in 0..width {
         for yi in 0..height {
-            ps.push(Point { x: x + xi, y: y + yi });
+            ps.push(Point::new( x + xi, y + yi));
         }
     }
 
@@ -688,8 +691,8 @@ pub fn fish_cleaner(store: &mut AllStoragesViewMut, x: i32, y: i32, width: i32, 
         Position { ps },
         Renderable {
             glyph: rltk::to_cp437('#'),
-            fg: Palette::MAIN_FG,
-            bg: Palette::MAIN_BG,
+            fg: COLOR_UI_1.to_rgba(),
+            bg: COLOR_BG.to_rgba(),
             order: RenderOrder::Items,
             ..Default::default()
         },
@@ -709,11 +712,11 @@ pub fn fish_cleaner(store: &mut AllStoragesViewMut, x: i32, y: i32, width: i32, 
     ))
 }
 
-pub fn lumber_mill(store: &mut AllStoragesViewMut, x: i32, y: i32, width: i32, height: i32) -> EntityId {
+pub fn lumber_mill(store: &mut AllStoragesViewMut, x: usize, y: usize, width: usize, height: usize) -> EntityId {
     let mut ps = vec![];
     for xi in 0..width {
         for yi in 0..height {
-            ps.push(Point { x: x + xi, y: y + yi });
+            ps.push(Point::new( x + xi, y + yi));
         }
     }
 
@@ -723,8 +726,8 @@ pub fn lumber_mill(store: &mut AllStoragesViewMut, x: i32, y: i32, width: i32, h
         Position { ps },
         Renderable {
             glyph: rltk::to_cp437('#'),
-            fg: Palette::COLOR_AMBER,
-            bg: Palette::MAIN_BG,
+            fg: COLOR_AMBER.to_rgba(),
+            bg: COLOR_BG.to_rgba(),
             order: RenderOrder::Items,
             ..Default::default()
         },
@@ -756,6 +759,6 @@ pub fn tmp_fireball(store: &mut AllStoragesViewMut) -> EntityId {
         DealsDamage { damage: 20 },
         Ranged { range: 6 },
         AreaOfEffect { radius: 3 },
-        Fire { turns: NEW_FIRE_TURNS },
+        Fire { turns: 5 },
     ))
 }

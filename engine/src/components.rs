@@ -2,13 +2,34 @@ use std::collections::HashMap;
 
 use rltk::{self, DijkstraMap, Point};
 use serde::{Deserialize, Serialize};
-use shipyard::{Component, EntityId, IntoIter, View};
+use shipyard::{Component, EntityId, IntoIter, View, Unique};
 
 use crate::{
-    ai::labors::AIBehaviors,
-    map::{Map, TileType},
-    RenderOrder,
+    map::Map,
+    RenderOrder, tiles::TileType,
 };
+
+/// Unique components
+
+#[derive(Debug, Unique)]
+pub struct GameLog {
+    pub messages: Vec<String>,
+}
+
+#[derive(Debug, Clone, Unique, Copy)]
+pub struct PlayerID(pub EntityId);
+
+#[derive(Clone, Debug, Unique, Copy)]
+pub struct Turn(pub usize);
+
+#[derive(Clone, Unique)]
+pub struct RNG(pub rltk::RandomNumberGenerator);
+
+#[derive(Clone, Debug, Unique, Copy)]
+pub struct PPoint(pub Point);
+
+#[derive(Clone, Debug, Unique, Copy)]
+pub struct FrameTime(pub f32);
 
 /// Basic UI components
 
@@ -67,7 +88,7 @@ impl Default for Renderable {
 #[derive(Component, Clone, Debug, PartialEq)]
 pub struct Vision {
     pub visible_tiles: Vec<rltk::Point>,
-    pub range: i32,
+    pub range: usize,
     pub dirty: bool,
 }
 
@@ -97,7 +118,7 @@ pub struct Player {}
 pub struct Actor {
     pub atype: ActorType,
     pub faction: Faction,
-    pub behaviors: Vec<AIBehaviors>, // TODO instead of specifying, make a selector. Then give add copy back to this comp
+    // pub behaviors: Vec<AIBehaviors>, // TODO instead of specifying, make a selector. Then give add copy back to this comp
 }
 
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -125,7 +146,7 @@ pub enum ActorType {
 
 #[derive(Component, Clone, Debug, PartialEq)]
 pub struct PlankHouse {
-    pub housing_cap: i32,
+    pub housing_cap: usize,
     pub villagers: Vec<EntityId>,
 }
 
@@ -147,7 +168,7 @@ pub enum SpawnerType {
 #[derive(Component, Copy, Clone, Debug, PartialEq)]
 pub struct Spawner {
     pub typ: SpawnerType,
-    pub rate: i32,
+    pub rate: usize,
 }
 
 #[derive(Component, Copy, Clone, Debug, PartialEq)]
@@ -174,21 +195,21 @@ pub struct BlocksTile {}
 
 #[derive(Component, Copy, Clone, Debug, PartialEq)]
 pub struct CombatStats {
-    pub max_hp: i32,
-    pub hp: i32,
-    pub defense: i32,
-    pub power: i32,
-    pub regen_rate: i32,
+    pub max_hp: usize,
+    pub hp: usize,
+    pub defense: usize,
+    pub power: usize,
+    pub regen_rate: usize,
 }
 
 #[derive(Component, Clone, Debug, PartialEq)]
 pub struct Inventory {
-    pub capacity: i32,
+    pub capacity: usize,
     pub items: Vec<EntityId>,
 }
 
 impl Inventory {
-    pub fn count_type(&self, vitems: &View<Item>, item_type: ItemType) -> i32 {
+    pub fn count_type(&self, vitems: &View<Item>, item_type: ItemType) -> usize {
         let mut count = 0;
         for item in vitems.iter() {
             if item.typ == item_type {
@@ -288,44 +309,44 @@ pub struct Consumable {}
 
 #[derive(Component)]
 pub struct MeleePowerBonus {
-    pub power: i32,
+    pub power: usize,
 }
 
 #[derive(Component)]
 pub struct MeleeDefenseBonus {
-    pub defense: i32,
+    pub defense: usize,
 }
 
 #[derive(Component, Clone, Copy)]
 pub struct ProvidesHealing {
-    pub heal: i32,
+    pub heal: usize,
 }
 
 #[derive(Component)]
 pub struct Ranged {
-    pub range: i32,
+    pub range: usize,
 }
 
 #[derive(Component, Clone, Copy)]
 pub struct DealsDamage {
-    pub damage: i32,
+    pub damage: usize,
 }
 
 #[derive(Component, Clone, Copy)]
 pub struct Confusion {
-    pub turns: i32,
+    pub turns: usize,
 }
 
 #[derive(Component)]
 pub struct AreaOfEffect {
-    pub radius: i32,
+    pub radius: usize,
 }
 
 /// Fire components
 
 #[derive(Component, Clone, Copy)]
 pub struct Fire {
-    pub turns: i32,
+    pub turns: usize,
 }
 
 #[derive(Component, Clone, Copy)]

@@ -49,10 +49,10 @@ label
 
 */
 
-use engine::map::{TileType, Map};
+use engine::{map::Map, colors::{self, ColorUtils}, tiles::TileType};
 use shipyard::UniqueView;
 
-use crate::{colors::{self, Scale}, WIDTH, assets::cp437_converter::to_cp437, game::Game};
+use crate::{Game, WIDTH, assets::cp437_converter::to_cp437};
 
 use super::{Glyph, GLYPH_SIZE, DEBUG_OUTLINES, UIState};
 
@@ -196,7 +196,7 @@ impl Console {
                             TileType::Sand => colors::COLOR_SAND,
                             TileType::Dirt => colors::COLOR_DIRT,
                             TileType::Stone => colors::COLOR_STONE,
-                            _ => unreachable!()
+                            _ => colors::COLOR_CLEAR
                         };
 
                         pixel.copy_from_slice(&rgba);
@@ -211,13 +211,13 @@ impl Console {
                 for y in 0 .. heightchars {
                     let pos = (x + self.map_pos.0, y + self.map_pos.1);
                     // let idx = map.point_idx(point);
-                    if x < self.pos.0 + self.size.0 + zoom && y < self.pos.1 + self.size.1 + zoom && map.in_bounds_new(pos){
-                        let rgba = match map.get_tile(pos) {
+                    if x < self.pos.0 + self.size.0 + zoom && y < self.pos.1 + self.size.1 + zoom && map.in_bounds(pos){
+                        let color = match map.get_tile(pos) {
                             TileType::Water => colors::COLOR_WATER,
                             TileType::Sand => colors::COLOR_SAND,
                             TileType::Dirt => colors::COLOR_DIRT,
                             TileType::Stone => colors::COLOR_STONE,
-                            _ => unreachable!()
+                            _ => colors::COLOR_CLEAR
                         };
                         screen.print_cp437(
                             &game.assets,
@@ -225,8 +225,8 @@ impl Console {
                             Glyph {
                                 pos: (self.pos.0 + x * zoom, self.pos.1 + y * zoom),
                                 ch: to_cp437(map.get_glyph(pos)),
-                                fg: rgba,
-                                bg: rgba.scale(0.5),
+                                fg: color,
+                                bg: color.scale(0.5),
                             }
                         );
                     }

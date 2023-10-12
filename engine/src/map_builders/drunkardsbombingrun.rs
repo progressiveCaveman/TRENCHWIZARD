@@ -1,3 +1,5 @@
+use crate::tiles::TileType;
+use crate::utils::rect::Rect;
 use crate::{entity_factory, SHOW_MAPGEN_ANIMATION};
 use rand::seq::SliceRandom;
 use rand::thread_rng;
@@ -6,12 +8,12 @@ use shipyard::{AllStoragesViewMut, World};
 use std::cmp;
 
 use super::common::apply_drunkards_corrider;
-use super::{Map, MapBuilder, Position, Rect, TileType};
+use super::{Map, MapBuilder, Position};
 
 pub struct DrunkardsBombingRunBuilder {
     map: Map,
     starting_position: Position,
-    depth: i32,
+    depth: usize,
     rooms: Vec<Rect>,
     history: Vec<Map>,
 }
@@ -49,11 +51,11 @@ impl MapBuilder for DrunkardsBombingRunBuilder {
 }
 
 impl DrunkardsBombingRunBuilder {
-    pub fn new(new_depth: i32, size: (i32, i32)) -> DrunkardsBombingRunBuilder {
+    pub fn new(new_depth: usize, size: (usize, usize)) -> DrunkardsBombingRunBuilder {
         DrunkardsBombingRunBuilder {
-            map: Map::new(new_depth, TileType::Wall, size),
+            map: Map::new(size),
             starting_position: Position {
-                ps: vec![Point { x: 0, y: 0 }],
+                ps: vec![Point::new(0, 0)],
             },
             depth: new_depth,
             rooms: Vec::new(),
@@ -68,8 +70,8 @@ impl DrunkardsBombingRunBuilder {
         for _ in 0..max_rooms {
             let w: i32 = rng.range(min_size, max_size);
             let h: i32 = rng.range(min_size, max_size);
-            let x: i32 = rng.range(1, self.map.width - w - 1);
-            let y: i32 = rng.range(1, self.map.height - h - 1);
+            let x: i32 = rng.range(1, self.map.size.0 as i32 - w - 1);
+            let y: i32 = rng.range(1, self.map.size.1 as i32 - h - 1);
 
             let new_room = Rect::new(x, y, w, h);
             let mut place_room = true;
@@ -117,7 +119,7 @@ impl DrunkardsBombingRunBuilder {
         }
 
         let stairs_down_pos = self.rooms[self.rooms.len() - 1].center();
-        let stairs_idx = self.map.xy_idx(stairs_down_pos.0, stairs_down_pos.1);
+        let stairs_idx = self.map.xy_idx((stairs_down_pos.0 as usize, stairs_down_pos.1 as usize));
         self.map.tiles[stairs_idx] = TileType::StairsDown;
 
         let start_pos = self.rooms[0].center();
@@ -164,10 +166,12 @@ impl DrunkardsBombingRunBuilder {
 
         // find largest island and convert to grass
         islands.sort_by(|a, b| b.1.cmp(&a.1));
-        let i0 = &islands.remove(0).0;
-        for i in 0..self.map.tiles.len() {
-            if i0[i] {
-                self.map.tiles[i] = TileType::Water;
+        if !islands.is_empty() {
+            let i0 = &islands.remove(0).0;
+            for i in 0..self.map.tiles.len() {
+                if i0[i] {
+                    self.map.tiles[i] = TileType::Water;
+                }
             }
         }
 
@@ -225,8 +229,8 @@ impl DrunkardsBombingRunBuilder {
             let bomb_radius = 1; //random_gen_get_i(20) != 0 ? 1 : 2;
 
             // bomb
-            for x in cmp::max(0, tx - bomb_radius - 1)..cmp::min(self.map.width as i32, tx + bomb_radius) {
-                for y in cmp::max(0, ty - bomb_radius - 1)..cmp::min(self.map.height as i32, ty + bomb_radius) {
+            for x in cmp::max(0, tx - bomb_radius - 1)..cmp::min(self.map.size.0, tx + bomb_radius) {
+                for y in cmp::max(0, ty - bomb_radius - 1)..cmp::min(self.map.size.1, ty + bomb_radius) {
                     // println!("bomb check {tx} {ty} {x} {y}");
 
                     // check if tile is within the circle
@@ -235,20 +239,20 @@ impl DrunkardsBombingRunBuilder {
                             if x < 0 {
                                 continue;
                             }
-                            if x >= self.map.width {
+                            if x >= self.map.size.0 {
                                 continue;
                             }
                             if y < 0 {
                                 continue;
                             }
-                            if y >= self.map.height {
+                            if y >= self.map.size.1 {
                                 continue;
                             }
                         }
 
                         // if we have at least one tile bombed on screen
                         // push those coordinates to candidate list
-                        let new_idx = self.map.xy_idx(x, y);
+                        let new_idx = self.map.xy_idx((x, y));
                         if self.map.tiles[new_idx] != TileType::Floor {
                             // self.map.set_tile(x, y, TileType::Floor);
                             self.map.tiles[new_idx] = TileType::Floor;
@@ -300,14 +304,14 @@ impl DrunkardsBombingRunBuilder {
                 let (sr, sc) = self.map.idx_xy(sidx);
 
                 for (delta_r, delta_c) in OFFSETS.iter().copied() {
-                    let new_r = sr + delta_r;
-                    let new_c = sc + delta_c;
+                    let new_r = sr as i32 + delta_r;
+                    let new_c = sc as i32 + delta_c;
 
-                    if new_r < 0 || new_r >= self.map.width as i32 || new_c < 0 || new_c >= self.map.height as i32 {
+                    if new_r < 0 || new_r >= self.map.size.0 as i32 || new_c < 0 || new_c >= self.map.size.1 as i32 {
                         continue;
                     }
 
-                    let new_idx = self.map.xy_idx(new_r, new_c);
+                    let new_idx = self.map.xy_idx((new_r as usize, new_c as usize));
 
                     if image[new_idx] == initial_color {
                         cells.push_back(new_idx);

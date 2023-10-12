@@ -3,14 +3,14 @@ use std::collections::HashMap;
 use rltk::{Point, RandomNumberGenerator};
 use shipyard::{AllStoragesViewMut, World};
 
-use crate::{entity_factory, SHOW_MAPGEN_ANIMATION};
+use crate::{entity_factory, SHOW_MAPGEN_ANIMATION, tiles::TileType};
 
-use super::{Map, MapBuilder, Position, TileType};
+use super::{Map, MapBuilder, Position};
 
 pub struct CellularAutomataBuilder {
     map: Map,
     starting_position: Position,
-    depth: i32,
+    depth: usize,
     history: Vec<Map>,
     noise_areas: HashMap<i32, Vec<usize>>,
 }
@@ -47,11 +47,11 @@ impl MapBuilder for CellularAutomataBuilder {
 }
 
 impl CellularAutomataBuilder {
-    pub fn new(new_depth: i32, size: (i32, i32)) -> CellularAutomataBuilder {
+    pub fn new(new_depth: usize, size: (usize, usize)) -> CellularAutomataBuilder {
         CellularAutomataBuilder {
-            map: Map::new(new_depth, TileType::Wall, size),
+            map: Map::new(size),
             starting_position: Position {
-                ps: vec![Point { x: 0, y: 0 }],
+                ps: vec![Point::new(0, 0)],
             },
             depth: new_depth,
             history: Vec::new(),
@@ -63,10 +63,10 @@ impl CellularAutomataBuilder {
         let mut rng = RandomNumberGenerator::new();
 
         // First we completely randomize the map, setting 55% of it to be floor.
-        for y in 1..self.map.height - 1 {
-            for x in 1..self.map.width - 1 {
+        for y in 1..self.map.size.1 - 1 {
+            for x in 1..self.map.size.0 - 1 {
                 let roll = rng.roll_dice(1, 100);
-                let idx = self.map.xy_idx(x, y);
+                let idx = self.map.xy_idx((x, y));
                 if roll > 55 {
                     self.map.tiles[idx] = TileType::Floor
                 } else {
@@ -80,9 +80,9 @@ impl CellularAutomataBuilder {
         for _i in 0..15 {
             let mut newtiles = self.map.tiles.clone();
 
-            for y in 1..self.map.height - 1 {
-                for x in 1..self.map.width - 1 {
-                    let idx = self.map.xy_idx(x, y);
+            for y in 1..self.map.size.1 - 1 {
+                for x in 1..self.map.size.0 - 1 {
+                    let idx = self.map.xy_idx((x, y));
                     let mut neighbors = 0;
                     if self.map.tiles[idx - 1] == TileType::Wall {
                         neighbors += 1;
@@ -90,22 +90,22 @@ impl CellularAutomataBuilder {
                     if self.map.tiles[idx + 1] == TileType::Wall {
                         neighbors += 1;
                     }
-                    if self.map.tiles[idx - self.map.width as usize] == TileType::Wall {
+                    if self.map.tiles[idx - self.map.size.0 as usize] == TileType::Wall {
                         neighbors += 1;
                     }
-                    if self.map.tiles[idx + self.map.width as usize] == TileType::Wall {
+                    if self.map.tiles[idx + self.map.size.0 as usize] == TileType::Wall {
                         neighbors += 1;
                     }
-                    if self.map.tiles[idx - (self.map.width as usize - 1)] == TileType::Wall {
+                    if self.map.tiles[idx - (self.map.size.0 as usize - 1)] == TileType::Wall {
                         neighbors += 1;
                     }
-                    if self.map.tiles[idx - (self.map.width as usize + 1)] == TileType::Wall {
+                    if self.map.tiles[idx - (self.map.size.0 as usize + 1)] == TileType::Wall {
                         neighbors += 1;
                     }
-                    if self.map.tiles[idx + (self.map.width as usize - 1)] == TileType::Wall {
+                    if self.map.tiles[idx + (self.map.size.0 as usize - 1)] == TileType::Wall {
                         neighbors += 1;
                     }
-                    if self.map.tiles[idx + (self.map.width as usize + 1)] == TileType::Wall {
+                    if self.map.tiles[idx + (self.map.size.0 as usize + 1)] == TileType::Wall {
                         neighbors += 1;
                     }
 
@@ -122,20 +122,17 @@ impl CellularAutomataBuilder {
         }
 
         // Find a starting point; start at the middle and walk left until we find an open tile
-        let mut p = Point {
-            x: self.map.width / 2,
-            y: self.map.height / 2,
-        };
-        let mut start_idx = self.map.xy_idx(p.x, p.y);
+        let mut p = Point::new(self.map.size.0 / 2, self.map.size.1 / 2);
+        let mut start_idx = self.map.xy_idx((p.x as usize, p.y as usize));
         while self.map.tiles[start_idx] != TileType::Floor {
             p.x -= 1;
-            start_idx = self.map.xy_idx(p.x, p.y);
+            start_idx = self.map.xy_idx((p.x as usize, p.y as usize));
         }
         self.starting_position = Position { ps: vec![p] };
 
         // Find all tiles we can reach from the starting point
         let map_starts: Vec<usize> = vec![start_idx];
-        let dijkstra_map = rltk::DijkstraMap::new(self.map.width, self.map.height, &map_starts, &self.map, 200.0);
+        let dijkstra_map = rltk::DijkstraMap::new(self.map.size.0, self.map.size.1, &map_starts, &self.map, 200.0);
         let mut exit_tile = (0, 0.0f32);
         for (i, tile) in self.map.tiles.iter_mut().enumerate() {
             if *tile == TileType::Floor {
@@ -163,9 +160,9 @@ impl CellularAutomataBuilder {
         noise.set_frequency(0.08);
         noise.set_cellular_distance_function(rltk::CellularDistanceFunction::Manhattan);
 
-        for y in 1..self.map.height - 1 {
-            for x in 1..self.map.width - 1 {
-                let idx = self.map.xy_idx(x, y);
+        for y in 1..self.map.size.1 - 1 {
+            for x in 1..self.map.size.0 - 1 {
+                let idx = self.map.xy_idx((x as usize, y as usize));
                 if self.map.tiles[idx] == TileType::Floor {
                     let cell_value_f = noise.get_noise(x as f32, y as f32) * 10240.0;
                     let cell_value = cell_value_f as i32;

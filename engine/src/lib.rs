@@ -1,39 +1,24 @@
 #[macro_use]
 extern crate lazy_static;
 
-use components::{Equipped, InBackpack, IsCamera, Player, Position, Vision};
-use map::{Map, TileType};
+use components::{Equipped, InBackpack, Player, Position, Vision, PlayerID, GameLog, FrameTime, PPoint, Turn, RNG};
+use game_modes::{GameSettings, GameMode};
+use map::Map;
+
 use rltk::Point;
-use uniques::GameLog;
-
-mod item_system;
-
-pub mod ai;
+use shipyard::{
+    EntitiesView, EntityId, Get, UniqueView, UniqueViewMut, View, ViewMut, World, AllStoragesViewMut,
+};
 
 pub mod components;
-pub mod entity_factory;
 pub mod map;
-pub mod palette;
-pub mod player;
-pub mod rect;
-pub mod uniques;
 pub mod utils;
-pub mod weighted_table;
-// pub mod worldgen;
-
 pub mod map_builders;
-
-pub mod systems;
-use shipyard::{
-    AllStoragesViewMut, EntitiesView, EntityId, Get, Unique, UniqueView, UniqueViewMut, View, ViewMut, World,
-};
-use systems::{
-    system_ai, system_ai_fish, system_dissasemble, system_fire, system_map_indexing, system_melee_combat,
-    system_particle, system_pathfinding, system_visibility,
-};
-use uniques::{FrameTime, PPoint, PlayerID, Turn, RNG};
-
-pub mod effects;
+pub mod entity_factory;
+pub mod colors;
+pub mod worldgen;
+pub mod game_modes;
+pub mod tiles;
 
 pub const SHOW_MAPGEN_ANIMATION: bool = true;
 pub const MAPGEN_FRAME_TIME: f32 = 25.0;
@@ -46,22 +31,6 @@ pub const OFFSET_Y: usize = 11;
 
 pub const DISABLE_AI: bool = false;
 
-#[derive(Copy, Clone, PartialEq, Unique)]
-pub struct GameSettings {
-    pub mode: GameMode,
-    pub mapsize: (i32, i32),
-    pub follow_player: bool,
-    pub use_player_los: bool,
-    pub show_player: bool,
-}
-
-#[derive(Copy, Clone, PartialEq)]
-pub enum GameMode {
-    RL, // trad roguelike, basically bracketlib tutorial in caves
-    VillageSim,
-    OrcHalls, // Orcs spawn in groups, for testing group tactics
-}
-
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd)]
 pub enum RenderOrder {
     Items,
@@ -72,38 +41,47 @@ pub enum RenderOrder {
 
 pub struct Engine {
     pub world: World,
+    pub settings: GameSettings,
     pub first_run: bool,
 }
 
 impl Engine {
-    pub fn run_systems(world: &mut World, _player_turn: bool, ai_turn: bool) {
-        // if player_turn {
-        world.run(system_fire::run_fire_system);
-        // }
-        world.run(system_visibility::run_visibility_system);
-
-        world.run(effects::run_effects_queue);
-
-        if ai_turn && !DISABLE_AI {
-            world.run(system_pathfinding::run_pathfinding_system);
-            world.run(system_ai_fish::run_fish_ai);
-            world.run(system_ai::run_ai_system);
+    pub fn new(settings: GameSettings) -> Self {
+        Self {
+            world: World::new(),
+            first_run: false,
+            settings,
         }
+    }
 
-        world.run(effects::run_effects_queue);
+    pub fn run_systems(world: &mut World, _player_turn: bool, ai_turn: bool) {
+        // // if player_turn {
+        // world.run(system_fire::run_fire_system);
+        // // }
+        // world.run(system_visibility::run_visibility_system);
 
-        world.run(system_map_indexing::run_map_indexing_system);
+        // world.run(effects::run_effects_queue);
 
-        world.run(system_melee_combat::run_melee_combat_system);
-        world.run(item_system::run_inventory_system);
-        world.run(system_dissasemble::run_dissasemble_system);
-        world.run(item_system::run_drop_item_system);
-        world.run(item_system::run_unequip_item_system);
-        world.run(item_system::run_item_use_system);
-        world.run(system_particle::spawn_particles);
+        // if ai_turn && !DISABLE_AI {
+        //     world.run(system_pathfinding::run_pathfinding_system);
+        //     world.run(system_ai_fish::run_fish_ai);
+        //     world.run(system_ai::run_ai_system);
+        // }
 
-        world.run(effects::run_effects_queue);
-        world.run(system_map_indexing::run_map_indexing_system);
+        // world.run(effects::run_effects_queue);
+
+        // world.run(system_map_indexing::run_map_indexing_system);
+
+        // world.run(system_melee_combat::run_melee_combat_system);
+        // world.run(item_system::run_inventory_system);
+        // world.run(system_dissasemble::run_dissasemble_system);
+        // world.run(item_system::run_drop_item_system);
+        // world.run(item_system::run_unequip_item_system);
+        // world.run(item_system::run_item_use_system);
+        // world.run(system_particle::spawn_particles);
+
+        // world.run(effects::run_effects_queue);
+        // world.run(system_map_indexing::run_map_indexing_system);
     }
 
     pub fn entities_to_delete_on_level_change(world: &mut World) -> Vec<EntityId> {
@@ -139,7 +117,7 @@ impl Engine {
         ids_to_delete
     }
 
-    pub fn generate_map(world: &mut World, new_depth: i32) {
+    pub fn generate_map(world: &mut World, new_depth: usize) {
         // delete all entities
         let ids_to_delete = Self::entities_to_delete_on_level_change(world);
         for id in ids_to_delete {
@@ -193,19 +171,19 @@ impl Engine {
         );
     }
 
-    pub fn next_level(world: &mut World) {
-        // Generate new map
-        let current_depth;
-        {
-            let map = world.borrow::<UniqueViewMut<Map>>().unwrap();
-            current_depth = map.depth;
-        }
-        Self::generate_map(world, current_depth + 1);
+    // pub fn next_level(world: &mut World) {
+    //     // Generate new map
+    //     let current_depth;
+    //     {
+    //         let map = world.borrow::<UniqueViewMut<Map>>().unwrap();
+    //         current_depth = map.depth;
+    //     }
+    //     Self::generate_map(world, current_depth + 1);
 
-        // Notify player
-        let mut log = world.borrow::<UniqueViewMut<GameLog>>().unwrap();
-        log.messages.push("You descend in the staircase".to_string());
-    }
+    //     // Notify player
+    //     let mut log = world.borrow::<UniqueViewMut<GameLog>>().unwrap();
+    //     log.messages.push("You descend in the staircase".to_string());
+    // }
 
     pub fn reset_engine(&mut self, settings: GameSettings) {
         // Delete everything
@@ -213,7 +191,7 @@ impl Engine {
         self.world = World::new();
 
         // Re-add defaults for all uniques
-        self.world.add_unique(Map::new(1, TileType::Wall, settings.mapsize));
+        self.world.add_unique(Map::new(settings.mapsize));
         self.world.add_unique(PPoint(Point::new(0, 0)));
         self.world.add_unique(Turn(0));
         self.world.add_unique(RNG(rltk::RandomNumberGenerator::new()));
@@ -225,12 +203,12 @@ impl Engine {
 
         self.world.add_unique(settings);
         self.world.add_unique(GameLog { messages: vec![] });
-        self.world.add_unique(system_particle::ParticleBuilder::new());
+        // self.world.add_unique(system_particle::ParticleBuilder::new());
         self.world.add_unique(FrameTime(0.));
 
         match settings.mode {
             GameMode::VillageSim => {
-                self.world.add_component(player_id, IsCamera {});
+                // self.world.add_component(player_id, IsCamera {});
             }
             _ => {}
         }

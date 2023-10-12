@@ -1,12 +1,14 @@
 use std::{iter::zip, cmp};
 
+use engine::colors::{Color, self};
+
 use crate::{
     assets::{
         cp437_converter::string_to_cp437,
         sprites::Drawable,
         Assets,
     },
-    Image, HEIGHT, WIDTH, colors::{Color, self}, game::Game,
+    Image, Game, HEIGHT, WIDTH,
 };
 
 use self::console::{Console, ConsoleMode};

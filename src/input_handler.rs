@@ -31,9 +31,9 @@ pub fn handle_input(input: &WinitInputHelper, game: &mut Game) -> Action {
         game.screen.decrement_zoom();
     }
 
-    // R : refresh worldgen
+    // R : reset
     if input.key_pressed_os(VirtualKeyCode::R) {
-        worldgen::basic_fill(&mut game.engine.map);
+        game.engine.reset_engine(game.engine.settings);
     }
 
     let movemod = if input.held_shift() {

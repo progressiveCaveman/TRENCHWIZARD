@@ -1,16 +1,16 @@
 use rltk::{Point, RandomNumberGenerator};
 use shipyard::{AllStoragesViewMut, World};
 
-use crate::{entity_factory, SHOW_MAPGEN_ANIMATION};
+use crate::{entity_factory, SHOW_MAPGEN_ANIMATION, utils::rect::Rect, tiles::TileType};
 
-use super::{Map, MapBuilder, Position, Rect, TileType};
+use super::{Map, MapBuilder, Position};
 
 const MIN_ROOM_SIZE: i32 = 4;
 
 pub struct BspInteriorBuilder {
     map: Map,
     starting_position: Position,
-    depth: i32,
+    depth: usize,
     rooms: Vec<Rect>,
     history: Vec<Map>,
     rects: Vec<Rect>,
@@ -49,11 +49,11 @@ impl MapBuilder for BspInteriorBuilder {
 }
 
 impl BspInteriorBuilder {
-    pub fn new(new_depth: i32, size: (i32, i32)) -> BspInteriorBuilder {
+    pub fn new(new_depth: usize, size: (usize, usize)) -> BspInteriorBuilder {
         BspInteriorBuilder {
-            map: Map::new(new_depth, TileType::Wall, size),
+            map: Map::new(size),
             starting_position: Position {
-                ps: vec![Point { x: 0, y: 0 }],
+                ps: vec![Point::new(0, 0)],
             },
             depth: new_depth,
             rooms: Vec::new(),
@@ -67,7 +67,7 @@ impl BspInteriorBuilder {
 
         self.rects.clear();
         self.rects
-            .push(Rect::new(1, 1, self.map.width - 2, self.map.height - 2)); // Start with a single map-sized rectangle
+            .push(Rect::new(1, 1, self.map.size.0 as i32 - 2, self.map.size.1 as i32 - 2)); // Start with a single map-sized rectangle
         let first_room = self.rects[0];
         self.add_subrects(first_room, &mut rng); // Divide the first room
 
@@ -79,8 +79,8 @@ impl BspInteriorBuilder {
             self.rooms.push(room);
             for y in room.y1..room.y2 {
                 for x in room.x1..room.x2 {
-                    let idx = self.map.xy_idx(x, y);
-                    if idx > 0 && idx < ((self.map.width * self.map.height) - 1) as usize {
+                    let idx = self.map.xy_idx((x as usize, y as usize));
+                    if idx > 0 && idx < ((self.map.size.0 * self.map.size.1) - 1) as usize {
                         self.map.tiles[idx] = TileType::Floor;
                     }
                 }
@@ -107,7 +107,7 @@ impl BspInteriorBuilder {
 
         // Don't forget the stairs
         let stairs = self.rooms[self.rooms.len() - 1].center();
-        let stairs_idx = self.map.xy_idx(stairs.0, stairs.1);
+        let stairs_idx = self.map.xy_idx((stairs.0 as usize, stairs.1 as usize));
         self.map.tiles[stairs_idx] = TileType::StairsDown;
     }
 
@@ -167,7 +167,7 @@ impl BspInteriorBuilder {
                 y -= 1;
             }
 
-            let idx = self.map.xy_idx(x, y);
+            let idx = self.map.xy_idx((x as usize, y as usize));
             self.map.tiles[idx] = TileType::Floor;
         }
     }

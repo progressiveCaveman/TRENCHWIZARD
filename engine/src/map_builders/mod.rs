@@ -30,8 +30,7 @@ use common::*;
 use shipyard::World;
 
 use crate::components::Position;
-use crate::map::{Map, TileType};
-use crate::rect::Rect;
+use crate::map::Map;
 
 pub struct MapGenData {
     pub history: Vec<Map>,
@@ -48,7 +47,7 @@ pub trait MapBuilder {
     fn take_snapshot(&mut self);
 }
 
-pub fn random_builder(new_depth: i32, size: (i32, i32)) -> Box<dyn MapBuilder> {
+pub fn random_builder(new_depth: usize, size: (usize, usize)) -> Box<dyn MapBuilder> {
     let mut rng = rltk::RandomNumberGenerator::new();
     let builder = rng.roll_dice(1, 5);
     match builder {
@@ -61,22 +60,22 @@ pub fn random_builder(new_depth: i32, size: (i32, i32)) -> Box<dyn MapBuilder> {
     }
 }
 
-pub fn village_builder(new_depth: i32, size: (i32, i32)) -> Box<dyn MapBuilder> {
+pub fn village_builder(new_depth: usize, size: (usize, usize)) -> Box<dyn MapBuilder> {
     Box::new(VillageBuilder::new(new_depth, size))
 }
 
-pub fn village_world_builder(new_depth: i32, size: (i32, i32)) -> Box<dyn MapBuilder> {
+pub fn village_world_builder(new_depth: usize, size: (usize, usize)) -> Box<dyn MapBuilder> {
     Box::new(VillageWorldBuilder::new(new_depth, size))
 }
 
-pub fn rl_builder(new_depth: i32, size: (i32, i32)) -> Box<dyn MapBuilder> {
+pub fn rl_builder(new_depth: usize, size: (usize, usize)) -> Box<dyn MapBuilder> {
     Box::new(DrunkardsBombingRunBuilder::new(new_depth, size))
 }
 
-pub fn arena_builder(new_depth: i32, size: (i32, i32)) -> Box<dyn MapBuilder> {
+pub fn arena_builder(new_depth: usize, size: (usize, usize)) -> Box<dyn MapBuilder> {
     Box::new(AernaBuilder::new(new_depth, size))
 }
 
-pub fn orc_halls_builder(new_depth: i32, size: (i32, i32)) -> Box<dyn MapBuilder> {
+pub fn orc_halls_builder(new_depth: usize, size: (usize, usize)) -> Box<dyn MapBuilder> {
     Box::new(BspDungeonBuilder::new(new_depth, size))
 }

@@ -3,10 +3,10 @@ use shipyard::{AllStoragesViewMut, World};
 
 use crate::{
     components::{Faction, SpawnerType},
-    entity_factory, SHOW_MAPGEN_ANIMATION,
+    entity_factory, SHOW_MAPGEN_ANIMATION, tiles::TileType,
 };
 
-use super::{Map, MapBuilder, Position, TileType};
+use super::{Map, MapBuilder, Position};
 
 pub struct AernaBuilder {
     map: Map,
@@ -31,7 +31,7 @@ impl MapBuilder for AernaBuilder {
             entity_factory::spawner(
                 &mut store,
                 4,
-                self.map.height / 2,
+                self.map.size.1 / 2,
                 Faction::Wizard1,
                 SpawnerType::Orc,
                 10,
@@ -40,8 +40,8 @@ impl MapBuilder for AernaBuilder {
         world.run(|mut store: AllStoragesViewMut| {
             entity_factory::spawner(
                 &mut store,
-                self.map.width - 5,
-                self.map.height / 2,
+                self.map.size.0 - 5,
+                self.map.size.1 / 2,
                 Faction::Wizard2,
                 SpawnerType::Orc,
                 10,
@@ -61,11 +61,11 @@ impl MapBuilder for AernaBuilder {
 }
 
 impl AernaBuilder {
-    pub fn new(new_depth: i32, size: (i32, i32)) -> AernaBuilder {
+    pub fn new(new_depth: usize, size: (usize, usize)) -> AernaBuilder {
         AernaBuilder {
-            map: Map::new(new_depth, TileType::Floor, size),
+            map: Map::new(size),
             starting_position: Position {
-                ps: vec![Point { x: 0, y: 0 }],
+                ps: vec![Point::new(0, 0)],
             },
             history: Vec::new(),
         }
@@ -75,29 +75,29 @@ impl AernaBuilder {
         // let mut rng = RandomNumberGenerator::new();
 
         // set edges to be a wall
-        for x in 0..self.map.width {
-            let idx = self.map.xy_idx(x, 0);
+        for x in 0..self.map.size.0 {
+            let idx = self.map.xy_idx((x, 0));
             self.map.tiles[idx] = TileType::Wall;
 
-            let idx = self.map.xy_idx(x, self.map.height - 1);
+            let idx = self.map.xy_idx((x, self.map.size.1 - 1));
             self.map.tiles[idx] = TileType::Wall;
         }
 
-        for y in 0..self.map.height {
-            let idx = self.map.xy_idx(0, y);
+        for y in 0..self.map.size.1 {
+            let idx = self.map.xy_idx((0, y));
             self.map.tiles[idx] = TileType::Wall;
 
-            let idx = self.map.xy_idx(self.map.width - 1, y);
+            let idx = self.map.xy_idx((self.map.size.0 - 1, y));
             self.map.tiles[idx] = TileType::Wall;
         }
         self.take_snapshot();
 
         // Set the map to grass with a river
-        // for y in 1..self.map.height-1 {
-        //     for x in 1..self.map.width-1 {
+        // for y in 1..self.map.size.1-1 {
+        //     for x in 1..self.map.size.0-1 {
         //         let idx = self.map.xy_idx(x, y);
 
-        //         if y > self.map.height - 10 && y < self.map.height - 3 {
+        //         if y > self.map.size.1 - 10 && y < self.map.size.1 - 3 {
         //             self.map.tiles[idx] = TileType::Water;
         //         } else {
         //             self.map.tiles[idx] = TileType::Grass;
@@ -106,8 +106,8 @@ impl AernaBuilder {
         // }
 
         // First we completely randomize the map, setting 55% of it to be floor.
-        // for y in 1..self.map.height/2 {
-        //     for x in 1..self.map.width-1 {
+        // for y in 1..self.map.size.1/2 {
+        //     for x in 1..self.map.size.0-1 {
         //         let roll = rng.roll_dice(1, 100);
         //         let idx = self.map.xy_idx(x, y);
         //         if roll > 55 { self.map.tiles[idx] = TileType::Floor }
@@ -117,10 +117,7 @@ impl AernaBuilder {
         // self.take_snapshot();
 
         self.starting_position = Position {
-            ps: vec![Point {
-                x: self.map.width / 2,
-                y: self.map.height / 2,
-            }],
+            ps: vec![Point::new(self.map.size.0 / 2, self.map.size.1 / 2)],
         };
 
         return;

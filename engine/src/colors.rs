@@ -1,18 +1,25 @@
+use rltk::RGBA;
+
 // NOTE; colour names and values copied from:
 // tcod-sys/libtcod/include/libtcod_int.h
 pub type Color = [u8; 4];
 
-pub trait Scale {
+pub trait ColorUtils {
     fn scale(&self, scale: f32) -> Self;
+    fn to_rgba(&self) -> RGBA;
 }
 
-impl Scale for Color {
+impl ColorUtils for Color {
     fn scale(&self, scale: f32) -> Self {
         let mut c = self.clone();
         for i in 0..3 { // don't scale alpha
             c[i] = (c[i] as f32 * scale) as u8;
         }
         c
+    }
+
+    fn to_rgba(&self) -> RGBA {
+        RGBA::from_u8(self[0], self[1], self[2], self[3])
     }
 }
 
@@ -216,3 +223,32 @@ pub const COLOR_WATER: Color = COLOR_DARK_BLUE;
 pub const COLOR_SAND: Color = COLOR_DESATURATED_YELLOW;
 pub const COLOR_DIRT: Color = COLOR_DARKER_GREEN;
 pub const COLOR_STONE: Color = COLOR_GREY;
+pub const COLOR_BG: Color = COLOR_CLEAR;
+pub const COLOR_ITEM: Color = COLOR_GREY;
+
+pub const COLOR_FIRE: RGBA = RGBA {
+    r: 0.88,
+    g: 0.34,
+    b: 0.13,
+    a: 1.,
+};
+pub const COLOR_CEDAR: RGBA = RGBA {
+    r: 0.39,
+    g: 0.22,
+    b: 0.17,
+    a: 1.,
+};
+pub const FACTION_COLORS: [RGBA; 2] = [
+    RGBA {
+        r: 1.0,
+        g: 0.,
+        b: 0.,
+        a: 1.,
+    },
+    RGBA {
+        r: 0.0,
+        g: 0.0,
+        b: 1.0,
+        a: 1.,
+    },
+];

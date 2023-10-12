@@ -1,9 +1,9 @@
 use rltk::{Point, RandomNumberGenerator};
 use shipyard::{AllStoragesViewMut, World};
 
-use crate::{entity_factory, SHOW_MAPGEN_ANIMATION};
+use crate::{entity_factory, SHOW_MAPGEN_ANIMATION, utils::rect::Rect, tiles::TileType};
 
-use super::{common::apply_room_to_map, Map, MapBuilder, Position, Rect, TileType};
+use super::{common::apply_room_to_map, Map, MapBuilder, Position};
 
 const MIN_ROOM_SIZE: i32 = 10;
 
@@ -12,7 +12,7 @@ const MIN_BUILDING_SIZE: i32 = 4;
 pub struct BspFarmBuilder {
     map: Map,
     starting_position: Position,
-    depth: i32,
+    depth: usize,
     rooms: Vec<Rect>,
     history: Vec<Map>,
     rects: Vec<Rect>,
@@ -51,11 +51,11 @@ impl MapBuilder for BspFarmBuilder {
 }
 
 impl BspFarmBuilder {
-    pub fn new(new_depth: i32, size: (i32, i32)) -> BspFarmBuilder {
+    pub fn new(new_depth: usize, size: (usize, usize)) -> BspFarmBuilder {
         BspFarmBuilder {
-            map: Map::new(new_depth, TileType::Wall, size),
+            map: Map::new(size),
             starting_position: Position {
-                ps: vec![Point { x: 0, y: 0 }],
+                ps: vec![Point::new(0, 0)],
             },
             depth: new_depth,
             rooms: Vec::new(),
@@ -66,9 +66,9 @@ impl BspFarmBuilder {
 
     fn build(&mut self) {
         //convert interior tiles to dirt
-        for x in 1..self.map.width - 1 {
-            for y in 1..self.map.height - 1 {
-                let idx = self.map.xy_idx(x, y);
+        for x in 1..self.map.size.0 - 1 {
+            for y in 1..self.map.size.1 - 1 {
+                let idx = self.map.xy_idx((x, y));
                 self.map.tiles[idx] = TileType::Dirt;
             }
         }
@@ -77,7 +77,7 @@ impl BspFarmBuilder {
 
         self.rects.clear();
         self.rects
-            .push(Rect::new(1, 1, self.map.width - 2, self.map.height - 2)); // Start with a single map-sized rectangle
+            .push(Rect::new(1, 1, self.map.size.0 as i32 - 2, self.map.size.1 as i32 - 2)); // Start with a single map-sized rectangle
         let first_room = self.rects[0];
         self.add_subrects_recursive(first_room, &mut rng); // Divide the first room
 
@@ -87,7 +87,7 @@ impl BspFarmBuilder {
             self.rooms.push(room);
 
             // if room is on edge
-            if room.x1 == 1 || room.y1 == 1 || room.x2 > self.map.width - 5 || room.y2 > self.map.height - 5 {
+            if room.x1 == 1 || room.y1 == 1 || room.x2 > self.map.size.0 as i32 - 5 || room.y2 > self.map.size.1 as i32 - 5 {
                 let new_rect = Rect::new(room.x1 + 1, room.y1 + 1, room.width() - 2, room.height() - 2);
                 apply_room_to_map(&mut self.map, &new_rect, TileType::Wheat, true);
             } else {
@@ -111,7 +111,7 @@ impl BspFarmBuilder {
 
         // Don't forget the stairs
         let stairs = self.rooms[self.rooms.len() - 1].center();
-        let stairs_idx = self.map.xy_idx(stairs.0, stairs.1);
+        let stairs_idx = self.map.xy_idx((stairs.0 as usize, stairs.1 as usize));
         self.map.tiles[stairs_idx] = TileType::StairsDown;
     }
 

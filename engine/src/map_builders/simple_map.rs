@@ -1,16 +1,16 @@
 use rltk::{Point, RandomNumberGenerator};
 use shipyard::{AllStoragesViewMut, World};
 
-use crate::{entity_factory, SHOW_MAPGEN_ANIMATION};
+use crate::{entity_factory, SHOW_MAPGEN_ANIMATION, utils::rect::Rect, tiles::TileType};
 
 use super::{
-    apply_horizontal_corridor, apply_room_to_map, apply_vertical_corridor, Map, MapBuilder, Position, Rect, TileType,
+    apply_horizontal_corridor, apply_room_to_map, apply_vertical_corridor, Map, MapBuilder, Position,
 };
 
 pub struct SimpleMapBuilder {
     map: Map,
     starting_position: Position,
-    depth: i32,
+    depth: usize,
     rooms: Vec<Rect>,
     history: Vec<Map>,
 }
@@ -48,11 +48,11 @@ impl MapBuilder for SimpleMapBuilder {
 }
 
 impl SimpleMapBuilder {
-    pub fn new(new_depth: i32, size: (i32, i32)) -> SimpleMapBuilder {
+    pub fn new(new_depth: usize, size: (usize, usize)) -> SimpleMapBuilder {
         SimpleMapBuilder {
-            map: Map::new(new_depth, TileType::Wall, size),
+            map: Map::new(size),
             starting_position: Position {
-                ps: vec![Point { x: 0, y: 0 }],
+                ps: vec![Point::new(0, 0)],
             },
             depth: new_depth,
             rooms: Vec::new(),
@@ -67,8 +67,8 @@ impl SimpleMapBuilder {
         for _ in 0..max_rooms {
             let w: i32 = rng.range(min_size, max_size);
             let h: i32 = rng.range(min_size, max_size);
-            let x: i32 = rng.range(1, self.map.width - w - 1);
-            let y: i32 = rng.range(1, self.map.height - h - 1);
+            let x: i32 = rng.range(1, self.map.size.0 as i32 - w - 1);
+            let y: i32 = rng.range(1, self.map.size.1 as i32 - h - 1);
 
             let new_room = Rect::new(x, y, w, h);
             let mut place_room = true;
@@ -99,7 +99,7 @@ impl SimpleMapBuilder {
         }
 
         let stairs_down_pos = self.rooms[self.rooms.len() - 1].center();
-        let stairs_idx = self.map.xy_idx(stairs_down_pos.0, stairs_down_pos.1);
+        let stairs_idx = self.map.xy_idx((stairs_down_pos.0 as usize, stairs_down_pos.1 as usize));
         self.map.tiles[stairs_idx] = TileType::StairsDown;
 
         // remove_useless_walls(&mut self.map);
