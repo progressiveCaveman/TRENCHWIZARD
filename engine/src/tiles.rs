@@ -24,12 +24,12 @@ pub type TileRenderable = (char, Color, Color);
 impl TileType {
     pub fn renderable(self) -> TileRenderable {
         match self {
-            TileType::Water => ('~', colors::COLOR_CYAN, colors::COLOR_WATER),
+            TileType::Water => ('~', colors::COLOR_WATER, colors::COLOR_WATER.scale(0.75)),
             TileType::Sand => ('.', colors::COLOR_SAND, colors::COLOR_BG),
             TileType::Dirt => ('.', colors::COLOR_DIRT, colors::COLOR_BG),
             TileType::Stone => ('.', colors::COLOR_STONE, colors::COLOR_BG),
             TileType::Wall => ('#', colors::COLOR_WALL, colors::COLOR_BG),
-            TileType::Floor => ('.', colors::COLOR_WALL, colors::COLOR_BG),
+            TileType::Floor => ('.', colors::COLOR_FLOOR, colors::COLOR_BG),
             TileType::StairsDown => ('>', colors::COLOR_WALL, colors::COLOR_BG),
             TileType::StairsUp => ('<', colors::COLOR_WALL, colors::COLOR_BG),
             TileType::Grass => (',', colors::COLOR_GRASS, colors::COLOR_GRASS.scale(0.5)),

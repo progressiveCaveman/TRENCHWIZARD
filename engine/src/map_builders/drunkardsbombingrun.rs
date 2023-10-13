@@ -1,13 +1,11 @@
 use crate::tiles::TileType;
 use crate::utils::rect::Rect;
 use crate::{entity_factory, SHOW_MAPGEN_ANIMATION};
-use rand::seq::SliceRandom;
-use rand::thread_rng;
 use rltk::{Point, RandomNumberGenerator};
 use shipyard::{AllStoragesViewMut, World};
 use std::cmp;
 
-use super::common::{apply_drunkards_corrider, apply_room_to_map};
+use super::common::apply_drunkards_corrider;
 use super::{Map, MapBuilder, Position};
 
 pub struct DrunkardsBombingRunBuilder {
