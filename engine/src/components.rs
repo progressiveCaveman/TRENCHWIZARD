@@ -6,7 +6,7 @@ use shipyard::{Component, EntityId, IntoIter, View, Unique};
 
 use crate::{
     map::Map,
-    RenderOrder, tiles::TileType,
+    RenderOrder, tiles::TileType, colors::{COLOR_BG, Color},
 };
 
 /// Unique components
@@ -54,9 +54,9 @@ impl Position {
 
 #[derive(Component, Copy, Clone, Debug, PartialEq)]
 pub struct Renderable {
-    pub glyph: rltk::FontCharType,
-    pub fg: rltk::RGBA,
-    pub bg: rltk::RGBA,
+    pub glyph: char,
+    pub fg: Color,
+    pub bg: Color,
     pub render: bool,
     pub always_render: bool,
     pub order: RenderOrder,
@@ -65,19 +65,9 @@ pub struct Renderable {
 impl Default for Renderable {
     fn default() -> Self {
         Renderable {
-            glyph: rltk::to_cp437(' '),
-            fg: rltk::RGBA {
-                r: 1.,
-                g: 1.,
-                b: 1.,
-                a: 1.,
-            },
-            bg: rltk::RGBA {
-                r: 0.,
-                g: 0.,
-                b: 0.,
-                a: 1.,
-            },
+            glyph: ' ',
+            fg: COLOR_BG,
+            bg: COLOR_BG,
             render: true,
             always_render: false,
             order: RenderOrder::Player,

@@ -229,29 +229,36 @@ pub const COLOR_WALL: Color = COLOR_GREY;
 pub const COLOR_FLOOR: Color = COLOR_DARKEST_GREY;
 pub const COLOR_GRASS: Color = COLOR_DARK_GREEN;
 
-pub const COLOR_FIRE: RGBA = RGBA {
-    r: 0.88,
-    g: 0.34,
-    b: 0.13,
-    a: 1.,
-};
-pub const COLOR_CEDAR: RGBA = RGBA {
-    r: 0.39,
-    g: 0.22,
-    b: 0.17,
-    a: 1.,
-};
-pub const FACTION_COLORS: [RGBA; 2] = [
-    RGBA {
-        r: 1.0,
-        g: 0.,
-        b: 0.,
-        a: 1.,
-    },
-    RGBA {
-        r: 0.0,
-        g: 0.0,
-        b: 1.0,
-        a: 1.,
-    },
-];
+pub const COLOR_FIRE: Color = COLOR_RED;
+
+// : RGBA = RGBA {
+//     r: 0.88,
+//     g: 0.34,
+//     b: 0.13,
+//     a: 1.,
+// };
+pub const COLOR_CEDAR: Color = COLOR_BRASS;
+
+// : RGBA = RGBA {
+//     r: 0.39,
+//     g: 0.22,
+//     b: 0.17,
+//     a: 1.,
+// };
+
+pub const FACTION_COLORS: [Color; 2] = [COLOR_CRIMSON, COLOR_AZURE];
+
+// pub const FACTION_COLORS: [RGBA; 2] = [
+//     RGBA {
+//         r: 1.0,
+//         g: 0.,
+//         b: 0.,
+//         a: 1.,
+//     },
+//     RGBA {
+//         r: 0.0,
+//         g: 0.0,
+//         b: 1.0,
+//         a: 1.,
+//     },
+// ];

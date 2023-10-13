@@ -113,9 +113,9 @@ pub fn player(store: &mut AllStoragesViewMut, pos: (usize, usize)) -> EntityId {
             ps: vec![Point::new(pos.0, pos.1)],
         },
         Renderable {
-            glyph: rltk::to_cp437('@'),
-            fg: COLOR_PURPLE.to_rgba(),
-            bg: COLOR_BG.to_rgba(),
+            glyph: '@',
+            fg: COLOR_PURPLE,
+            bg: COLOR_BG,
             order: RenderOrder::Player,
             ..Default::default()
         },
@@ -160,9 +160,9 @@ pub fn villager(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId 
             ps: vec![Point::new( x, y )],
         },
         Renderable {
-            glyph: rltk::to_cp437('v'),
-            fg: COLOR_RED.to_rgba(),
-            bg: COLOR_BG.to_rgba(),
+            glyph: 'v',
+            fg: COLOR_RED,
+            bg: COLOR_BG,
             order: RenderOrder::NPC,
             ..Default::default()
         },
@@ -198,9 +198,9 @@ pub fn fish(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
             ps: vec![Point::new( x, y )],
         },
         Renderable {
-            glyph: rltk::to_cp437('f'),
-            fg: COLOR_AMBER.to_rgba(),
-            bg: COLOR_BG.to_rgba(),
+            glyph: 'f',
+            fg: COLOR_AMBER,
+            bg: COLOR_BG,
             order: RenderOrder::NPC,
             ..Default::default()
         },
@@ -226,22 +226,22 @@ pub fn fish(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
 }
 
 pub fn orc(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
-    monster(store, x, y, rltk::to_cp437('o'), "Orc".to_string())
+    monster(store, x, y, 'o', "Orc".to_string())
 }
 
 pub fn goblin(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
-    monster(store, x, y, rltk::to_cp437('g'), "Goblin".to_string())
+    monster(store, x, y, 'g', "Goblin".to_string())
 }
 
-pub fn monster(store: &mut AllStoragesViewMut, x: usize, y: usize, glyph: rltk::FontCharType, name: String) -> EntityId {
+pub fn monster(store: &mut AllStoragesViewMut, x: usize, y: usize, glyph: char, name: String) -> EntityId {
     store.add_entity((
         Position {
             ps: vec![Point::new( x, y )],
         },
         Renderable {
             glyph,
-            fg: COLOR_RED.to_rgba(),
-            bg: COLOR_BG.to_rgba(),
+            fg: COLOR_RED,
+            bg: COLOR_BG,
             order: RenderOrder::NPC,
             ..Default::default()
         },
@@ -281,9 +281,9 @@ pub fn wolf(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
             ps: vec![Point::new( x, y )],
         },
         Renderable {
-            glyph: rltk::to_cp437('w'),
-            fg: COLOR_RED.to_rgba(),
-            bg: COLOR_BG.to_rgba(),
+            glyph: 'w',
+            fg: COLOR_RED,
+            bg: COLOR_BG,
             order: RenderOrder::NPC,
             ..Default::default()
         },
@@ -327,9 +327,9 @@ pub fn big_monster(store: &mut AllStoragesViewMut, x: usize, y: usize) -> Entity
             ],
         },
         Renderable {
-            glyph: rltk::to_cp437('o'),
-            fg: COLOR_RED.to_rgba(),
-            bg: COLOR_BG.to_rgba(),
+            glyph: 'o',
+            fg: COLOR_RED,
+            bg: COLOR_BG,
             order: RenderOrder::NPC,
             ..Default::default()
         },
@@ -369,9 +369,9 @@ pub fn health_potion(store: &mut AllStoragesViewMut, x: usize, y: usize) -> Enti
             ps: vec![Point::new( x, y )],
         },
         Renderable {
-            glyph: rltk::to_cp437('p'),
-            fg: COLOR_ITEM.to_rgba(),
-            bg: COLOR_BG.to_rgba(),
+            glyph: 'p',
+            fg: COLOR_ITEM,
+            bg: COLOR_BG,
             order: RenderOrder::Items,
             ..Default::default()
         },
@@ -390,9 +390,9 @@ pub fn magic_missile_scroll(store: &mut AllStoragesViewMut, x: usize, y: usize) 
             ps: vec![Point::new( x, y )],
         },
         Renderable {
-            glyph: rltk::to_cp437('('),
-            fg: COLOR_ITEM.to_rgba(),
-            bg: COLOR_BG.to_rgba(),
+            glyph: '(',
+            fg: COLOR_ITEM,
+            bg: COLOR_BG,
             order: RenderOrder::Items,
             ..Default::default()
         },
@@ -412,9 +412,9 @@ pub fn fireball_scroll(store: &mut AllStoragesViewMut, x: usize, y: usize) -> En
             ps: vec![Point::new( x, y )],
         },
         Renderable {
-            glyph: rltk::to_cp437('*'),
-            fg: COLOR_ITEM.to_rgba(),
-            bg: COLOR_BG.to_rgba(),
+            glyph: '*',
+            fg: COLOR_ITEM,
+            bg: COLOR_BG,
             order: RenderOrder::Items,
             ..Default::default()
         },
@@ -435,9 +435,9 @@ pub fn confusion_scroll(store: &mut AllStoragesViewMut, x: usize, y: usize) -> E
             ps: vec![Point::new( x, y )],
         },
         Renderable {
-            glyph: rltk::to_cp437('&'),
-            fg: COLOR_ITEM.to_rgba(),
-            bg: COLOR_BG.to_rgba(),
+            glyph: '&',
+            fg: COLOR_ITEM,
+            bg: COLOR_BG,
             order: RenderOrder::Items,
             ..Default::default()
         },
@@ -459,9 +459,9 @@ pub fn dagger(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
             ps: vec![Point::new( x, y )],
         },
         Renderable {
-            glyph: rltk::to_cp437('│'),
-            fg: COLOR_ITEM.to_rgba(),
-            bg: COLOR_BG.to_rgba(),
+            glyph: '│',
+            fg: COLOR_ITEM,
+            bg: COLOR_BG,
             order: RenderOrder::Items,
             ..Default::default()
         },
@@ -482,9 +482,9 @@ pub fn longsword(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId
             ps: vec![Point::new( x, y )],
         },
         Renderable {
-            glyph: rltk::to_cp437('│'),
-            fg: COLOR_ITEM.to_rgba(),
-            bg: COLOR_BG.to_rgba(),
+            glyph: '│',
+            fg: COLOR_ITEM,
+            bg: COLOR_BG,
             order: RenderOrder::Items,
             ..Default::default()
         },
@@ -505,9 +505,9 @@ pub fn shield(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
             ps: vec![Point::new( x, y )],
         },
         Renderable {
-            glyph: rltk::to_cp437('°'),
-            fg: COLOR_ITEM.to_rgba(),
-            bg: COLOR_BG.to_rgba(),
+            glyph: '°',
+            fg: COLOR_ITEM,
+            bg: COLOR_BG,
             order: RenderOrder::Items,
             ..Default::default()
         },
@@ -528,9 +528,9 @@ pub fn tower_shield(store: &mut AllStoragesViewMut, x: usize, y: usize) -> Entit
             ps: vec![Point::new( x, y )],
         },
         Renderable {
-            glyph: rltk::to_cp437('°'),
-            fg: COLOR_ITEM.to_rgba(),
-            bg: COLOR_BG.to_rgba(),
+            glyph: '°',
+            fg: COLOR_ITEM,
+            bg: COLOR_BG,
             order: RenderOrder::Items,
             ..Default::default()
         },
@@ -551,9 +551,9 @@ pub fn log(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
             ps: vec![Point::new( x, y )],
         },
         Renderable {
-            glyph: rltk::to_cp437('='),
+            glyph: '=',
             fg: COLOR_CEDAR,
-            bg: COLOR_BG.to_rgba(),
+            bg: COLOR_BG,
             order: RenderOrder::Items,
             ..Default::default()
         },
@@ -580,9 +580,9 @@ pub fn spawner(
             ps: vec![Point::new( x, y )],
         },
         Renderable {
-            glyph: rltk::to_cp437('&'),
+            glyph: '&',
             fg: FACTION_COLORS[faction as usize],
-            bg: COLOR_BG.to_rgba(),
+            bg: COLOR_BG,
             order: RenderOrder::Items,
             ..Default::default()
         },
@@ -604,9 +604,9 @@ pub fn tree(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
             ps: vec![Point::new( x, y )],
         },
         Renderable {
-            glyph: rltk::to_cp437('|'),
+            glyph: '|',
             fg: COLOR_CEDAR,
-            bg: COLOR_BG.to_rgba(),
+            bg: COLOR_BG,
             order: RenderOrder::Items,
             ..Default::default()
         },
@@ -631,9 +631,9 @@ pub fn plank_house(store: &mut AllStoragesViewMut, x: usize, y: usize, width: us
     store.add_entity((
         Position { ps },
         Renderable {
-            glyph: rltk::to_cp437('#'),
+            glyph: '#',
             fg: COLOR_CEDAR,
-            bg: COLOR_BG.to_rgba(),
+            bg: COLOR_BG,
             order: RenderOrder::Items,
             ..Default::default()
         },
@@ -662,9 +662,9 @@ pub fn chief_house(store: &mut AllStoragesViewMut, x: usize, y: usize, width: us
     store.add_entity((
         Position { ps },
         Renderable {
-            glyph: rltk::to_cp437('#'),
+            glyph: '#',
             fg: COLOR_CEDAR,
-            bg: COLOR_BG.to_rgba(),
+            bg: COLOR_BG,
             order: RenderOrder::Items,
             ..Default::default()
         },
@@ -690,9 +690,9 @@ pub fn fish_cleaner(store: &mut AllStoragesViewMut, x: usize, y: usize, width: u
     store.add_entity((
         Position { ps },
         Renderable {
-            glyph: rltk::to_cp437('#'),
-            fg: COLOR_UI_1.to_rgba(),
-            bg: COLOR_BG.to_rgba(),
+            glyph: '#',
+            fg: COLOR_UI_1,
+            bg: COLOR_BG,
             order: RenderOrder::Items,
             ..Default::default()
         },
@@ -725,9 +725,9 @@ pub fn lumber_mill(store: &mut AllStoragesViewMut, x: usize, y: usize, width: us
     store.add_entity((
         Position { ps },
         Renderable {
-            glyph: rltk::to_cp437('#'),
-            fg: COLOR_AMBER.to_rgba(),
-            bg: COLOR_BG.to_rgba(),
+            glyph: '#',
+            fg: COLOR_AMBER,
+            bg: COLOR_BG,
             order: RenderOrder::Items,
             ..Default::default()
         },

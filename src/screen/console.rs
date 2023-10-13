@@ -49,8 +49,8 @@ label
 
 */
 
-use engine::{map::Map, colors::{self}};
-use shipyard::UniqueView;
+use engine::{map::Map, colors::{self}, components::Renderable};
+use shipyard::{UniqueView, View, Get};
 
 use crate::{Game, WIDTH, assets::cp437_converter::to_cp437, GameState};
 
@@ -169,6 +169,7 @@ impl Console {
 
     pub fn render_map(&self, frame: &mut [u8], game: &Game) {
         let map = game.engine.world.borrow::<UniqueView<Map>>().unwrap();
+        let vrend = &mut game.engine.world.borrow::<View<Renderable>>().unwrap();
         let screen = &game.screen;
 
         let tiles = if game.history_step >= map.history.len() || game.state != GameState::ShowMapHistory {
@@ -195,8 +196,14 @@ impl Console {
                     let border = xmod < self.zoom / 4 || xmod >= self.zoom * 3 / 4 || ymod < self.zoom / 4 || ymod >= self.zoom * 3 / 4;
 
                     if map.in_bounds((xmap, ymap)) { 
-                        let r = tiles[map.xy_idx((xmap, ymap))].renderable();
-                        let color = if border { r.2 } else { r.1 };
+                        let idx = map.xy_idx((xmap, ymap));
+                        let mut render = tiles[idx].renderable();
+                        for c in map.tile_content[idx].iter() {
+                            if let Ok(rend) = vrend.get(*c) {
+                                render = (rend.glyph, rend.fg, rend.bg);
+                            }
+                        }
+                        let color = if border { render.2 } else { render.1 };
                         pixel.copy_from_slice(&color);
                     }
                 }
@@ -210,8 +217,13 @@ impl Console {
                     let pos = (x + self.map_pos.0, y + self.map_pos.1);
                     // let idx = map.point_idx(point);
                     if x < self.pos.0 + self.size.0 + self.zoom && y < self.pos.1 + self.size.1 + self.zoom && map.in_bounds(pos){
-                        let render = tiles[map.xy_idx(pos)].renderable();
-                        screen.print_cp437(
+                        let idx = map.xy_idx(pos);
+                        let mut render = tiles[idx].renderable();
+                        for c in map.tile_content[idx].iter() {
+                            if let Ok(rend) = vrend.get(*c) {
+                                render = (rend.glyph, rend.fg, rend.bg);
+                            }
+                        }                        screen.print_cp437(
                             &game.assets,
                             frame,
                             Glyph {
