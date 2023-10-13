@@ -5,8 +5,7 @@ use engine::colors::{Color, self};
 use crate::{
     assets::{
         cp437_converter::string_to_cp437,
-        sprites::Drawable,
-        Assets,
+        Assets, sprites::Drawable,
     },
     Image, Game, HEIGHT, WIDTH,
 };
@@ -15,7 +14,7 @@ use self::console::{Console, ConsoleMode};
 
 pub mod console;
 
-pub const MAX_ZOOM: usize = 8;
+pub const MAX_ZOOM: usize = 16;
 const GLYPH_SIZE: usize = 8;
 const DEBUG_OUTLINES: bool = false;
 
@@ -119,12 +118,12 @@ impl Screen {
         }
     }
 
-    pub fn print_cp437(&self, assets: &Assets, frame: &mut [u8], glyph: Glyph) {
+    pub fn print_cp437(&self, assets: &Assets, frame: &mut [u8], glyph: Glyph, zoom: usize) {
         // let sprite = &assets.glyph(glyph);
-        Screen::blit_glyph(frame, assets, glyph.pos, glyph);
+        Screen::blit_glyph(frame, assets, glyph.pos, glyph, zoom);
     }
 
-    pub fn print_string(&self, assets: &Assets, frame: &mut [u8], str: &str, pos: (usize, usize), color: Color) {
+    pub fn print_string(&self, assets: &Assets, frame: &mut [u8], str: &str, pos: (usize, usize), color: Color, zoom: usize) {
         let chars = string_to_cp437(str);
 
         for (idx, ch) in chars.iter().enumerate() {
@@ -133,7 +132,7 @@ impl Screen {
                 ch: *ch, 
                 fg: color, 
                 bg: colors::COLOR_CLEAR 
-            });
+            }, zoom);
             // let sprite = &assets.cp437[*ch as usize];
             // Screen::blit(
             //     frame,
@@ -146,7 +145,7 @@ impl Screen {
         }
     }
 
-    pub fn draw_box(&self, assets: &Assets, frame: &mut [u8], pos: (usize, usize), size: (usize, usize), fg: Color, bg: Color) {
+    pub fn draw_box(&self, assets: &Assets, frame: &mut [u8], pos: (usize, usize), size: (usize, usize), fg: Color, bg: Color, zoom: usize) {
         let vertwall = 186;
         let horizwall = 205;
         let nwcorner = 201;
@@ -179,7 +178,7 @@ impl Screen {
                     0
                 };
 
-                self.print_cp437(assets, frame, Glyph { pos: (x, y), ch, fg, bg });
+                self.print_cp437(assets, frame, Glyph { pos: (x, y), ch, fg, bg }, zoom);
             }
         }
 
@@ -236,8 +235,17 @@ impl Screen {
     }
 
     /// Blit a drawable to the pixel buffer. Assumes glyph asset has fuscia bg and grayscale fg
-    pub fn blit_glyph(screen: &mut [u8], assets: &Assets, dest: (usize, usize), glyph: Glyph) {
-        let sprite = &assets.cp437[glyph.ch as usize];//&assets.glyph(glyph);
+    pub fn blit_glyph(frame: &mut [u8], assets: &Assets, dest: (usize, usize), glyph: Glyph, zoom: usize) {
+        let mut spritesheet = &assets.cp437[0];
+        for ss in assets.cp437.iter() {
+            if zoom == ss.0 {
+                spritesheet = ss;
+            } else if zoom < ss.0 {
+                break;
+            }
+        }
+
+        let sprite = &spritesheet.1[glyph.ch as usize];
 
         assert!(dest.0 + sprite.width() <= WIDTH);
         assert!(dest.1 + sprite.height() <= HEIGHT);
@@ -250,7 +258,7 @@ impl Screen {
             let i = dest.0 * 4 + dest.1 * WIDTH * 4 + y * WIDTH * 4;
 
             let zipped = zip(
-                screen[i..i + width].chunks_exact_mut(4),
+                frame[i..i + width].chunks_exact_mut(4),
                 pixels[s..s + width].chunks_exact(4),
             );
 

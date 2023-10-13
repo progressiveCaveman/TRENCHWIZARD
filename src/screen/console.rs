@@ -129,7 +129,8 @@ impl Console {
                 self.pos,
                 self.size,
                 colors::COLOR_UI_1,
-                colors::COLOR_BLACK_SEMI_TRANS // todo transparancy doesn't work
+                colors::COLOR_BLACK_SEMI_TRANS, // todo transparancy doesn't work
+                self.zoom
             );
 
             let x = self.pos.0 + 3 * GLYPH_SIZE;
@@ -140,7 +141,8 @@ impl Console {
                 frame,
                 "Main Menu",
                 (x, y),
-                colors::COLOR_UI_2
+                colors::COLOR_UI_2,
+                self.zoom
             );
 
             y += 2 * GLYPH_SIZE;
@@ -151,7 +153,8 @@ impl Console {
                 "Play Game",
                 (x, y),
                 // colors::COLOR_UI_2
-                if selection == 0 { colors::COLOR_UI_3 } else { colors::COLOR_UI_2 }
+                if selection == 0 { colors::COLOR_UI_3 } else { colors::COLOR_UI_2 },
+                self.zoom
             );
 
             y += GLYPH_SIZE;
@@ -162,7 +165,8 @@ impl Console {
                 "Quit",
                 (x, y),
                 // colors::COLOR_UI_2
-                if selection == 1 { colors::COLOR_UI_3 } else { colors::COLOR_UI_2 }
+                if selection == 1 { colors::COLOR_UI_3 } else { colors::COLOR_UI_2 },
+                self.zoom
             );
         }
     }
@@ -223,7 +227,8 @@ impl Console {
                             if let Ok(rend) = vrend.get(*c) {
                                 render = (rend.glyph, rend.fg, rend.bg);
                             }
-                        }                        screen.print_cp437(
+                        }                        
+                        screen.print_cp437(
                             &game.assets,
                             frame,
                             Glyph {
@@ -231,7 +236,8 @@ impl Console {
                                 ch: to_cp437(render.0),
                                 fg: render.1,
                                 bg: render.2,
-                            }
+                            },
+                            self.zoom
                         );
                     }
                 }
@@ -248,7 +254,8 @@ impl Console {
             (self.pos.0, self.pos.1),
             (self.size.0, self.size.1),
             colors::COLOR_UI_1,
-            colors::COLOR_CLEAR
+            colors::COLOR_CLEAR,
+            self.zoom
         );
         
         let mut y = 1;
@@ -261,7 +268,8 @@ impl Console {
                         frame,
                         &s,
                         (self.pos.0 + GLYPH_SIZE, self.pos.1 + y * GLYPH_SIZE),
-                        colors::COLOR_UI_2
+                        colors::COLOR_UI_2,
+                        self.zoom
                     );
                     y += 1;
                 } else {
