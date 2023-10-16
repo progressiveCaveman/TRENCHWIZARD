@@ -15,7 +15,7 @@ use self::console::{Console, ConsoleMode};
 pub mod console;
 
 pub const MAX_ZOOM: usize = 16;
-const GLYPH_SIZE: usize = 8;
+const DEFAULT_GLYPH_SIZE: usize = 8;
 const DEBUG_OUTLINES: bool = false;
 
 pub enum UIState {
@@ -54,7 +54,7 @@ impl Screen {
         let x = 0;
         let y = 0;
         let w = self.size.0 - 1;
-        let h = 10 * GLYPH_SIZE - 1;
+        let h = 10 * DEFAULT_GLYPH_SIZE - 1;
         self.consoles.push(Console::new((w, h), (x, y), ConsoleMode::Log));
 
         // main console
@@ -65,8 +65,8 @@ impl Screen {
         self.consoles.push(Console::new((w, h), (x, y), ConsoleMode::WorldMap));
 
         // menu console
-        let w = GLYPH_SIZE * 30;
-        let h = GLYPH_SIZE * 20;
+        let w = DEFAULT_GLYPH_SIZE * 30;
+        let h = DEFAULT_GLYPH_SIZE * 20;
         let x = self.size.0/2 - w/2;
         let y = self.size.1/2 - h/2;
         self.consoles.push(Console::new((w, h), (x, y), ConsoleMode::MainMenu));
@@ -128,7 +128,7 @@ impl Screen {
 
         for (idx, ch) in chars.iter().enumerate() {
             self.print_cp437(assets, frame, Glyph { 
-                pos: (pos.0 + idx * GLYPH_SIZE, pos.1),
+                pos: (pos.0 + idx * DEFAULT_GLYPH_SIZE, pos.1),
                 ch: *ch, 
                 fg: color, 
                 bg: colors::COLOR_CLEAR 
@@ -153,7 +153,7 @@ impl Screen {
         let secorner = 188;
         let swcorner = 200;
 
-        let gsize = GLYPH_SIZE;
+        let gsize = DEFAULT_GLYPH_SIZE;
 
         for x in (pos.0 .. pos.0 + size.0).step_by(gsize) {
             for y in (pos.1 .. pos.1 + size.1).step_by(gsize) {

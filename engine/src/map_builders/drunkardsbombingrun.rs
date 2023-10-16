@@ -29,11 +29,11 @@ impl MapBuilder for DrunkardsBombingRunBuilder {
     }
 
     fn spawn_entities(&mut self, world: &mut World) {
-        world.run(|mut store: AllStoragesViewMut| {
-            for room in self.rooms.iter().skip(1) {
-                entity_factory::spawn_room(&mut store, &self.map, room, self.depth);
-            }
-        });
+        // world.run(|mut store: AllStoragesViewMut| {
+        //     for room in self.rooms.iter().skip(1) {
+        //         entity_factory::spawn_room(&mut store, &self.map, room, self.depth);
+        //     }
+        // });
     }
 
     fn take_snapshot(&mut self) {
@@ -245,7 +245,7 @@ impl DrunkardsBombingRunBuilder {
                         // if we have at least one tile bombed on screen
                         // push those coordinates to candidate list
                         let new_idx = self.map.xy_idx((x, y));
-                        if self.map.tiles[new_idx] != TileType::Floor {
+                        if self.map.tiles[new_idx] == TileType::Wall {
                             // self.map.set_tile(x, y, TileType::Floor);
                             self.map.tiles[new_idx] = TileType::Floor;
                             candidates.push(new_idx as i32);

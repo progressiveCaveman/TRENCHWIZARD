@@ -6,7 +6,6 @@ use self::sprites::Sprite;
 pub mod cp437_converter;
 pub mod sprites;
 
-const GLYPH_SIZE: usize = 8;
 const GLYPHS_PER_ROW: usize = 16;
 
 pub struct Assets {

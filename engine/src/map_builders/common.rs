@@ -57,7 +57,10 @@ pub fn apply_drunkards_corrider(map: &mut Map, x1: i32, y1: i32, x2: i32, y2: i3
                 y += ydir;
             }
         }
-        map.set_tile((x as usize, y as usize), TileType::Floor);
+        let pos = (x as usize, y as usize);
+        if map.get_tile(pos) == TileType::Wall {
+            map.set_tile((x as usize, y as usize), TileType::Floor);
+        }
     }
 }
 

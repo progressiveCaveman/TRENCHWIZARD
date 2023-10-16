@@ -54,7 +54,7 @@ use shipyard::{UniqueView, View, Get};
 
 use crate::{Game, WIDTH, assets::cp437_converter::to_cp437, GameState};
 
-use super::{Glyph, GLYPH_SIZE, DEBUG_OUTLINES, UIState};
+use super::{Glyph, DEFAULT_GLYPH_SIZE, DEBUG_OUTLINES, UIState};
 
 #[derive(Debug, PartialEq)]
 pub enum ConsoleMode {
@@ -133,8 +133,8 @@ impl Console {
                 self.zoom
             );
 
-            let x = self.pos.0 + 3 * GLYPH_SIZE;
-            let mut y = self.pos.1 + 2 * GLYPH_SIZE;
+            let x = self.pos.0 + 3 * DEFAULT_GLYPH_SIZE;
+            let mut y = self.pos.1 + 2 * DEFAULT_GLYPH_SIZE;
 
             screen.print_string(
                 &game.assets,
@@ -145,7 +145,7 @@ impl Console {
                 self.zoom
             );
 
-            y += 2 * GLYPH_SIZE;
+            y += 2 * DEFAULT_GLYPH_SIZE;
 
             screen.print_string(
                 &game.assets,
@@ -157,7 +157,7 @@ impl Console {
                 self.zoom
             );
 
-            y += GLYPH_SIZE;
+            y += DEFAULT_GLYPH_SIZE;
 
             screen.print_string(
                 &game.assets,
@@ -182,7 +182,7 @@ impl Console {
             map.history[game.history_step].clone()
         };
 
-        if self.zoom < GLYPH_SIZE {
+        if self.zoom < DEFAULT_GLYPH_SIZE {
             for (i, pixel) in frame.chunks_exact_mut(4).enumerate() {
                 let xscreen = i % WIDTH;
                 let yscreen = i / WIDTH;
@@ -260,14 +260,14 @@ impl Console {
         
         let mut y = 1;
         for m in game.engine.get_log().messages.iter().rev() {
-            for ms in m.chars().collect::<Vec<_>>().chunks(self.size.0 / GLYPH_SIZE - 2) {
-                if y * GLYPH_SIZE < self.size.1 - GLYPH_SIZE {
+            for ms in m.chars().collect::<Vec<_>>().chunks(self.size.0 / DEFAULT_GLYPH_SIZE - 2) {
+                if y * DEFAULT_GLYPH_SIZE < self.size.1 - DEFAULT_GLYPH_SIZE {
                     let s: String = ms.into_iter().collect();
                     screen.print_string(
                         &game.assets,
                         frame,
                         &s,
-                        (self.pos.0 + GLYPH_SIZE, self.pos.1 + y * GLYPH_SIZE),
+                        (self.pos.0 + DEFAULT_GLYPH_SIZE, self.pos.1 + y * DEFAULT_GLYPH_SIZE),
                         colors::COLOR_UI_2,
                         self.zoom
                     );

@@ -85,7 +85,7 @@ impl Game {
             },
             GameState::ShowMapHistory => {
                 self.history_timer += 1;
-                self.history_step = self.history_timer / 10;
+                self.history_step = self.history_timer / 5;
                 let map = self.engine.get_map();
                 
                 if self.history_step > map.history.len() {
