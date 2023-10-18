@@ -43,7 +43,7 @@ pub fn handle_input(input: &WinitInputHelper, game: &mut Game) -> Action {
     if input.key_pressed_os(VirtualKeyCode::Up) {
         match game.state {
             GameState::Waiting => game.screen.pan_map((0, -1 * movemod)),
-            GameState::MainMenu { selection } => game.state = GameState::MainMenu { selection: selection - 1 },
+            GameState::MainMenu { selection } => game.set_state(GameState::MainMenu { selection: selection - 1 }),
             _ => {},
         }
     }
@@ -52,7 +52,7 @@ pub fn handle_input(input: &WinitInputHelper, game: &mut Game) -> Action {
     if input.key_pressed_os(VirtualKeyCode::Down) {
         match game.state {
             GameState::Waiting => game.screen.pan_map((0, 1 * movemod)),
-            GameState::MainMenu { selection } => game.state = GameState::MainMenu { selection: selection + 1 },
+            GameState::MainMenu { selection } => game.set_state( GameState::MainMenu { selection: selection + 1 }),
             _ => {},
         }
     }
@@ -61,7 +61,7 @@ pub fn handle_input(input: &WinitInputHelper, game: &mut Game) -> Action {
     if input.key_pressed_os(VirtualKeyCode::Left) {
         match game.state {
             GameState::Waiting => game.screen.pan_map((-1 * movemod, 0)),
-            GameState::MainMenu { selection } => game.state = GameState::MainMenu { selection: selection + 1 },
+            GameState::MainMenu { selection } => game.set_state( GameState::MainMenu { selection: selection + 1 }),
             _ => {},
         }
     }
@@ -70,7 +70,7 @@ pub fn handle_input(input: &WinitInputHelper, game: &mut Game) -> Action {
     if input.key_pressed_os(VirtualKeyCode::Right) {
         match game.state {
             GameState::Waiting => game.screen.pan_map((1 * movemod, 0)),
-            GameState::MainMenu { selection } => game.state = GameState::MainMenu { selection: selection + 1 },
+            GameState::MainMenu { selection } => game.set_state( GameState::MainMenu { selection: selection + 1 }),
             _ => {},
         }
     }

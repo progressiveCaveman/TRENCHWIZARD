@@ -25,6 +25,9 @@ const HEIGHT: usize = 480 * SCALE;
 
 type Image = (Vec<[u8; 4]>, (usize, usize));
 
+pub const MAIN_MENU_OPTIONS: usize = 2;
+pub const MODE_SELECT_OPTIONS: usize = 3;
+
 pub struct Game {
     pub engine: Engine,
     pub screen: Screen,
@@ -39,6 +42,7 @@ pub struct Game {
 pub enum GameState {
     Waiting,
     MainMenu{ selection: usize },
+    ModeSelect{ selection: usize },
     ShowMapHistory
 }
 
@@ -80,9 +84,6 @@ impl Game {
             GameState::Waiting => {
                 self.engine.run_systems();
             },
-            GameState::MainMenu { selection } => {
-                
-            },
             GameState::ShowMapHistory => {
                 self.history_timer += 1;
                 self.history_step = self.history_timer / 5;
@@ -92,6 +93,7 @@ impl Game {
                     self.state = GameState::Waiting;
                 }
             },
+            _ => {},
         }
     }
 
@@ -101,10 +103,16 @@ impl Game {
         self.screen.draw(frame, &self);
     }
 
-    pub fn set_state(&mut self, state: GameState) {
+    pub fn set_state(&mut self, mut state: GameState) {
         match state {
             GameState::ShowMapHistory => self.history_timer = 0,
-            _ => {}
+            GameState::MainMenu { selection } => {
+                state = GameState::MainMenu { selection: selection.clamp(0, MAIN_MENU_OPTIONS - 1) };
+            }
+            GameState::ModeSelect { selection } => {
+                state = GameState::ModeSelect { selection: selection.clamp(0, MODE_SELECT_OPTIONS - 1) };
+            }
+            _ => {},
         }
 
         self.state = state;
