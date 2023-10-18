@@ -37,14 +37,13 @@ pub fn room_table(depth: usize) -> WeightedTable {
 
 pub fn spawn_room(store: &mut AllStoragesViewMut, map: &Map, room: &Rect, depth: usize) {
     let mut possible_targets: Vec<usize> = Vec::new();
-    {
-        // Borrow scope - to keep access to the map separated
-        for y in room.y1 + 1..room.y2 {
-            for x in room.x1 + 1..room.x2 {
-                let idx = map.xy_idx((x as usize, y as usize));
-                if map.tiles[idx] == TileType::Floor {
-                    possible_targets.push(idx);
-                }
+    
+    // Borrow scope - to keep access to the map separated
+    for y in room.y1 + 1..room.y2 {
+        for x in room.x1 + 1..room.x2 {
+            let idx = map.xy_idx((x as usize, y as usize));
+            if map.tiles[idx] == TileType::Floor {
+                possible_targets.push(idx);
             }
         }
     }
@@ -63,7 +62,7 @@ pub fn spawn_region(store: &mut AllStoragesViewMut, area: &[usize], map_depth: u
 
         let num_spawns = usize::min(
             areas.len() as usize,
-            rng.roll_dice(1, MAX_MONSTERS as i32 + 3) as usize + (map_depth - 1) - 3,
+            rng.roll_dice(1, MAX_MONSTERS as i32 + 3) as usize + map_depth - 1,
         );
         if num_spawns == 0 {
             return;

@@ -25,15 +25,15 @@ impl MapBuilder for DrunkardsBombingRunBuilder {
     }
 
     fn build_map(&mut self) {
-        self.rooms_and_corridors(50, 4, 8);
+        self.rooms_and_corridors(50, 8, 12);
     }
 
     fn spawn_entities(&mut self, world: &mut World) {
-        // world.run(|mut store: AllStoragesViewMut| {
-        //     for room in self.rooms.iter().skip(1) {
-        //         entity_factory::spawn_room(&mut store, &self.map, room, self.depth);
-        //     }
-        // });
+        world.run(|mut store: AllStoragesViewMut| {
+            for room in self.rooms.iter().skip(1) {
+                entity_factory::spawn_room(&mut store, &self.map, room, self.depth);
+            }
+        });
     }
 
     fn take_snapshot(&mut self) {
