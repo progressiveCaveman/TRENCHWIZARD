@@ -1,7 +1,7 @@
 use winit::event::VirtualKeyCode;
 use winit_input_helper::WinitInputHelper;
 
-use crate::{Game, GameState};
+use crate::{Game, GameState, screen::menu_config::MainMenuSelection};
 
 pub enum Action {
     None,
@@ -13,7 +13,7 @@ pub fn handle_input(input: &WinitInputHelper, game: &mut Game) -> Action {
     if input.key_pressed(VirtualKeyCode::Escape) {
         match game.state {
             GameState::MainMenu { selection } => return Action::Exit,
-            _ => game.set_state(GameState::MainMenu { selection: 0 }),
+            _ => game.set_state(GameState::MainMenu { selection: MainMenuSelection::Play }),
         }
     }
 
@@ -43,7 +43,7 @@ pub fn handle_input(input: &WinitInputHelper, game: &mut Game) -> Action {
     if input.key_pressed_os(VirtualKeyCode::Up) {
         match game.state {
             GameState::Waiting => game.screen.pan_map((0, -1 * movemod)),
-            GameState::MainMenu { selection } => game.set_state(GameState::MainMenu { selection: selection - 1 }),
+            GameState::MainMenu { selection } => game.set_state(GameState::MainMenu { selection: selection.dec() }),
             _ => {},
         }
     }
@@ -52,7 +52,7 @@ pub fn handle_input(input: &WinitInputHelper, game: &mut Game) -> Action {
     if input.key_pressed_os(VirtualKeyCode::Down) {
         match game.state {
             GameState::Waiting => game.screen.pan_map((0, 1 * movemod)),
-            GameState::MainMenu { selection } => game.set_state( GameState::MainMenu { selection: selection + 1 }),
+            GameState::MainMenu { selection } => game.set_state( GameState::MainMenu { selection: selection.inc() }),
             _ => {},
         }
     }
@@ -61,7 +61,6 @@ pub fn handle_input(input: &WinitInputHelper, game: &mut Game) -> Action {
     if input.key_pressed_os(VirtualKeyCode::Left) {
         match game.state {
             GameState::Waiting => game.screen.pan_map((-1 * movemod, 0)),
-            GameState::MainMenu { selection } => game.set_state( GameState::MainMenu { selection: selection + 1 }),
             _ => {},
         }
     }
@@ -70,7 +69,6 @@ pub fn handle_input(input: &WinitInputHelper, game: &mut Game) -> Action {
     if input.key_pressed_os(VirtualKeyCode::Right) {
         match game.state {
             GameState::Waiting => game.screen.pan_map((1 * movemod, 0)),
-            GameState::MainMenu { selection } => game.set_state( GameState::MainMenu { selection: selection + 1 }),
             _ => {},
         }
     }
@@ -79,10 +77,10 @@ pub fn handle_input(input: &WinitInputHelper, game: &mut Game) -> Action {
     if input.key_pressed_os(VirtualKeyCode::Return) {
         match game.state {
             GameState::MainMenu { selection } => {
-                if selection == 0 { //play game
-                    game.set_state(GameState::ShowMapHistory);
-                }else if selection == 1 { // exit
-                    return Action::Exit;
+                match selection {
+                    MainMenuSelection::Play => game.set_state(GameState::ShowMapHistory),
+                    MainMenuSelection::ModeSelect => todo!(),
+                    MainMenuSelection::Quit => return Action::Exit,
                 }
             },
             _ => {},

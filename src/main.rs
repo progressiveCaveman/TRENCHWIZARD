@@ -7,6 +7,7 @@ use input_handler::{handle_input, Action};
 use log::error;
 use pixels::{Error, Pixels, SurfaceTexture};
 
+use screen::menu_config::MainMenuSelection;
 use screen::{Screen, MAX_ZOOM};
 use screen::console::ConsoleMode;
 use winit::dpi::LogicalSize;
@@ -41,7 +42,7 @@ pub struct Game {
 #[derive(PartialEq, Copy, Clone, Debug)]
 pub enum GameState {
     Waiting,
-    MainMenu{ selection: usize },
+    MainMenu{ selection: MainMenuSelection },
     ModeSelect{ selection: usize },
     ShowMapHistory
 }
@@ -53,7 +54,7 @@ impl Game {
             screen: Screen::new((WIDTH, HEIGHT)),
             assets: Assets::new(),
             tick: 0,
-            state: GameState::MainMenu { selection: 0 },
+            state: GameState::MainMenu { selection: MainMenuSelection::Play },
             history_timer: 0,
             history_step: 0,
         }
@@ -107,7 +108,7 @@ impl Game {
         match state {
             GameState::ShowMapHistory => self.history_timer = 0,
             GameState::MainMenu { selection } => {
-                state = GameState::MainMenu { selection: selection.clamp(0, MAIN_MENU_OPTIONS - 1) };
+                // state = GameState::MainMenu { selection: selection.clamp(0, MAIN_MENU_OPTIONS - 1) };
             }
             GameState::ModeSelect { selection } => {
                 state = GameState::ModeSelect { selection: selection.clamp(0, MODE_SELECT_OPTIONS - 1) };

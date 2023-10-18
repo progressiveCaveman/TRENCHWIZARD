@@ -54,7 +54,7 @@ use shipyard::{UniqueView, View, Get};
 
 use crate::{Game, WIDTH, assets::cp437_converter::to_cp437, GameState};
 
-use super::{Glyph, DEFAULT_GLYPH_SIZE, DEBUG_OUTLINES};
+use super::{Glyph, UI_GLYPH_SIZE, DEBUG_OUTLINES, menu_config::MainMenuSelection};
 
 #[derive(Debug, PartialEq)]
 pub enum ConsoleMode {
@@ -131,11 +131,11 @@ impl Console {
                 self.size,
                 colors::COLOR_UI_1,
                 colors::COLOR_BLACK_SEMI_TRANS, // todo transparancy doesn't work
-                self.zoom
+                UI_GLYPH_SIZE
             );
 
-            let x = self.pos.0 + 3 * DEFAULT_GLYPH_SIZE;
-            let mut y = self.pos.1 + 2 * DEFAULT_GLYPH_SIZE;
+            let x = self.pos.0 + 3 * UI_GLYPH_SIZE;
+            let mut y = self.pos.1 + 2 * UI_GLYPH_SIZE;
 
             screen.print_string(
                 &game.assets,
@@ -143,32 +143,24 @@ impl Console {
                 "Main Menu",
                 (x, y),
                 colors::COLOR_UI_2,
-                self.zoom
+                UI_GLYPH_SIZE
             );
 
-            y += 2 * DEFAULT_GLYPH_SIZE;
+            y += 2 * UI_GLYPH_SIZE;
 
-            screen.print_string(
-                &game.assets,
-                frame,
-                "Play Game",
-                (x, y),
-                // colors::COLOR_UI_2
-                if selection == 0 { colors::COLOR_UI_3 } else { colors::COLOR_UI_2 },
-                self.zoom
-            );
-
-            y += DEFAULT_GLYPH_SIZE;
-
-            screen.print_string(
-                &game.assets,
-                frame,
-                "Quit",
-                (x, y),
-                // colors::COLOR_UI_2
-                if selection == 1 { colors::COLOR_UI_3 } else { colors::COLOR_UI_2 },
-                self.zoom
-            );
+            for i in 0..=MainMenuSelection::len() {
+                let opt = MainMenuSelection::from(i);
+                screen.print_string(
+                    &game.assets,
+                    frame,
+                    opt.text(),
+                    (x, y),
+                    if selection == opt { colors::COLOR_UI_3 } else { colors::COLOR_UI_2 },
+                    UI_GLYPH_SIZE
+                );
+    
+                y += UI_GLYPH_SIZE;
+            }
         }
     }
 
@@ -183,7 +175,7 @@ impl Console {
             map.history[game.history_step].clone()
         };
 
-        if self.zoom < DEFAULT_GLYPH_SIZE {
+        if self.zoom < 8 {
             for (i, pixel) in frame.chunks_exact_mut(4).enumerate() {
                 let xscreen = i % WIDTH;
                 let yscreen = i / WIDTH;
@@ -256,21 +248,21 @@ impl Console {
             (self.size.0, self.size.1),
             colors::COLOR_UI_1,
             colors::COLOR_CLEAR,
-            self.zoom
+            UI_GLYPH_SIZE
         );
         
         let mut y = 1;
         for m in game.engine.get_log().messages.iter().rev() {
-            for ms in m.chars().collect::<Vec<_>>().chunks(self.size.0 / DEFAULT_GLYPH_SIZE - 2) {
-                if y * DEFAULT_GLYPH_SIZE < self.size.1 - DEFAULT_GLYPH_SIZE {
+            for ms in m.chars().collect::<Vec<_>>().chunks(self.size.0 / UI_GLYPH_SIZE - 2) {
+                if y * UI_GLYPH_SIZE < self.size.1 - UI_GLYPH_SIZE {
                     let s: String = ms.into_iter().collect();
                     screen.print_string(
                         &game.assets,
                         frame,
                         &s,
-                        (self.pos.0 + DEFAULT_GLYPH_SIZE, self.pos.1 + y * DEFAULT_GLYPH_SIZE),
+                        (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
                         colors::COLOR_UI_2,
-                        self.zoom
+                        UI_GLYPH_SIZE
                     );
                     y += 1;
                 } else {
