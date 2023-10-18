@@ -1,7 +1,7 @@
 use winit::event::VirtualKeyCode;
 use winit_input_helper::WinitInputHelper;
 
-use crate::{Game, screen::UIState, GameState};
+use crate::{Game, GameState};
 
 pub enum Action {
     None,
@@ -11,13 +11,9 @@ pub enum Action {
 pub fn handle_input(input: &WinitInputHelper, game: &mut Game) -> Action {
     // Esc : Exit
     if input.key_pressed(VirtualKeyCode::Escape) {
-        match game.screen.ui_state {
-            UIState::Game => {
-                game.screen.ui_state = UIState::MainMenu { selection: 0 }
-            },
-            UIState::MainMenu { selection: _ } => {
-                return Action::Exit;
-            },
+        match game.state {
+            GameState::MainMenu { selection } => return Action::Exit,
+            _ => game.set_state(GameState::MainMenu { selection: 0 }),
         }
     }
 
@@ -45,60 +41,51 @@ pub fn handle_input(input: &WinitInputHelper, game: &mut Game) -> Action {
 
     // Up
     if input.key_pressed_os(VirtualKeyCode::Up) {
-        match game.screen.ui_state {
-            UIState::Game => {
-                game.screen.pan_map((0, -1 * movemod));
-            },
-            UIState::MainMenu { selection } => {
-                game.screen.ui_state = UIState::MainMenu { selection: selection - 1 };
-            },
+        match game.state {
+            GameState::Waiting => game.screen.pan_map((0, -1 * movemod)),
+            GameState::MainMenu { selection } => game.state = GameState::MainMenu { selection: selection - 1 },
+            _ => {},
         }
     }
 
     // Down
     if input.key_pressed_os(VirtualKeyCode::Down) {
-        match game.screen.ui_state {
-            UIState::Game => {
-                game.screen.pan_map((0, 1 * movemod));
-            },
-            UIState::MainMenu { selection } => {
-                game.screen.ui_state = UIState::MainMenu { selection: selection + 1 };
-            },
+        match game.state {
+            GameState::Waiting => game.screen.pan_map((0, 1 * movemod)),
+            GameState::MainMenu { selection } => game.state = GameState::MainMenu { selection: selection + 1 },
+            _ => {},
         }
     }
 
     // Left
     if input.key_pressed_os(VirtualKeyCode::Left) {
-        match game.screen.ui_state {
-            UIState::Game => {
-                game.screen.pan_map((-1 * movemod, 0));
-            },
+        match game.state {
+            GameState::Waiting => game.screen.pan_map((-1 * movemod, 0)),
+            GameState::MainMenu { selection } => game.state = GameState::MainMenu { selection: selection + 1 },
             _ => {},
         }
     }
 
     // Right
     if input.key_pressed_os(VirtualKeyCode::Right) {
-        match game.screen.ui_state {
-            UIState::Game => {
-                game.screen.pan_map((1 * movemod, 0));
-            },
+        match game.state {
+            GameState::Waiting => game.screen.pan_map((1 * movemod, 0)),
+            GameState::MainMenu { selection } => game.state = GameState::MainMenu { selection: selection + 1 },
             _ => {},
         }
     }
 
     // Enter
     if input.key_pressed_os(VirtualKeyCode::Return) {
-        match game.screen.ui_state {
-            UIState::MainMenu { selection } => {
+        match game.state {
+            GameState::MainMenu { selection } => {
                 if selection == 0 { //play game
-                    game.screen.ui_state = UIState::Game;
                     game.set_state(GameState::ShowMapHistory);
                 }else if selection == 1 { // exit
                     return Action::Exit;
                 }
             },
-            _ => {}
+            _ => {},
         }
     }
 

@@ -38,7 +38,7 @@ pub struct Game {
 #[derive(PartialEq, Copy, Clone, Debug)]
 pub enum GameState {
     Waiting,
-    MainMenu,
+    MainMenu{ selection: usize },
     ShowMapHistory
 }
 
@@ -49,7 +49,7 @@ impl Game {
             screen: Screen::new((WIDTH, HEIGHT)),
             assets: Assets::new(),
             tick: 0,
-            state: GameState::MainMenu,
+            state: GameState::MainMenu { selection: 0 },
             history_timer: 0,
             history_step: 0,
         }
@@ -80,8 +80,8 @@ impl Game {
             GameState::Waiting => {
                 self.engine.run_systems();
             },
-            GameState::MainMenu => {
-
+            GameState::MainMenu { selection } => {
+                
             },
             GameState::ShowMapHistory => {
                 self.history_timer += 1;

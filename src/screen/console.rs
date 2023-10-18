@@ -54,7 +54,7 @@ use shipyard::{UniqueView, View, Get};
 
 use crate::{Game, WIDTH, assets::cp437_converter::to_cp437, GameState};
 
-use super::{Glyph, DEFAULT_GLYPH_SIZE, DEBUG_OUTLINES, UIState};
+use super::{Glyph, DEFAULT_GLYPH_SIZE, DEBUG_OUTLINES};
 
 #[derive(Debug, PartialEq)]
 pub enum ConsoleMode {
@@ -122,7 +122,8 @@ impl Console {
     pub fn render_main_menu(&self, frame: &mut [u8], game: &Game) {
         let screen = &game.screen;
 
-        if let UIState::MainMenu{selection} = screen.ui_state {
+        // only render if gamestate is mainmenu
+        if let GameState::MainMenu{selection} = game.state {
             screen.draw_box(
                 &game.assets,
                 frame,

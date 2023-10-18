@@ -18,16 +18,10 @@ pub const MAX_ZOOM: usize = 16;
 const DEFAULT_GLYPH_SIZE: usize = 8;
 const DEBUG_OUTLINES: bool = false;
 
-pub enum UIState {
-    Game,
-    MainMenu { selection: usize },
-}
-
 pub struct Screen {
     pub size: (usize, usize),
     pub input_blocking: bool,
     pub consoles: Vec<Console>,
-    pub ui_state: UIState,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -44,7 +38,6 @@ impl Screen {
             size,
             input_blocking: false,
             consoles: Vec::new(),
-            ui_state: UIState::MainMenu { selection: 0 },
         }
     }
 
