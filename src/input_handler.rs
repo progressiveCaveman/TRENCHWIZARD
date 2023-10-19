@@ -88,7 +88,7 @@ pub fn handle_input(input: &WinitInputHelper, game: &mut Game) -> Action {
             },
             GameState::ModeSelect { selection } => {
                 match selection {
-                    ModeSelectSelection::MapDemo => game.engine.reset_engine(get_settings(GameMode::RL)),
+                    ModeSelectSelection::MapDemo => game.engine.reset_engine(get_settings(GameMode::MapDemo)),
                     ModeSelectSelection::RL => game.engine.reset_engine(get_settings(GameMode::RL)),
                     ModeSelectSelection::VillageSim => game.engine.reset_engine(get_settings(GameMode::VillageSim)),
                 }
