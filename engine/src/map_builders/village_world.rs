@@ -1,7 +1,7 @@
 use rltk::{Point, RandomNumberGenerator};
 use shipyard::{AllStoragesViewMut, World};
 
-use crate::{entity_factory, SHOW_MAPGEN_ANIMATION, tiles::TileType};
+use crate::{entity_factory, SHOW_MAPGEN_ANIMATION, tiles::TileType, map::XY};
 
 use super::{Map, MapBuilder, Position};
 
@@ -28,13 +28,13 @@ impl MapBuilder for VillageWorldBuilder {
         let mut used_idx = vec![];
 
         for _ in 0..100 {
-            let x = rng.roll_dice(1, self.map.size.0 as i32 - 1) as usize;
-            let y = rng.roll_dice(1, self.map.size.1 as i32 - 1) as usize;
+            let x = rng.roll_dice(1, self.map.size.0 as i32 - 1);
+            let y = rng.roll_dice(1, self.map.size.1 as i32 - 1);
             let idx = self.map.xy_idx((x, y));
             if !self.map.is_wall(x, y) && self.map.tiles[idx] != TileType::Water && !used_idx.contains(&idx) {
                 used_idx.push(idx);
                 world.run(|mut store: AllStoragesViewMut| {
-                    entity_factory::villager(&mut store, x, y);
+                    entity_factory::villager(&mut store, (x, y));
                 });
             }
         }
@@ -74,7 +74,7 @@ impl MapBuilder for VillageWorldBuilder {
 }
 
 impl VillageWorldBuilder {
-    pub fn new(_new_depth: usize, size: (usize, usize)) -> VillageWorldBuilder {
+    pub fn new(_new_depth: usize, size: XY) -> VillageWorldBuilder {
         VillageWorldBuilder {
             map: Map::new(size),
             starting_position: Position {
@@ -111,7 +111,7 @@ impl VillageWorldBuilder {
 
                 for i in 0..map.tiles.len() {
                     let pos = map.idx_point(i);
-                    let targetpos = Point::new(x + pos.x as usize,y + pos.y as usize);
+                    let targetpos = Point::new(x + pos.x as i32,y + pos.y as i32);
                     let targetposidx = self.map.point_idx(targetpos);
                     self.map.tiles[targetposidx] = map.tiles[i];
                 }

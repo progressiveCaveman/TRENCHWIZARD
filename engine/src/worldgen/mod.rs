@@ -1,8 +1,7 @@
-use std::{vec, convert::TryInto};
 
 use rand::Rng;
 
-use crate::{map::Map, tiles::TileType};
+use crate::{map::{Map, XY}, tiles::TileType};
 
 pub fn basic_fill(map: &mut Map) {
     let size = map.size;
@@ -43,7 +42,7 @@ fn fill_recursive(map: &mut Map, depth: usize) {
             let neighbors = get_neighbors(map.idx_xy(index));
 
             for p in neighbors.iter() {
-                if map.in_bounds((p.0.try_into().unwrap(), p.1.try_into().unwrap())) {
+                if map.in_bounds((p.0, p.1)) {
                     let idx = map.xy_idx(*p);
                     let t = map.tiles[idx];
                     if t != TileType::Water {
@@ -62,14 +61,14 @@ fn fill_recursive(map: &mut Map, depth: usize) {
     }
 }
 
-fn rnd_point(size: (usize, usize)) -> (usize, usize) {
+fn rnd_point(size: XY) -> XY {
     let mut rng = rand::thread_rng();
     let x: f32 = rng.gen();
     let y: f32 = rng.gen();
-    ((x * size.0 as f32) as usize, (y * size.1 as f32) as usize)
+    ((x * size.0 as f32) as i32, (y * size.1 as f32) as i32)
 }
 
-pub fn get_neighbors(point: (usize, usize)) -> Vec<(usize, usize)> {
+pub fn get_neighbors(point: XY) -> Vec<XY> {
     let mut n = vec![];
 
     if point.0 > 0 {

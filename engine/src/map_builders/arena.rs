@@ -3,7 +3,7 @@ use shipyard::{AllStoragesViewMut, World};
 
 use crate::{
     components::{Faction, SpawnerType},
-    entity_factory, SHOW_MAPGEN_ANIMATION, tiles::TileType,
+    entity_factory, SHOW_MAPGEN_ANIMATION, tiles::TileType, map::XY,
 };
 
 use super::{Map, MapBuilder, Position};
@@ -29,8 +29,7 @@ impl MapBuilder for AernaBuilder {
         world.run(|mut store: AllStoragesViewMut| {
             entity_factory::spawner(
                 &mut store,
-                4,
-                self.map.size.1 / 2,
+                (4, self.map.size.1 / 2),
                 Faction::Wizard1,
                 SpawnerType::Orc,
                 10,
@@ -39,8 +38,7 @@ impl MapBuilder for AernaBuilder {
         world.run(|mut store: AllStoragesViewMut| {
             entity_factory::spawner(
                 &mut store,
-                self.map.size.0 - 5,
-                self.map.size.1 / 2,
+                (self.map.size.0 - 5, self.map.size.1 / 2),
                 Faction::Wizard2,
                 SpawnerType::Orc,
                 10,
@@ -56,7 +54,7 @@ impl MapBuilder for AernaBuilder {
 }
 
 impl AernaBuilder {
-    pub fn new(_new_depth: usize, size: (usize, usize)) -> AernaBuilder {
+    pub fn new(_new_depth: usize, size: XY) -> AernaBuilder {
         AernaBuilder {
             map: Map::new(size),
             starting_position: Position {

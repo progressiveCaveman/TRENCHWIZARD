@@ -49,7 +49,7 @@ label
 
 */
 
-use engine::{map::Map, colors::{self}, components::Renderable};
+use engine::{map::{Map, XY}, colors::{self}, components::Renderable};
 use shipyard::{UniqueView, View, Get};
 use strum::EnumCount;
 
@@ -66,18 +66,18 @@ pub enum ConsoleMode {
 
 #[derive(Debug)]
 pub struct Console {
-    pub size: (usize, usize),
-    pub pos: (usize, usize),
+    pub size: XY,
+    pub pos: XY,
     pub children: Vec<Console>,
     pub hidden: bool,
     pub z: i32, // not used yet
     pub mode: ConsoleMode,
-    pub zoom: usize, // Only used for map mode
-    pub map_pos: (usize, usize), // Only used for map mode
+    pub zoom: i32, // Only used for map mode
+    pub map_pos: XY, // Only used for map mode
 }
 
 impl Console {
-    pub fn new(size: (usize, usize), pos: (usize, usize), mode: ConsoleMode) -> Console {
+    pub fn new(size: XY, pos: XY, mode: ConsoleMode) -> Console {
         Self {
             size: size,
             pos: pos,
@@ -106,8 +106,8 @@ impl Console {
 
         if DEBUG_OUTLINES {
             for (i, pixel) in frame.chunks_exact_mut(4).enumerate() {
-                let xscreen = i % WIDTH;
-                let yscreen = i / WIDTH;
+                let xscreen = i as i32 % WIDTH;
+                let yscreen = i as i32 / WIDTH;
 
                 if self.in_bounds((xscreen, yscreen)) &&
                     (xscreen == self.pos.0 || 
@@ -224,8 +224,8 @@ impl Console {
 
         if self.zoom < 8 {
             for (i, pixel) in frame.chunks_exact_mut(4).enumerate() {
-                let xscreen = i % WIDTH;
-                let yscreen = i / WIDTH;
+                let xscreen = i as i32 % WIDTH;
+                let yscreen = i as i32 / WIDTH;
 
                 let xrange = self.pos.0..self.pos.0 + self.size.0;
                 let yrange = self.pos.1..self.pos.1 + self.size.1;
@@ -300,7 +300,7 @@ impl Console {
         
         let mut y = 1;
         for m in game.engine.get_log().messages.iter().rev() {
-            for ms in m.chars().collect::<Vec<_>>().chunks(self.size.0 / UI_GLYPH_SIZE - 2) {
+            for ms in m.chars().collect::<Vec<_>>().chunks((self.size.0 / UI_GLYPH_SIZE) as usize - 2) {
                 if y * UI_GLYPH_SIZE < self.size.1 - UI_GLYPH_SIZE {
                     let s: String = ms.into_iter().collect();
                     screen.print_string(
@@ -319,7 +319,7 @@ impl Console {
         }
     }
 
-    pub fn in_bounds(&self, pos: (usize, usize)) -> bool {
+    pub fn in_bounds(&self, pos: XY) -> bool {
         return pos.0 >= self.pos.0 && 
             pos.0 <= self.pos.0 + self.size.0 && 
             pos.1 >= self.pos.1 &&

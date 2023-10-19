@@ -4,10 +4,12 @@ use shipyard::{Unique, EntityId, View, Get};
 
 use crate::{components::Position, utils::Target, tiles::TileType};
 
+pub type XY = (i32, i32);
+
 #[derive(Default, Serialize, Deserialize, Clone, Unique)]
 pub struct Map {
     pub tiles: Vec<TileType>,
-    pub size: (usize, usize),
+    pub size: XY,
     pub blocked: Vec<bool>,
     pub fire_turns: Vec<i32>,
 
@@ -19,7 +21,7 @@ pub struct Map {
 }
 
 impl Map {
-    pub fn new(size: (usize, usize)) -> Map {
+    pub fn new(size: XY) -> Map {
         let count = (size.0 * size.1) as usize;
         Map {
             tiles: vec![TileType::Wall; count],
@@ -36,35 +38,35 @@ impl Map {
     }
 
     pub fn len(&self) -> usize {
-        self.size.0 * self.size.1
+        (self.size.0 * self.size.1) as usize
     }
 
-    pub fn get_tile(&self, xy: (usize, usize)) -> TileType {
+    pub fn get_tile(&self, xy: XY) -> TileType {
         let idx = self.xy_idx(xy);
         self.tiles[idx]
     }
 
-    pub fn set_tile(&mut self, xy: (usize, usize), value: TileType) {
+    pub fn set_tile(&mut self, xy: XY, value: TileType) {
         let idx = self.xy_idx(xy);
         self.tiles[idx] = value;
     }
 
-    pub fn xy_idx(&self, xy: (usize, usize)) -> usize {
+    pub fn xy_idx(&self, xy: XY) -> usize {
         (xy.1 as usize * self.size.0 as usize) + xy.0 as usize
     }
 
-    pub fn idx_xy(&self, idx: usize) -> (usize, usize) {
-        (idx as usize % self.size.0, idx as usize / self.size.0)
+    pub fn idx_xy(&self, idx: usize) -> XY {
+        (idx as i32 % self.size.0, idx as i32 / self.size.0)
     }
     pub fn point_idx(&self, point: Point) -> usize {
         (point.y as usize * self.size.0 as usize) + point.x as usize
     }
 
     pub fn idx_point(&self, idx: usize) -> Point {
-        Point::new(idx % self.size.0, idx / self.size.0)
+        Point::new(idx as i32 % self.size.0, idx as i32 / self.size.0)
     }
 
-    pub fn in_bounds(&self, pos: (usize, usize)) -> bool {
+    pub fn in_bounds(&self, pos: XY) -> bool {
         pos.0 < self.size.0 && pos.1 < self.size.1
     }
 
@@ -75,7 +77,7 @@ impl Map {
     //     return true;
     // }
 
-    pub fn is_wall(&self, x: usize, y: usize) -> bool {
+    pub fn is_wall(&self, x: i32, y: i32) -> bool {
         let idx = self.xy_idx((x, y));
         self.tiles[idx] == TileType::Wall
             || self.tiles[idx] == TileType::WoodWall
@@ -148,7 +150,7 @@ impl Map {
         if x < 1 || x >= self.size.0 as i32 || y < 1 || y >= self.size.1 as i32{
             return false;
         }
-        let idx = self.xy_idx((x as usize, y as usize));
+        let idx = self.xy_idx((x, y));
         !self.blocked[idx]
     }
 }

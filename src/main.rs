@@ -2,6 +2,7 @@ use assets::Assets;
 use engine::game_modes::{get_settings, GameMode};
 
 use engine::Engine;
+use engine::map::XY;
 use error_iter::ErrorIter as _;
 use input_handler::{handle_input, Action};
 use log::error;
@@ -20,11 +21,11 @@ pub mod assets;
 pub mod input_handler;
 pub mod screen;
 
-const SCALE: usize = 2;
-const WIDTH: usize = 640 * SCALE;
-const HEIGHT: usize = 480 * SCALE;
+const SCALE: i32 = 2;
+const WIDTH: i32 = 640 * SCALE;
+const HEIGHT: i32 = 480 * SCALE;
 
-type Image = (Vec<[u8; 4]>, (usize, usize));
+type Image = (Vec<[u8; 4]>, XY);
 
 pub const MAIN_MENU_OPTIONS: usize = 2;
 pub const MODE_SELECT_OPTIONS: usize = 3;
@@ -84,13 +85,18 @@ impl Game {
         match self.state {
             GameState::Waiting => {
                 self.engine.run_systems();
+
+                if self.engine.settings.mode == GameMode::MapDemo {
+                    self.engine.reset_engine(self.engine.settings);
+                    self.set_state(GameState::ShowMapHistory);
+                }
             },
             GameState::ShowMapHistory => {
                 self.history_timer += 1;
                 self.history_step = self.history_timer / 5;
                 let map = self.engine.get_map();
                 
-                if self.history_step > map.history.len() {
+                if self.history_step > map.history.len() + 20 {
                     self.state = GameState::Waiting;
                 }
             },

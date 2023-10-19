@@ -3,7 +3,7 @@ use shipyard::{AllStoragesViewMut, World};
 
 use crate::{
     components::{Faction, SpawnerType},
-    entity_factory, SHOW_MAPGEN_ANIMATION, tiles::TileType,
+    entity_factory, SHOW_MAPGEN_ANIMATION, tiles::TileType, map::XY,
 };
 
 use super::{Map, MapBuilder, Position};
@@ -32,30 +32,29 @@ impl MapBuilder for VillageBuilder {
                 for x in 1..self.map.size.0 - 1 {
                     let roll = rng.roll_dice(1, 100);
                     if roll < 35 {
-                        entity_factory::tree(&mut store, x, y);
+                        entity_factory::tree(&mut store, (x, y));
                     }
                 }
             }
 
             entity_factory::spawner(
                 &mut store,
-                1,
-                self.map.size.1 - 7,
+                (1, self.map.size.1 - 7),
                 Faction::Nature,
                 SpawnerType::Fish,
                 1,
             );
 
             for i in 1..=10 {
-                entity_factory::plank_house(&mut store, 20 + 10 * i, self.map.size.1 - 14, 4, 4);
+                entity_factory::plank_house(&mut store, (20 + 10 * i, self.map.size.1 - 14), 4, 4);
             }
 
-            entity_factory::chief_house(&mut store, 40, self.map.size.1 - 27, 20, 8);
-            entity_factory::lumber_mill(&mut store, 20, self.map.size.1 - 27, 8, 8);
-            entity_factory::fish_cleaner(&mut store, 10, self.map.size.1 - 17, 5, 5);
+            entity_factory::chief_house(&mut store, (40, self.map.size.1 - 27), 20, 8);
+            entity_factory::lumber_mill(&mut store, (20, self.map.size.1 - 27), 8, 8);
+            entity_factory::fish_cleaner(&mut store, (10, self.map.size.1 - 17), 5, 5);
 
             for i in 0..20 {
-                entity_factory::villager(&mut store, 15, self.map.size.1 - 25 - i);
+                entity_factory::villager(&mut store, (15, self.map.size.1 - 25 - i));
             }
         });
     }
@@ -68,7 +67,7 @@ impl MapBuilder for VillageBuilder {
 }
 
 impl VillageBuilder {
-    pub fn new(_new_depth: usize, size: (usize, usize)) -> VillageBuilder {
+    pub fn new(_new_depth: usize, size: XY) -> VillageBuilder {
         VillageBuilder {
             map: Map::new(size),
             starting_position: Position {

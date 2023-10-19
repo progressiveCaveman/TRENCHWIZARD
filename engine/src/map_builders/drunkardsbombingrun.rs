@@ -1,3 +1,4 @@
+use crate::map::XY;
 use crate::tiles::TileType;
 use crate::utils::rect::Rect;
 use crate::{entity_factory, SHOW_MAPGEN_ANIMATION};
@@ -44,7 +45,7 @@ impl MapBuilder for DrunkardsBombingRunBuilder {
 }
 
 impl DrunkardsBombingRunBuilder {
-    pub fn new(new_depth: usize, size: (usize, usize)) -> DrunkardsBombingRunBuilder {
+    pub fn new(new_depth: usize, size: XY) -> DrunkardsBombingRunBuilder {
         DrunkardsBombingRunBuilder {
             map: Map::new(size),
             starting_position: Position {
@@ -76,7 +77,7 @@ impl DrunkardsBombingRunBuilder {
 
             if place_room {
                 // apply_room_to_map(&mut self.map, &new_room, TileType::Floor, true);
-                self.map.set_tile((new_room.center().0 as usize, new_room.center().1 as usize), TileType::Floor);
+                self.map.set_tile((new_room.center().0, new_room.center().1), TileType::Floor);
 
                 self.rooms.push(new_room);
             }
@@ -113,7 +114,7 @@ impl DrunkardsBombingRunBuilder {
         }
 
         let stairs_down_pos = self.rooms[self.rooms.len() - 1].center();
-        let stairs_idx = self.map.xy_idx((stairs_down_pos.0 as usize, stairs_down_pos.1 as usize));
+        let stairs_idx = self.map.xy_idx((stairs_down_pos.0, stairs_down_pos.1));
         self.map.tiles[stairs_idx] = TileType::StairsDown;
 
         let start_pos = self.rooms[0].center();
@@ -294,7 +295,7 @@ impl DrunkardsBombingRunBuilder {
                         continue;
                     }
 
-                    let new_idx = self.map.xy_idx((new_r as usize, new_c as usize));
+                    let new_idx = self.map.xy_idx((new_r, new_c));
 
                     if image[new_idx] == initial_color {
                         cells.push_back(new_idx);

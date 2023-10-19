@@ -1,7 +1,7 @@
 use rltk::{Point, RandomNumberGenerator};
 use shipyard::{AllStoragesViewMut, World};
 
-use crate::{entity_factory, SHOW_MAPGEN_ANIMATION, utils::rect::Rect, tiles::TileType};
+use crate::{entity_factory, SHOW_MAPGEN_ANIMATION, utils::rect::Rect, tiles::TileType, map::XY};
 
 use super::{Map, MapBuilder, Position};
 
@@ -44,7 +44,7 @@ impl MapBuilder for BspInteriorBuilder {
 }
 
 impl BspInteriorBuilder {
-    pub fn new(new_depth: usize, size: (usize, usize)) -> BspInteriorBuilder {
+    pub fn new(new_depth: usize, size: XY) -> BspInteriorBuilder {
         BspInteriorBuilder {
             map: Map::new(size),
             starting_position: Position {
@@ -73,7 +73,7 @@ impl BspInteriorBuilder {
             self.rooms.push(room);
             for y in room.y1..room.y2 {
                 for x in room.x1..room.x2 {
-                    let idx = self.map.xy_idx((x as usize, y as usize));
+                    let idx = self.map.xy_idx((x, y));
                     if idx > 0 && idx < ((self.map.size.0 * self.map.size.1) - 1) as usize {
                         self.map.tiles[idx] = TileType::Floor;
                     }
@@ -101,7 +101,7 @@ impl BspInteriorBuilder {
 
         // Don't forget the stairs
         let stairs = self.rooms[self.rooms.len() - 1].center();
-        let stairs_idx = self.map.xy_idx((stairs.0 as usize, stairs.1 as usize));
+        let stairs_idx = self.map.xy_idx((stairs.0, stairs.1));
         self.map.tiles[stairs_idx] = TileType::StairsDown;
     }
 
@@ -161,7 +161,7 @@ impl BspInteriorBuilder {
                 y -= 1;
             }
 
-            let idx = self.map.xy_idx((x as usize, y as usize));
+            let idx = self.map.xy_idx((x, y));
             self.map.tiles[idx] = TileType::Floor;
         }
     }

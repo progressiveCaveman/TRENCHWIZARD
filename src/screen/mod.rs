@@ -1,6 +1,6 @@
 use std::{iter::zip, cmp};
 
-use engine::colors::{Color, self};
+use engine::{colors::{Color, self}, map::XY};
 
 use crate::{
     assets::{
@@ -15,26 +15,26 @@ use self::console::{Console, ConsoleMode};
 pub mod console;
 pub mod menu_config;
 
-pub const MAX_ZOOM: usize = 16;
-const UI_GLYPH_SIZE: usize = 16;
+pub const MAX_ZOOM: i32 = 16;
+const UI_GLYPH_SIZE: i32 = 16;
 const DEBUG_OUTLINES: bool = false;
 
 pub struct Screen {
-    pub size: (usize, usize),
+    pub size: XY,
     pub input_blocking: bool,
     pub consoles: Vec<Console>,
 }
 
 #[derive(Debug, Clone, Copy)]
 pub struct Glyph {
-    pub pos: (usize, usize),
+    pub pos: XY,
     pub ch: usize,
     pub fg: Color,
     pub bg: Color,
 }
 
 impl Screen {
-    pub fn new(size: (usize, usize)) -> Self {
+    pub fn new(size: XY) -> Self {
         Self {
             size,
             input_blocking: false,
@@ -88,12 +88,12 @@ impl Screen {
             (
                 cmp::max(
                     0, 
-                    mp.0 as i32 + offset.0,
-                ) as usize,
+                    mp.0 + offset.0,
+                ),
                 cmp::max(
                     0, 
-                    mp.1 as i32 + offset.1,
-                ) as usize,
+                    mp.1 + offset.1,
+                ),
             )
         };
     }
@@ -112,17 +112,17 @@ impl Screen {
         }
     }
 
-    pub fn print_cp437(&self, assets: &Assets, frame: &mut [u8], glyph: Glyph, zoom: usize) {
+    pub fn print_cp437(&self, assets: &Assets, frame: &mut [u8], glyph: Glyph, zoom: i32) {
         // let sprite = &assets.glyph(glyph);
         Screen::blit_glyph(frame, assets, glyph.pos, glyph, zoom);
     }
 
-    pub fn print_string(&self, assets: &Assets, frame: &mut [u8], str: &str, pos: (usize, usize), color: Color, zoom: usize) {
+    pub fn print_string(&self, assets: &Assets, frame: &mut [u8], str: &str, pos: XY, color: Color, zoom: i32) {
         let chars = string_to_cp437(str);
 
         for (idx, ch) in chars.iter().enumerate() {
             self.print_cp437(assets, frame, Glyph { 
-                pos: (pos.0 + idx * UI_GLYPH_SIZE, pos.1),
+                pos: (pos.0 + idx as i32 * UI_GLYPH_SIZE, pos.1),
                 ch: *ch, 
                 fg: color, 
                 bg: colors::COLOR_CLEAR 
@@ -139,7 +139,7 @@ impl Screen {
         }
     }
 
-    pub fn draw_box(&self, assets: &Assets, frame: &mut [u8], pos: (usize, usize), size: (usize, usize), fg: Color, bg: Color, zoom: usize) {
+    pub fn draw_box(&self, assets: &Assets, frame: &mut [u8], pos: XY, size: XY, fg: Color, bg: Color, zoom: i32) {
         let vertwall = 186;
         let horizwall = 205;
         let nwcorner = 201;
@@ -149,8 +149,8 @@ impl Screen {
 
         let gsize = UI_GLYPH_SIZE;
 
-        for x in (pos.0 .. pos.0 + size.0).step_by(gsize) {
-            for y in (pos.1 .. pos.1 + size.1).step_by(gsize) {
+        for x in (pos.0 .. pos.0 + size.0).step_by(gsize as usize) {
+            for y in (pos.1 .. pos.1 + size.1).step_by(gsize as usize) {
                 let firstcolumn = x < pos.0 + gsize;
                 let lastcolumn = x >= pos.0 + size.0 - gsize;
                 let firstrow = y < pos.1 + gsize;
@@ -205,13 +205,13 @@ impl Screen {
         // }
     }
 
-    pub fn draw_image(&self, image: &Image, frame: &mut [u8], pos: (usize, usize)) {
+    pub fn draw_image(&self, image: &Image, frame: &mut [u8], pos: XY) {
         for (i, pixel) in frame.chunks_exact_mut(4).enumerate() {
             let image_buf = &image.0;
             let size = image.1;
 
-            let xscreen = i % WIDTH;
-            let yscreen = i / WIDTH;
+            let xscreen = i as i32 % WIDTH;
+            let yscreen = i as i32 / WIDTH;
 
             let xrange = pos.0 .. pos.0 + self.size.0;
             let yrange = pos.1 .. pos.1 + self.size.1;
@@ -221,7 +221,7 @@ impl Screen {
                 let yimg = yscreen - pos.1;
 
                 let idx = yimg * size.1 + ximg;
-                let rgba = image_buf[idx];
+                let rgba = image_buf[idx as usize];
 
                 pixel.copy_from_slice(&rgba);
             }
@@ -229,27 +229,27 @@ impl Screen {
     }
 
     /// Blit a drawable to the pixel buffer. Assumes glyph asset has fuscia bg and grayscale fg
-    pub fn blit_glyph(frame: &mut [u8], assets: &Assets, dest: (usize, usize), glyph: Glyph, zoom: usize) {
+    pub fn blit_glyph(frame: &mut [u8], assets: &Assets, dest: XY, glyph: Glyph, zoom: i32) {
         let mut spritesheet = &assets.cp437[0];
         for ss in assets.cp437.iter() {
-            if zoom == ss.0 {
+            if zoom == ss.0 as i32 {
                 spritesheet = ss;
-            } else if zoom < ss.0 {
+            } else if zoom < ss.0 as i32 {
                 break;
             }
         }
 
         let sprite = &spritesheet.1[glyph.ch as usize];
 
-        assert!(dest.0 + sprite.width() <= WIDTH);
-        assert!(dest.1 + sprite.height() <= HEIGHT);
+        assert!(dest.0 + sprite.width() as i32 <= WIDTH);
+        assert!(dest.1 + sprite.height() as i32 <= HEIGHT);
 
         let pixels = sprite.pixels();
         let width = sprite.width() * 4;
 
         let mut s = 0;
         for y in 0..sprite.height() {
-            let i = dest.0 * 4 + dest.1 * WIDTH * 4 + y * WIDTH * 4;
+            let i = (dest.0 * 4 + dest.1 * WIDTH * 4 + y as i32 * WIDTH * 4) as usize;
 
             let zipped = zip(
                 frame[i..i + width].chunks_exact_mut(4),

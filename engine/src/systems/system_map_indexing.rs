@@ -8,7 +8,7 @@ pub fn run_map_indexing_system(mut map: UniqueViewMut<Map>, vpos: View<Position>
 
     for (id, pos) in vpos.iter().with_id() {
         for pos in pos.ps.iter() {
-            let idx = map.xy_idx((pos.x as usize, pos.y as usize));
+            let idx = map.xy_idx((pos.x, pos.y));
             if idx > map.tiles.len() {
                 continue;
             }

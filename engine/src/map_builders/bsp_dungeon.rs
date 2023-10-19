@@ -1,7 +1,7 @@
 use rltk::{Point, RandomNumberGenerator};
 use shipyard::{AllStoragesViewMut, World};
 
-use crate::{entity_factory, SHOW_MAPGEN_ANIMATION, utils::rect::Rect, tiles::TileType};
+use crate::{entity_factory, SHOW_MAPGEN_ANIMATION, utils::rect::Rect, tiles::TileType, map::XY};
 
 use super::{apply_room_to_map, Map, MapBuilder, Position};
 
@@ -42,7 +42,7 @@ impl MapBuilder for BspDungeonBuilder {
 }
 
 impl BspDungeonBuilder {
-    pub fn new(new_depth: usize, size: (usize, usize)) -> BspDungeonBuilder {
+    pub fn new(new_depth: usize, size: XY) -> BspDungeonBuilder {
         BspDungeonBuilder {
             map: Map::new(size),
             starting_position: Position {
@@ -104,7 +104,7 @@ impl BspDungeonBuilder {
 
         // Don't forget the stairs
         let stairs = self.rooms[self.rooms.len() - 1].center();
-        let stairs_idx = self.map.xy_idx((stairs.0 as usize, stairs.1 as usize));
+        let stairs_idx = self.map.xy_idx((stairs.0, stairs.1));
         self.map.tiles[stairs_idx] = TileType::StairsDown;
     }
 
@@ -175,7 +175,7 @@ impl BspDungeonBuilder {
                     can_build = false;
                 }
                 if can_build {
-                    let idx = self.map.xy_idx((x as usize, y as usize));
+                    let idx = self.map.xy_idx((x, y));
                     if self.map.tiles[idx] != TileType::Wall {
                         can_build = false;
                     }
@@ -201,7 +201,7 @@ impl BspDungeonBuilder {
                 y -= 1;
             }
 
-            let idx = self.map.xy_idx((x as usize, y as usize));
+            let idx = self.map.xy_idx((x, y));
             self.map.tiles[idx] = TileType::Floor;
         }
     }

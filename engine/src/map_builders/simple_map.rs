@@ -1,7 +1,7 @@
 use rltk::{Point, RandomNumberGenerator};
 use shipyard::{AllStoragesViewMut, World};
 
-use crate::{entity_factory, SHOW_MAPGEN_ANIMATION, utils::rect::Rect, tiles::TileType};
+use crate::{entity_factory, SHOW_MAPGEN_ANIMATION, utils::rect::Rect, tiles::TileType, map::XY};
 
 use super::{
     apply_horizontal_corridor, apply_room_to_map, apply_vertical_corridor, Map, MapBuilder, Position,
@@ -43,7 +43,7 @@ impl MapBuilder for SimpleMapBuilder {
 }
 
 impl SimpleMapBuilder {
-    pub fn new(new_depth: usize, size: (usize, usize)) -> SimpleMapBuilder {
+    pub fn new(new_depth: usize, size: XY) -> SimpleMapBuilder {
         SimpleMapBuilder {
             map: Map::new(size),
             starting_position: Position {
@@ -93,7 +93,7 @@ impl SimpleMapBuilder {
         }
 
         let stairs_down_pos = self.rooms[self.rooms.len() - 1].center();
-        let stairs_idx = self.map.xy_idx((stairs_down_pos.0 as usize, stairs_down_pos.1 as usize));
+        let stairs_idx = self.map.xy_idx((stairs_down_pos.0, stairs_down_pos.1));
         self.map.tiles[stairs_idx] = TileType::StairsDown;
 
         // remove_useless_walls(&mut self.map);

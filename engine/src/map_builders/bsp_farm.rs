@@ -1,7 +1,7 @@
 use rltk::{Point, RandomNumberGenerator};
 use shipyard::{AllStoragesViewMut, World};
 
-use crate::{entity_factory, SHOW_MAPGEN_ANIMATION, utils::rect::Rect, tiles::TileType};
+use crate::{entity_factory, SHOW_MAPGEN_ANIMATION, utils::rect::Rect, tiles::TileType, map::XY};
 
 use super::{common::apply_room_to_map, Map, MapBuilder, Position};
 
@@ -46,7 +46,7 @@ impl MapBuilder for BspFarmBuilder {
 }
 
 impl BspFarmBuilder {
-    pub fn new(new_depth: usize, size: (usize, usize)) -> BspFarmBuilder {
+    pub fn new(new_depth: usize, size: XY) -> BspFarmBuilder {
         BspFarmBuilder {
             map: Map::new(size),
             starting_position: Position {
@@ -105,7 +105,7 @@ impl BspFarmBuilder {
 
         // Don't forget the stairs
         let stairs = self.rooms[self.rooms.len() - 1].center();
-        let stairs_idx = self.map.xy_idx((stairs.0 as usize, stairs.1 as usize));
+        let stairs_idx = self.map.xy_idx((stairs.0, stairs.1));
         self.map.tiles[stairs_idx] = TileType::StairsDown;
     }
 

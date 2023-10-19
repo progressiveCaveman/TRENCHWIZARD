@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use rltk::{Point, RandomNumberGenerator};
 use shipyard::{AllStoragesViewMut, World};
 
-use crate::{entity_factory, SHOW_MAPGEN_ANIMATION, tiles::TileType};
+use crate::{entity_factory, SHOW_MAPGEN_ANIMATION, tiles::TileType, map::XY};
 
 use super::{Map, MapBuilder, Position};
 
@@ -42,7 +42,7 @@ impl MapBuilder for CellularAutomataBuilder {
 }
 
 impl CellularAutomataBuilder {
-    pub fn new(new_depth: usize, size: (usize, usize)) -> CellularAutomataBuilder {
+    pub fn new(new_depth: usize, size: XY) -> CellularAutomataBuilder {
         CellularAutomataBuilder {
             map: Map::new(size),
             starting_position: Position {
@@ -117,10 +117,10 @@ impl CellularAutomataBuilder {
 
         // Find a starting point; start at the middle and walk left until we find an open tile
         let mut p = Point::new(self.map.size.0 / 2, self.map.size.1 / 2);
-        let mut start_idx = self.map.xy_idx((p.x as usize, p.y as usize));
+        let mut start_idx = self.map.xy_idx((p.x, p.y));
         while self.map.tiles[start_idx] != TileType::Floor {
             p.x -= 1;
-            start_idx = self.map.xy_idx((p.x as usize, p.y as usize));
+            start_idx = self.map.xy_idx((p.x, p.y));
         }
         self.starting_position = Position { ps: vec![p] };
 
@@ -156,7 +156,7 @@ impl CellularAutomataBuilder {
 
         for y in 1..self.map.size.1 - 1 {
             for x in 1..self.map.size.0 - 1 {
-                let idx = self.map.xy_idx((x as usize, y as usize));
+                let idx = self.map.xy_idx((x, y));
                 if self.map.tiles[idx] == TileType::Floor {
                     let cell_value_f = noise.get_noise(x as f32, y as f32) * 10240.0;
                     let cell_value = cell_value_f as i32;

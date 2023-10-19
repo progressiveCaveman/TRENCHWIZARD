@@ -8,7 +8,7 @@ use crate::components::{
     LocomotionType, Locomotive, LumberMill, MeleeDefenseBonus, MeleePowerBonus, Name, PlankHouse, Player, Position,
     ProvidesHealing, Ranged, Renderable, SpatialKnowledge, Spawner, SpawnerType, Tree, Vision, RNG,
 };
-use crate::map::Map;
+use crate::map::{Map, XY};
 // use crate::systems::system_fire::NEW_FIRE_TURNS;
 // use crate::weighted_table::WeightedTable;
 use crate::RenderOrder;
@@ -41,7 +41,7 @@ pub fn spawn_room(store: &mut AllStoragesViewMut, map: &Map, room: &Rect, depth:
     // Borrow scope - to keep access to the map separated
     for y in room.y1 + 1..room.y2 {
         for x in room.x1 + 1..room.x2 {
-            let idx = map.xy_idx((x as usize, y as usize));
+            let idx = map.xy_idx((x , y));
             if map.tiles[idx] == TileType::Floor {
                 possible_targets.push(idx);
             }
@@ -88,25 +88,25 @@ pub fn spawn_region(store: &mut AllStoragesViewMut, area: &[usize], map_depth: u
 
 /// Spawns a named entity (name in tuple.1) at the location in (tuple.0)
 fn spawn_entity(store: &mut AllStoragesViewMut, spawn: &(&usize, &String)) {
-    let (x, y) = store.run(|map: UniqueView<Map>| map.idx_xy(*spawn.0));
+    let xy = store.run(|map: UniqueView<Map>| map.idx_xy(*spawn.0));
 
     match spawn.1.as_ref() {
-        "Wolf" => wolf(store, x, y),
-        "Goblin" => goblin(store, x, y),
-        "Orc" => orc(store, x, y),
-        "Health Potion" => health_potion(store, x, y),
-        "Fireball Scroll" => fireball_scroll(store, x, y),
-        "Confusion Scroll" => confusion_scroll(store, x, y),
-        "Magic Missile Scroll" => magic_missile_scroll(store, x, y),
-        "Dagger" => dagger(store, x, y),
-        "Shield" => shield(store, x, y),
-        "Longsword" => longsword(store, x, y),
-        "Tower Shield" => tower_shield(store, x, y),
+        "Wolf" => wolf(store, xy),
+        "Goblin" => goblin(store, xy),
+        "Orc" => orc(store, xy),
+        "Health Potion" => health_potion(store, xy),
+        "Fireball Scroll" => fireball_scroll(store, xy),
+        "Confusion Scroll" => confusion_scroll(store, xy),
+        "Magic Missile Scroll" => magic_missile_scroll(store, xy),
+        "Dagger" => dagger(store, xy),
+        "Shield" => shield(store, xy),
+        "Longsword" => longsword(store, xy),
+        "Tower Shield" => tower_shield(store, xy),
         _ => unreachable!(),
     };
 }
 
-pub fn player(store: &mut AllStoragesViewMut, pos: (usize, usize)) -> EntityId {
+pub fn player(store: &mut AllStoragesViewMut, pos: XY) -> EntityId {
     store.add_entity((
         Position {
             ps: vec![Point::new(pos.0, pos.1)],
@@ -153,10 +153,10 @@ pub fn player(store: &mut AllStoragesViewMut, pos: (usize, usize)) -> EntityId {
 
 /// Monsters
 
-pub fn villager(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
+pub fn villager(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point::new( x, y )],
+            ps: vec![Point::new( xy.0, xy.1 )],
         },
         Renderable {
             glyph: 'v',
@@ -191,10 +191,10 @@ pub fn villager(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId 
     ))
 }
 
-pub fn fish(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
+pub fn fish(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point::new( x, y )],
+            ps: vec![Point::new( xy.0, xy.1 )],
         },
         Renderable {
             glyph: 'f',
@@ -224,18 +224,18 @@ pub fn fish(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
     ))
 }
 
-pub fn orc(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
-    monster(store, x, y, 'o', "Orc".to_string())
+pub fn orc(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
+    monster(store, xy, 'o', "Orc".to_string())
 }
 
-pub fn goblin(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
-    monster(store, x, y, 'g', "Goblin".to_string())
+pub fn goblin(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
+    monster(store, xy, 'g', "Goblin".to_string())
 }
 
-pub fn monster(store: &mut AllStoragesViewMut, x: usize, y: usize, glyph: char, name: String) -> EntityId {
+pub fn monster(store: &mut AllStoragesViewMut, xy: XY, glyph: char, name: String) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point::new( x, y )],
+            ps: vec![Point::new( xy.0, xy.1 )],
         },
         Renderable {
             glyph,
@@ -274,10 +274,10 @@ pub fn monster(store: &mut AllStoragesViewMut, x: usize, y: usize, glyph: char, 
     ))
 }
 
-pub fn wolf(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
+pub fn wolf(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point::new( x, y )],
+            ps: vec![Point::new( xy.0, xy.1 )],
         },
         Renderable {
             glyph: 'w',
@@ -315,14 +315,14 @@ pub fn wolf(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
 }
 
 #[allow(dead_code)]
-pub fn big_monster(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
+pub fn big_monster(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
     store.add_entity((
         Position {
             ps: vec![
-                Point::new(x, y),
-                Point::new(x + 1, y),
-                Point::new(x, y + 1),
-                Point::new(x + 1, y + 1),
+                Point::new(xy.0, xy.1),
+                Point::new(xy.0 + 1, xy.1),
+                Point::new(xy.0, xy.1 + 1),
+                Point::new(xy.0 + 1, xy.1 + 1),
             ],
         },
         Renderable {
@@ -362,10 +362,10 @@ pub fn big_monster(store: &mut AllStoragesViewMut, x: usize, y: usize) -> Entity
 
 /// consumables
 
-pub fn health_potion(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
+pub fn health_potion(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point::new( x, y )],
+            ps: vec![Point::new( xy.0, xy.1 )],
         },
         Renderable {
             glyph: 'p',
@@ -383,10 +383,10 @@ pub fn health_potion(store: &mut AllStoragesViewMut, x: usize, y: usize) -> Enti
     ))
 }
 
-pub fn magic_missile_scroll(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
+pub fn magic_missile_scroll(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point::new( x, y )],
+            ps: vec![Point::new( xy.0, xy.1 )],
         },
         Renderable {
             glyph: '(',
@@ -405,10 +405,10 @@ pub fn magic_missile_scroll(store: &mut AllStoragesViewMut, x: usize, y: usize) 
     ))
 }
 
-pub fn fireball_scroll(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
+pub fn fireball_scroll(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point::new( x, y )],
+            ps: vec![Point::new( xy.0, xy.1 )],
         },
         Renderable {
             glyph: '*',
@@ -428,10 +428,10 @@ pub fn fireball_scroll(store: &mut AllStoragesViewMut, x: usize, y: usize) -> En
     ))
 }
 
-pub fn confusion_scroll(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
+pub fn confusion_scroll(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point::new( x, y )],
+            ps: vec![Point::new( xy.0, xy.1 )],
         },
         Renderable {
             glyph: '&',
@@ -452,10 +452,10 @@ pub fn confusion_scroll(store: &mut AllStoragesViewMut, x: usize, y: usize) -> E
 
 /// equippables
 
-pub fn dagger(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
+pub fn dagger(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point::new( x, y )],
+            ps: vec![Point::new( xy.0, xy.1 )],
         },
         Renderable {
             glyph: '│',
@@ -475,10 +475,10 @@ pub fn dagger(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
     ))
 }
 
-pub fn longsword(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
+pub fn longsword(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point::new( x, y )],
+            ps: vec![Point::new( xy.0, xy.1 )],
         },
         Renderable {
             glyph: '│',
@@ -498,10 +498,10 @@ pub fn longsword(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId
     ))
 }
 
-pub fn shield(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
+pub fn shield(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point::new( x, y )],
+            ps: vec![Point::new( xy.0, xy.1 )],
         },
         Renderable {
             glyph: '°',
@@ -521,10 +521,10 @@ pub fn shield(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
     ))
 }
 
-pub fn tower_shield(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
+pub fn tower_shield(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point::new( x, y )],
+            ps: vec![Point::new( xy.0, xy.1 )],
         },
         Renderable {
             glyph: '°',
@@ -544,10 +544,10 @@ pub fn tower_shield(store: &mut AllStoragesViewMut, x: usize, y: usize) -> Entit
     ))
 }
 
-pub fn log(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
+pub fn log(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point::new( x, y )],
+            ps: vec![Point::new( xy.0, xy.1 )],
         },
         Renderable {
             glyph: '=',
@@ -568,15 +568,14 @@ pub fn log(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
 
 pub fn spawner(
     store: &mut AllStoragesViewMut,
-    x: usize,
-    y: usize,
+    xy: XY,
     faction: Faction,
     typ: SpawnerType,
     rate: i32,
 ) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point::new( x, y )],
+            ps: vec![Point::new( xy.0, xy.1 )],
         },
         Renderable {
             glyph: '&',
@@ -597,10 +596,10 @@ pub fn spawner(
     ))
 }
 
-pub fn tree(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
+pub fn tree(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
     store.add_entity((
         Position {
-            ps: vec![Point::new( x, y )],
+            ps: vec![Point::new( xy.0, xy.1 )],
         },
         Renderable {
             glyph: '|',
@@ -617,11 +616,11 @@ pub fn tree(store: &mut AllStoragesViewMut, x: usize, y: usize) -> EntityId {
     ))
 }
 
-pub fn plank_house(store: &mut AllStoragesViewMut, x: usize, y: usize, width: usize, height: usize) -> EntityId {
+pub fn plank_house(store: &mut AllStoragesViewMut, xy: XY, width: usize, height: usize) -> EntityId {
     let mut ps = vec![];
     for xi in 0..width {
         for yi in 0..height {
-            ps.push(Point::new( x + xi, y + yi));
+            ps.push(Point::new( xy.0 + xi as i32, xy.1 + yi as i32));
         }
     }
 
@@ -648,11 +647,11 @@ pub fn plank_house(store: &mut AllStoragesViewMut, x: usize, y: usize, width: us
     ))
 }
 
-pub fn chief_house(store: &mut AllStoragesViewMut, x: usize, y: usize, width: usize, height: usize) -> EntityId {
+pub fn chief_house(store: &mut AllStoragesViewMut, xy: XY, width: usize, height: usize) -> EntityId {
     let mut ps = vec![];
     for xi in 0..width {
         for yi in 0..height {
-            ps.push(Point::new(x + xi, y + yi));
+            ps.push(Point::new(xy.0 + xi as i32, xy.1 + yi as i32));
         }
     }
 
@@ -676,11 +675,11 @@ pub fn chief_house(store: &mut AllStoragesViewMut, x: usize, y: usize, width: us
     ))
 }
 
-pub fn fish_cleaner(store: &mut AllStoragesViewMut, x: usize, y: usize, width: usize, height: usize) -> EntityId {
+pub fn fish_cleaner(store: &mut AllStoragesViewMut, xy: XY, width: usize, height: usize) -> EntityId {
     let mut ps = vec![];
     for xi in 0..width {
         for yi in 0..height {
-            ps.push(Point::new( x + xi, y + yi));
+            ps.push(Point::new( xy.0 + xi as i32, xy.1 + yi as i32));
         }
     }
 
@@ -711,11 +710,11 @@ pub fn fish_cleaner(store: &mut AllStoragesViewMut, x: usize, y: usize, width: u
     ))
 }
 
-pub fn lumber_mill(store: &mut AllStoragesViewMut, x: usize, y: usize, width: usize, height: usize) -> EntityId {
+pub fn lumber_mill(store: &mut AllStoragesViewMut, xy: XY, width: usize, height: usize) -> EntityId {
     let mut ps = vec![];
     for xi in 0..width {
         for yi in 0..height {
-            ps.push(Point::new( x + xi, y + yi));
+            ps.push(Point::new( xy.0 + xi as i32, xy.1 + yi as i32));
         }
     }
 

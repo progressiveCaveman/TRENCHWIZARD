@@ -1,7 +1,9 @@
+use crate::map::XY;
+
 #[derive(Copy, Clone, PartialEq)]
 pub struct GameSettings {
     pub mode: GameMode,
-    pub mapsize: (usize, usize),
+    pub mapsize: XY,
     pub follow_player: bool,
     pub use_player_los: bool,
     pub show_player: bool,
