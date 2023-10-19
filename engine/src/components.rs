@@ -20,7 +20,7 @@ pub struct GameLog {
 pub struct PlayerID(pub EntityId);
 
 #[derive(Clone, Debug, Unique, Copy)]
-pub struct Turn(pub usize);
+pub struct Turn(pub i32);
 
 #[derive(Clone, Unique)]
 pub struct RNG(pub rltk::RandomNumberGenerator);
@@ -78,7 +78,7 @@ impl Default for Renderable {
 #[derive(Component, Clone, Debug, PartialEq)]
 pub struct Vision {
     pub visible_tiles: Vec<rltk::Point>,
-    pub range: usize,
+    pub range: i32,
     pub dirty: bool,
 }
 
@@ -136,7 +136,7 @@ pub enum ActorType {
 
 #[derive(Component, Clone, Debug, PartialEq)]
 pub struct PlankHouse {
-    pub housing_cap: usize,
+    pub housing_cap: i32,
     pub villagers: Vec<EntityId>,
 }
 
@@ -158,7 +158,7 @@ pub enum SpawnerType {
 #[derive(Component, Copy, Clone, Debug, PartialEq)]
 pub struct Spawner {
     pub typ: SpawnerType,
-    pub rate: usize,
+    pub rate: i32,
 }
 
 #[derive(Component, Copy, Clone, Debug, PartialEq)]
@@ -177,7 +177,7 @@ pub enum LocomotionType {
 #[derive(Component, Copy, Clone, Debug, PartialEq)]
 pub struct Locomotive {
     pub mtype: LocomotionType,
-    pub speed: usize,
+    pub speed: i32,
 }
 
 #[derive(Component, Copy, Clone, Debug, PartialEq)]
@@ -185,21 +185,21 @@ pub struct BlocksTile {}
 
 #[derive(Component, Copy, Clone, Debug, PartialEq)]
 pub struct CombatStats {
-    pub max_hp: usize,
-    pub hp: usize,
-    pub defense: usize,
-    pub power: usize,
-    pub regen_rate: usize,
+    pub max_hp: i32,
+    pub hp: i32,
+    pub defense: i32,
+    pub power: i32,
+    pub regen_rate: i32,
 }
 
 #[derive(Component, Clone, Debug, PartialEq)]
 pub struct Inventory {
-    pub capacity: usize,
+    pub capacity: i32,
     pub items: Vec<EntityId>,
 }
 
 impl Inventory {
-    pub fn count_type(&self, vitems: &View<Item>, item_type: ItemType) -> usize {
+    pub fn count_type(&self, vitems: &View<Item>, item_type: ItemType) -> i32 {
         let mut count = 0;
         for item in vitems.iter() {
             if item.typ == item_type {
@@ -299,44 +299,44 @@ pub struct Consumable {}
 
 #[derive(Component)]
 pub struct MeleePowerBonus {
-    pub power: usize,
+    pub power: i32,
 }
 
 #[derive(Component)]
 pub struct MeleeDefenseBonus {
-    pub defense: usize,
+    pub defense: i32,
 }
 
 #[derive(Component, Clone, Copy)]
 pub struct ProvidesHealing {
-    pub heal: usize,
+    pub heal: i32,
 }
 
 #[derive(Component)]
 pub struct Ranged {
-    pub range: usize,
+    pub range: i32,
 }
 
 #[derive(Component, Clone, Copy)]
 pub struct DealsDamage {
-    pub damage: usize,
+    pub damage: i32,
 }
 
 #[derive(Component, Clone, Copy)]
 pub struct Confusion {
-    pub turns: usize,
+    pub turns: i32,
 }
 
 #[derive(Component)]
 pub struct AreaOfEffect {
-    pub radius: usize,
+    pub radius: i32,
 }
 
 /// Fire components
 
 #[derive(Component, Clone, Copy)]
 pub struct Fire {
-    pub turns: usize,
+    pub turns: i32,
 }
 
 #[derive(Component, Clone, Copy)]

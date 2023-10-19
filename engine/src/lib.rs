@@ -21,6 +21,7 @@ pub mod worldgen;
 pub mod game_modes;
 pub mod tiles;
 pub mod systems;
+pub mod effects;
 
 pub const SHOW_MAPGEN_ANIMATION: bool = true;
 pub const MAPGEN_FRAME_TIME: f32 = 25.0;

@@ -9,7 +9,7 @@ pub struct Map {
     pub tiles: Vec<TileType>,
     pub size: (usize, usize),
     pub blocked: Vec<bool>,
-    pub fire_turns: Vec<usize>,
+    pub fire_turns: Vec<i32>,
 
     #[serde(skip_serializing)]
     #[serde(skip_deserializing)]

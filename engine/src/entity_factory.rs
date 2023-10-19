@@ -572,7 +572,7 @@ pub fn spawner(
     y: usize,
     faction: Faction,
     typ: SpawnerType,
-    rate: usize,
+    rate: i32,
 ) -> EntityId {
     store.add_entity((
         Position {
