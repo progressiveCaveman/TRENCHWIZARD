@@ -74,7 +74,7 @@ impl MapBuilder for VillageWorldBuilder {
 }
 
 impl VillageWorldBuilder {
-    pub fn new(new_depth: usize, size: (usize, usize)) -> VillageWorldBuilder {
+    pub fn new(_new_depth: usize, size: (usize, usize)) -> VillageWorldBuilder {
         VillageWorldBuilder {
             map: Map::new(size),
             starting_position: Position {

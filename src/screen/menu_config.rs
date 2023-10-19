@@ -1,25 +1,14 @@
-#[derive(PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Debug)]
-#[repr(usize)]
+use strum_macros::{EnumCount as EnumCountMacro, EnumIter, FromRepr};
+
+#[derive(PartialEq, Copy, Clone, Debug, EnumCountMacro, EnumIter, FromRepr)]
 pub enum MainMenuSelection {
     Play = 0,
     ModeSelect,
     Quit
 }
 
+// There must be a better way to implement len and from
 impl MainMenuSelection {
-    pub fn len() -> usize {
-        MainMenuSelection::Quit as usize
-    }
-
-    pub fn from(u: usize) -> MainMenuSelection {
-        match u {
-            0 => MainMenuSelection::Play,
-            1 => MainMenuSelection::ModeSelect,
-            2 => MainMenuSelection::Quit,
-            _ => unreachable!(),
-        }
-    }
-
     pub fn inc(&self) -> Self {
         match *self {
             MainMenuSelection::Play => MainMenuSelection::ModeSelect,
@@ -45,7 +34,7 @@ impl MainMenuSelection {
     }
 }
 
-#[derive(PartialEq, Copy, Clone, Debug)]
+#[derive(PartialEq, Copy, Clone, Debug, EnumCountMacro, EnumIter, FromRepr)]
 pub enum ModeSelectSelection {
     MapDemo,
     RL,

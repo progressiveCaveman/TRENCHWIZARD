@@ -56,7 +56,7 @@ impl MapBuilder for AernaBuilder {
 }
 
 impl AernaBuilder {
-    pub fn new(new_depth: usize, size: (usize, usize)) -> AernaBuilder {
+    pub fn new(_new_depth: usize, size: (usize, usize)) -> AernaBuilder {
         AernaBuilder {
             map: Map::new(size),
             starting_position: Position {

@@ -7,7 +7,7 @@ use input_handler::{handle_input, Action};
 use log::error;
 use pixels::{Error, Pixels, SurfaceTexture};
 
-use screen::menu_config::MainMenuSelection;
+use screen::menu_config::{MainMenuSelection, ModeSelectSelection};
 use screen::{Screen, MAX_ZOOM};
 use screen::console::ConsoleMode;
 use winit::dpi::LogicalSize;
@@ -43,7 +43,7 @@ pub struct Game {
 pub enum GameState {
     Waiting,
     MainMenu{ selection: MainMenuSelection },
-    ModeSelect{ selection: usize },
+    ModeSelect{ selection: ModeSelectSelection },
     ShowMapHistory
 }
 
@@ -104,14 +104,12 @@ impl Game {
         self.screen.draw(frame, &self);
     }
 
-    pub fn set_state(&mut self, mut state: GameState) {
+    pub fn set_state(&mut self, state: GameState) {
         match state {
             GameState::ShowMapHistory => self.history_timer = 0,
-            GameState::MainMenu { selection } => {
-                // state = GameState::MainMenu { selection: selection.clamp(0, MAIN_MENU_OPTIONS - 1) };
+            GameState::MainMenu { selection: _ } => {
             }
-            GameState::ModeSelect { selection } => {
-                state = GameState::ModeSelect { selection: selection.clamp(0, MODE_SELECT_OPTIONS - 1) };
+            GameState::ModeSelect { selection: _ } => {
             }
             _ => {},
         }

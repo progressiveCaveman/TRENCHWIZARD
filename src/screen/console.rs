@@ -51,10 +51,11 @@ label
 
 use engine::{map::Map, colors::{self}, components::Renderable};
 use shipyard::{UniqueView, View, Get};
+use strum::EnumCount;
 
 use crate::{Game, WIDTH, assets::cp437_converter::to_cp437, GameState};
 
-use super::{Glyph, UI_GLYPH_SIZE, DEBUG_OUTLINES, menu_config::MainMenuSelection};
+use super::{Glyph, UI_GLYPH_SIZE, DEBUG_OUTLINES, menu_config::{MainMenuSelection, ModeSelectSelection}};
 
 #[derive(Debug, PartialEq)]
 pub enum ConsoleMode {
@@ -93,6 +94,7 @@ impl Console {
         match self.mode {
             ConsoleMode::MainMenu => {
                 self.render_main_menu(frame, game);
+                self.render_mode_select(frame, game);
             }
             ConsoleMode::WorldMap => {
                 self.render_map(frame, game);
@@ -120,10 +122,9 @@ impl Console {
     }
 
     pub fn render_main_menu(&self, frame: &mut [u8], game: &Game) {
-        let screen = &game.screen;
-
-        // only render if gamestate is mainmenu
         if let GameState::MainMenu{selection} = game.state {
+            let screen = &game.screen;
+
             screen.draw_box(
                 &game.assets,
                 frame,
@@ -148,18 +149,64 @@ impl Console {
 
             y += 2 * UI_GLYPH_SIZE;
 
-            for i in 0..=MainMenuSelection::len() {
-                let opt = MainMenuSelection::from(i);
-                screen.print_string(
-                    &game.assets,
-                    frame,
-                    opt.text(),
-                    (x, y),
-                    if selection == opt { colors::COLOR_UI_3 } else { colors::COLOR_UI_2 },
-                    UI_GLYPH_SIZE
-                );
-    
-                y += UI_GLYPH_SIZE;
+            for i in 0..=MainMenuSelection::COUNT {
+                if let Some(opt) = MainMenuSelection::from_repr(i) {
+                    screen.print_string(
+                        &game.assets,
+                        frame,
+                        opt.text(),
+                        (x, y),
+                        if selection as usize == i { colors::COLOR_UI_3 } else { colors::COLOR_UI_2 },
+                        UI_GLYPH_SIZE
+                    );
+        
+                    y += UI_GLYPH_SIZE;
+                }
+            }
+        }
+    }
+
+    pub fn render_mode_select(&self, frame: &mut [u8], game: &Game) {
+        if let GameState::ModeSelect{selection} = game.state {
+            let screen = &game.screen;
+
+            screen.draw_box(
+                &game.assets,
+                frame,
+                self.pos,
+                self.size,
+                colors::COLOR_UI_1,
+                colors::COLOR_BLACK_SEMI_TRANS, // todo transparancy doesn't work
+                UI_GLYPH_SIZE
+            );
+
+            let x = self.pos.0 + 3 * UI_GLYPH_SIZE;
+            let mut y = self.pos.1 + 2 * UI_GLYPH_SIZE;
+
+            screen.print_string(
+                &game.assets,
+                frame,
+                "Select Game Mode",
+                (x, y),
+                colors::COLOR_UI_2,
+                UI_GLYPH_SIZE
+            );
+
+            y += 2 * UI_GLYPH_SIZE;
+
+            for i in 0..=ModeSelectSelection::COUNT {
+                if let Some(opt) = ModeSelectSelection::from_repr(i) {
+                    screen.print_string(
+                        &game.assets,
+                        frame,
+                        opt.text(),
+                        (x, y),
+                        if selection as usize == i { colors::COLOR_UI_3 } else { colors::COLOR_UI_2 },
+                        UI_GLYPH_SIZE
+                    );
+        
+                    y += UI_GLYPH_SIZE;
+                }
             }
         }
     }

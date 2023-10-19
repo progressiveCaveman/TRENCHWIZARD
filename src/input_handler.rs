@@ -1,7 +1,8 @@
+use engine::game_modes::{get_settings, GameMode};
 use winit::event::VirtualKeyCode;
 use winit_input_helper::WinitInputHelper;
 
-use crate::{Game, GameState, screen::menu_config::MainMenuSelection};
+use crate::{Game, GameState, screen::menu_config::{MainMenuSelection, ModeSelectSelection}};
 
 pub enum Action {
     None,
@@ -12,7 +13,7 @@ pub fn handle_input(input: &WinitInputHelper, game: &mut Game) -> Action {
     // Esc : Exit
     if input.key_pressed(VirtualKeyCode::Escape) {
         match game.state {
-            GameState::MainMenu { selection } => return Action::Exit,
+            GameState::MainMenu { selection: _ } => return Action::Exit,
             _ => game.set_state(GameState::MainMenu { selection: MainMenuSelection::Play }),
         }
     }
@@ -44,6 +45,7 @@ pub fn handle_input(input: &WinitInputHelper, game: &mut Game) -> Action {
         match game.state {
             GameState::Waiting => game.screen.pan_map((0, -1 * movemod)),
             GameState::MainMenu { selection } => game.set_state(GameState::MainMenu { selection: selection.dec() }),
+            GameState::ModeSelect { selection } => game.set_state(GameState::ModeSelect { selection: selection.dec() }),
             _ => {},
         }
     }
@@ -53,6 +55,7 @@ pub fn handle_input(input: &WinitInputHelper, game: &mut Game) -> Action {
         match game.state {
             GameState::Waiting => game.screen.pan_map((0, 1 * movemod)),
             GameState::MainMenu { selection } => game.set_state( GameState::MainMenu { selection: selection.inc() }),
+            GameState::ModeSelect { selection } => game.set_state( GameState::ModeSelect { selection: selection.inc() }),
             _ => {},
         }
     }
@@ -79,10 +82,19 @@ pub fn handle_input(input: &WinitInputHelper, game: &mut Game) -> Action {
             GameState::MainMenu { selection } => {
                 match selection {
                     MainMenuSelection::Play => game.set_state(GameState::ShowMapHistory),
-                    MainMenuSelection::ModeSelect => todo!(),
+                    MainMenuSelection::ModeSelect => game.set_state(GameState::ModeSelect { selection: ModeSelectSelection::from_repr(0).unwrap() }),
                     MainMenuSelection::Quit => return Action::Exit,
                 }
             },
+            GameState::ModeSelect { selection } => {
+                match selection {
+                    ModeSelectSelection::MapDemo => game.engine.reset_engine(get_settings(GameMode::RL)),
+                    ModeSelectSelection::RL => game.engine.reset_engine(get_settings(GameMode::RL)),
+                    ModeSelectSelection::VillageSim => game.engine.reset_engine(get_settings(GameMode::VillageSim)),
+                }
+
+                game.set_state(GameState::ShowMapHistory)
+            }
             _ => {},
         }
     }

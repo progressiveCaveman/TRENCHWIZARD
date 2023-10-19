@@ -196,6 +196,8 @@ impl Engine {
     // }
 
     pub fn reset_engine(&mut self, settings: GameSettings) {
+        self.settings = settings;
+        
         // Delete everything
         // world.clear();
         self.world = World::new();
