@@ -216,6 +216,8 @@ pub const COLOR_SILVER: Color = [203, 203, 203, 255];
 pub const COLOR_CELADON: Color = [172, 255, 175, 255];
 pub const COLOR_PEACH: Color = [255, 159, 127, 255];
 
+pub const COLOR_BROWN: Color = [139, 69, 19, 255];
+
 pub const COLOR_UI_1: Color = COLOR_GREEN;
 pub const COLOR_UI_2: Color = COLOR_LIGHT_PURPLE;
 pub const COLOR_UI_3: Color = COLOR_LIGHTER_PURPLE;

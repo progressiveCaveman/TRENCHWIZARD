@@ -239,7 +239,7 @@ pub fn monster(store: &mut AllStoragesViewMut, x: usize, y: usize, glyph: char, 
         },
         Renderable {
             glyph,
-            fg: COLOR_RED,
+            fg: COLOR_BROWN,
             bg: COLOR_BG,
             order: RenderOrder::NPC,
             ..Default::default()
