@@ -105,8 +105,6 @@ impl Game {
                 if self.engine.settings.mode == GameMode::MapDemo {
                     self.engine.reset_engine(self.engine.settings);
                     self.set_state(GameState::ShowMapHistory);
-                }else{
-                    self.set_state(GameState::PlayerTurn);
                 }
             },
             GameState::PlayerTurn => {

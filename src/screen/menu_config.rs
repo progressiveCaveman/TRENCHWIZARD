@@ -9,6 +9,14 @@ pub enum MainMenuSelection {
 
 // There must be a better way to implement len and from
 impl MainMenuSelection {
+    pub fn modify(&self, dir: i32) -> Self {
+        return if dir > 0 {
+            self.inc()
+        } else {
+            self.dec()
+        }
+    }
+
     pub fn inc(&self) -> Self {
         match *self {
             MainMenuSelection::Play => MainMenuSelection::ModeSelect,
@@ -42,6 +50,14 @@ pub enum ModeSelectSelection {
 }
 
 impl ModeSelectSelection {
+    pub fn modify(&self, dir: i32) -> Self {
+        return if dir > 0 {
+            self.inc()
+        } else {
+            self.dec()
+        }
+    }
+    
     pub fn inc(&self) -> Self {
         match *self {
             ModeSelectSelection::MapDemo => ModeSelectSelection::RL,
