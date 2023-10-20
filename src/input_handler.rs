@@ -24,6 +24,7 @@ pub enum InputCommand {
     RevealMap,
     Fireball,
     UseStairs,
+    Pause,
 
     //debug
     Reset,
@@ -159,6 +160,10 @@ impl InputCommand {
                     _ => GameState::None,
                 }
             },
+            InputCommand::Pause => {
+                game.autorun = !game.autorun;
+                GameState::None
+            },
         };
     }
 }
@@ -201,6 +206,13 @@ pub fn map_keys(event: WindowEvent, mode: GameMode) -> InputCommand {
                             VirtualKeyCode::Escape => InputCommand::Escape,
                             _ => InputCommand::None,
                         },
+                    },
+                    GameMode::VillageSim => match input.virtual_keycode {
+                        None => InputCommand::None,
+                        Some(key) => match key {
+                            VirtualKeyCode::Space => InputCommand::Pause,
+                            _ => InputCommand::None,
+                        }
                     },
                     _ => InputCommand::None
                 };

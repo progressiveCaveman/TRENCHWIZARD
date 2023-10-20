@@ -38,7 +38,8 @@ pub struct Game {
     pub tick: usize,
     pub state: GameState,
     pub history_timer: usize,
-    pub history_step: usize
+    pub history_step: usize,
+    pub autorun: bool,
 }
 
 #[derive(PartialEq, Copy, Clone, Debug)]
@@ -76,6 +77,7 @@ impl Game {
             state: GameState::MainMenu { selection: MainMenuSelection::Play },
             history_timer: 0,
             history_step: 0,
+            autorun: false,
         }
     }
 
@@ -108,6 +110,11 @@ impl Game {
                 if self.engine.settings.mode == GameMode::MapDemo {
                     self.engine.reset_engine(self.engine.settings);
                     self.set_state(GameState::ShowMapHistory);
+                }
+
+                if self.autorun {
+                    self.set_state(GameState::PlayerTurn);
+
                 }
             },
             GameState::PlayerTurn => {

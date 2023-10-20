@@ -230,7 +230,7 @@ pub const COLOR_BG: Color = COLOR_CLEAR;
 pub const COLOR_ITEM: Color = COLOR_DARK_YELLOW;
 pub const COLOR_WALL: Color = COLOR_GREY;
 pub const COLOR_FLOOR: Color = COLOR_DARKEST_GREY;
-pub const COLOR_GRASS: Color = COLOR_DARK_GREEN;
+pub const COLOR_GRASS: Color = COLOR_DARKER_GREEN;
 
 pub const COLOR_FIRE: Color = COLOR_RED;
 

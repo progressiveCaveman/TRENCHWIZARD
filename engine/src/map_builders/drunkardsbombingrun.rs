@@ -186,8 +186,9 @@ impl DrunkardsBombingRunBuilder {
 
         for i in 0..self.map.tiles.len() {
             let tile = self.map.tiles[i];
+            let xy = self.map.idx_xy(i);
 
-            if tile != TileType::Wall {
+            if tile != TileType::Wall && xy.0 != 0 && xy.1 != 0 {
                 candidates.push(i as i32);
             }
         }
@@ -229,7 +230,7 @@ impl DrunkardsBombingRunBuilder {
                     // check if tile is within the circle
                     if (x - tx) * (x - tx) + (y - ty) * (y - ty) < bomb_radius * bomb_radius + bomb_radius {
                         if use_borders {
-                            if x >= self.map.size.0 || y >= self.map.size.1{
+                            if x >= self.map.size.0 || y >= self.map.size.1 || x <= 0 || y <= 0 {
                                 continue;
                             }
                         }
