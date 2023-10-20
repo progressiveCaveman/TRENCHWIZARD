@@ -43,6 +43,9 @@ pub struct Game {
 
 #[derive(PartialEq, Copy, Clone, Debug)]
 pub enum GameState {
+    // returning none means game state doesn't change
+    None,
+
     //main loop
     Waiting,
     PlayerTurn,
@@ -205,9 +208,7 @@ fn main() -> Result<(), Error> {
             //         *control_flow = ControlFlow::Exit;
             //         return;
             //     }
-            // }
-
-    
+            // }    
 
             // Resize the window
             if let Some(size) = input.window_resized() {
@@ -227,7 +228,9 @@ fn main() -> Result<(), Error> {
         match event {
             Event::WindowEvent { event, .. } => {
                 let state = input_handler::handle_input(event, &mut game);
-                game.set_state(state);
+                if state != GameState::None {
+                    game.set_state(state);
+                }
             },
             _ => {}
         }

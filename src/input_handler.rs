@@ -40,9 +40,9 @@ impl InputCommand {
 
         let player_pos = world.borrow::<UniqueView<PPoint>>().unwrap().0;
 
-        // return GameState::AwaitingInput to ignore input, GameState::PlayerTurn to advance engine
+        // return GameState::None to ignore input, GameState::PlayerTurn to advance engine
         return match self {
-            InputCommand::None => GameState::Waiting,
+            InputCommand::None => GameState::None,
             InputCommand::Move { dir } => {
                 match game.state {
                     // GameState::Waiting => game.screen.pan_map((0, -1 * movemod)),
@@ -81,7 +81,6 @@ impl InputCommand {
                 GameState::PlayerTurn
             }
             InputCommand::Escape => {
-                dbg!("esc");
                 match game.state {
                     GameState::MainMenu { selection: _ } => GameState::Exit,
                     _ => GameState::MainMenu { selection: MainMenuSelection::Play },
@@ -111,7 +110,7 @@ impl InputCommand {
             }
             InputCommand::Fireball => {
                 dbg!("fireball is broken");
-                GameState::Waiting
+                GameState::None
                 // GameState::ShowTargeting {
                 //     range: 6,
                 //     item: world.run(|mut store: AllStoragesViewMut| {
@@ -125,7 +124,7 @@ impl InputCommand {
                 // } else {
                 //     GameState::AwaitingInput
                 // }
-                GameState::Waiting
+                GameState::None
             }
             InputCommand::Reset => {
                 game.engine.reset_engine(game.engine.settings);
@@ -133,11 +132,11 @@ impl InputCommand {
             },
             InputCommand::ZoomIn => {
                 game.screen.increment_zoom();
-                GameState::Waiting
+                GameState::None
             },
             InputCommand::ZoomOut => {
                 game.screen.decrement_zoom();
-                GameState::Waiting
+                GameState::None
             },
             InputCommand::Enter => {
                 match game.state {
@@ -157,7 +156,7 @@ impl InputCommand {
 
                         GameState::ShowMapHistory
                     }
-                    _ => GameState::Waiting,
+                    _ => GameState::None,
                 }
             },
         };
@@ -166,7 +165,7 @@ impl InputCommand {
 
 pub fn map_keys(event: WindowEvent, mode: GameMode) -> InputCommand {
     //universal commands
-    if let WindowEvent::KeyboardInput { device_id, input, is_synthetic } = event {
+    if let WindowEvent::KeyboardInput { input,.. } = event {
         if input.state == ElementState::Pressed {
             let mut cmd = match input.virtual_keycode {
                 None => InputCommand::None,

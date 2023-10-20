@@ -203,5 +203,7 @@ impl Engine {
 
         // Generate new map
         self.generate_map( 1);
+
+        self.run_systems();
     }
 }
