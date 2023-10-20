@@ -9,6 +9,7 @@ use rltk::Point;
 use shipyard::{
     EntitiesView, EntityId, Get, UniqueView, UniqueViewMut, View, ViewMut, World, AllStoragesViewMut,
 };
+use systems::system_particle;
 
 pub mod components;
 pub mod map;
@@ -189,7 +190,7 @@ impl Engine {
         self.world.add_unique(PlayerID(player_id));
 
         self.world.add_unique(GameLog { messages: vec![] });
-        // self.world.add_unique(system_particle::ParticleBuilder::new());
+        self.world.add_unique(system_particle::ParticleBuilder::new());
         self.world.add_unique(FrameTime(0.));
 
         match settings.mode {
