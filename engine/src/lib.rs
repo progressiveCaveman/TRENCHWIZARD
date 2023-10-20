@@ -24,6 +24,7 @@ pub mod systems;
 pub mod effects;
 pub mod item_system;
 pub mod ai;
+pub mod player;
 
 pub const SHOW_MAPGEN_ANIMATION: bool = true;
 pub const MAPGEN_FRAME_TIME: f32 = 25.0;

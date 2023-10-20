@@ -1,15 +1,16 @@
 use assets::Assets;
 use engine::game_modes::{get_settings, GameMode};
 
-use engine::Engine;
+use engine::{Engine, effects};
+use engine::systems::system_particle;
 use error_iter::ErrorIter as _;
-use input_handler::{handle_input, Action};
 use log::error;
 use pixels::{Error, Pixels, SurfaceTexture};
 
 use screen::menu_config::{MainMenuSelection, ModeSelectSelection};
 use screen::{Screen, MAX_ZOOM};
 use screen::console::ConsoleMode;
+use shipyard::EntityId;
 use winit::dpi::LogicalSize;
 use winit::event::Event;
 use winit::event_loop::{ControlFlow, EventLoop};
@@ -42,10 +43,24 @@ pub struct Game {
 
 #[derive(PartialEq, Copy, Clone, Debug)]
 pub enum GameState {
+    //main loop
     Waiting,
+    PlayerTurn,
+    AiTurn,
+
     MainMenu{ selection: MainMenuSelection },
     ModeSelect{ selection: ModeSelectSelection },
-    ShowMapHistory
+    ShowMapHistory,
+    ShowInventory,
+    ShowItemActions {
+        item: EntityId,
+    },
+    ShowTargeting {
+        range: i32,
+        item: EntityId,
+    },
+    GameOver,
+    Exit
 }
 
 impl Game {
@@ -64,14 +79,10 @@ impl Game {
     /// Update the game state
     fn update(&mut self) {
         self.tick += 1;
-        if self.tick % 100 == 0 {
-            self.engine.get_log_mut().messages.push(format!("Test {}", self.tick / 100));
-        }
 
+        // automatically zoom in on small maps
         {
             let map = self.engine.get_map();
-
-            // automatically zoom in on small maps
             for c in self.screen.consoles.iter_mut() {
                 if c.mode == ConsoleMode::WorldMap {
                     while c.zoom < MAX_ZOOM && (c.zoom + 1) * map.size.0 < c.size.0 && (c.zoom + 1) * map.size.1 < c.size.1 {
@@ -81,16 +92,34 @@ impl Game {
             }
         }
 
+        // let mut new_runstate = self.state;
+
+        // let player_id = self.engine.get_player_id();
+        
+        self.engine.world.run(system_particle::update_particles);
+        self.engine.world.run(effects::run_effects_queue);
+
         // Main loop
         match self.state {
             GameState::Waiting => {
-                self.engine.run_systems();
-
                 if self.engine.settings.mode == GameMode::MapDemo {
                     self.engine.reset_engine(self.engine.settings);
                     self.set_state(GameState::ShowMapHistory);
+                }else{
+                    self.set_state(GameState::PlayerTurn);
                 }
             },
+            GameState::PlayerTurn => {
+                self.set_state(GameState::AiTurn);
+                self.engine.run_systems();
+            },
+            GameState::AiTurn => {
+                self.set_state(GameState::Waiting);
+            },
+            // GameState::Play => {
+            //     self.engine.run_systems();
+
+            // },
             GameState::ShowMapHistory => {
                 self.history_timer += 1;
                 self.history_step = self.history_timer / 5;
@@ -170,15 +199,17 @@ fn main() -> Result<(), Error> {
             if input.close_requested() {
                 *control_flow = ControlFlow::Exit;
                 return;
-            }
+            }    
 
-            match handle_input(&input, &mut game) {
-                Action::None => {}
-                Action::Exit => {
-                    *control_flow = ControlFlow::Exit;
-                    return;
-                }
-            }
+            // match handle_input(&event, &mut game) {
+            //     Action::None => {}
+            //     Action::Exit => {
+            //         *control_flow = ControlFlow::Exit;
+            //         return;
+            //     }
+            // }
+
+    
 
             // Resize the window
             if let Some(size) = input.window_resized() {
@@ -192,6 +223,20 @@ fn main() -> Result<(), Error> {
             // Update internal state and request a redraw
             game.update();
             window.request_redraw();
+        }
+
+        // this should probably come before update
+        match event {
+            Event::WindowEvent { event, .. } => {
+                let state = input_handler::handle_input(event, &mut game);
+                game.set_state(state);
+            },
+            _ => {}
+        }
+
+        if game.state == GameState::Exit {
+            *control_flow = ControlFlow::Exit;
+            return;
         }
     });
 }
