@@ -221,6 +221,7 @@ pub const COLOR_BROWN: Color = [139, 69, 19, 255];
 pub const COLOR_UI_1: Color = COLOR_GREEN;
 pub const COLOR_UI_2: Color = COLOR_LIGHT_PURPLE;
 pub const COLOR_UI_3: Color = COLOR_LIGHTER_PURPLE;
+pub const COLOR_UI_4: Color = COLOR_LIGHTER_PURPLE;
 pub const COLOR_WATER: Color = COLOR_DARK_BLUE;
 pub const COLOR_SAND: Color = COLOR_DESATURATED_YELLOW;
 pub const COLOR_DIRT: Color = COLOR_DARKEST_GREEN;

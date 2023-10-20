@@ -9,7 +9,6 @@ use rltk::Point;
 use shipyard::{
     EntitiesView, EntityId, Get, UniqueView, UniqueViewMut, View, ViewMut, World, AllStoragesViewMut,
 };
-use systems::system_map_indexing;
 
 pub mod components;
 pub mod map;
@@ -22,6 +21,8 @@ pub mod game_modes;
 pub mod tiles;
 pub mod systems;
 pub mod effects;
+pub mod item_system;
+pub mod ai;
 
 pub const SHOW_MAPGEN_ANIMATION: bool = true;
 pub const MAPGEN_FRAME_TIME: f32 = 25.0;
@@ -73,36 +74,8 @@ impl Engine {
         self.world.borrow::<UniqueView<PlayerID>>().unwrap()
     }
 
-    pub fn run_systems(&self) {
-        self.world.run(system_map_indexing::run_map_indexing_system);
-
-        // // if player_turn {
-        // world.run(system_fire::run_fire_system);
-        // // }
-        // world.run(system_visibility::run_visibility_system);
-
-        // world.run(effects::run_effects_queue);
-
-        // if ai_turn && !DISABLE_AI {
-        //     world.run(system_pathfinding::run_pathfinding_system);
-        //     world.run(system_ai_fish::run_fish_ai);
-        //     world.run(system_ai::run_ai_system);
-        // }
-
-        // world.run(effects::run_effects_queue);
-
-        // world.run(system_map_indexing::run_map_indexing_system);
-
-        // world.run(system_melee_combat::run_melee_combat_system);
-        // world.run(item_system::run_inventory_system);
-        // world.run(system_dissasemble::run_dissasemble_system);
-        // world.run(item_system::run_drop_item_system);
-        // world.run(item_system::run_unequip_item_system);
-        // world.run(item_system::run_item_use_system);
-        // world.run(system_particle::spawn_particles);
-
-        // world.run(effects::run_effects_queue);
-        // world.run(system_map_indexing::run_map_indexing_system);
+    pub fn run_systems(&mut self) {
+        systems::run_systems(&mut self.world, true, true);
     }
 
     pub fn entities_to_delete_on_level_change(world: &mut World) -> Vec<EntityId> {

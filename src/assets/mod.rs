@@ -1,3 +1,4 @@
+use engine::map::XY;
 use image::GenericImageView;
 use image::{self};
 
@@ -7,6 +8,8 @@ pub mod cp437_converter;
 pub mod sprites;
 
 const GLYPHS_PER_ROW: usize = 16;
+
+pub type Image = (Vec<[u8; 4]>, XY);
 
 pub struct Assets {
     pub cp437: Vec<(usize, Vec<Sprite>)>,

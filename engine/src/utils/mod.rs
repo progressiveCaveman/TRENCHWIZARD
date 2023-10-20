@@ -1,6 +1,6 @@
 use rltk::{BaseMap, DijkstraMap, NavigationPath, Point, RGBA};
-use shipyard::EntityId;
-use crate::map::Map;
+use shipyard::{EntityId, View, Get};
+use crate::{map::{Map, XY}, components::Position};
 
 pub mod rect;
 pub mod weighted_table;
@@ -10,6 +10,35 @@ pub enum Target {
     LOCATION(Point),
     ENTITY(EntityId),
 }
+
+impl From<Point> for Target {
+    fn from(n: Point) -> Self {
+        Target::LOCATION(n)
+    }
+}
+
+impl From<EntityId> for Target {
+    fn from(n: EntityId) -> Self {
+        Target::ENTITY(n)
+    }
+}
+
+impl Target {
+    pub fn get_point(&self, vpos: &View<Position>) -> Point {
+        match self {
+            Target::LOCATION(loc) => *loc,
+            Target::ENTITY(entity) => {
+                if let Ok(pos) = vpos.get(*entity) {
+                    pos.ps[0]
+                } else {
+                    // dbg!("ERROR: Target::ENTITY position not found");
+                    Point::invalid_point()
+                }
+            }
+        }
+    }
+}
+
 
 /// returns the point adjacent to origin that will lead to target
 pub fn dijkstra_backtrace(dijkstra: DijkstraMap, map: &mut Map, origin: usize, mut target: usize) -> usize {
@@ -152,11 +181,16 @@ impl Scale for RGBA {
 
 pub trait InvalidPoint {
     fn invalid_point() -> Point;
+    fn to_xy(&self) -> XY;
 }
 
 impl InvalidPoint for Point {
     fn invalid_point() -> Point {
         Point { x: -1, y: -1 }
+    }
+
+    fn to_xy(&self) -> XY {
+        (self.x, self.y)
     }
 }
 

@@ -5,9 +5,9 @@ use engine::{colors::{Color, self}, map::XY};
 use crate::{
     assets::{
         cp437_converter::string_to_cp437,
-        Assets, sprites::Drawable,
+        Assets, sprites::Drawable, Image,
     },
-    Image, Game, HEIGHT, WIDTH,
+    Game, HEIGHT, WIDTH,
 };
 
 use self::console::{Console, ConsoleMode};

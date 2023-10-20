@@ -6,7 +6,7 @@ use shipyard::{Component, EntityId, IntoIter, View, Unique};
 
 use crate::{
     map::Map,
-    RenderOrder, tiles::TileType, colors::{COLOR_BG, Color},
+    RenderOrder, tiles::TileType, colors::{COLOR_BG, Color}, ai::labors::AIBehaviors,
 };
 
 /// Unique components
@@ -108,7 +108,7 @@ pub struct Player {}
 pub struct Actor {
     pub atype: ActorType,
     pub faction: Faction,
-    // pub behaviors: Vec<AIBehaviors>, // TODO instead of specifying, make a selector. Then give add copy back to this comp
+    pub behaviors: Vec<AIBehaviors>, // TODO instead of specifying, make a selector. Then give add copy back to this comp
 }
 
 #[derive(Copy, Clone, Debug, PartialEq)]

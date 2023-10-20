@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use crate::ai::labors::AIBehaviors;
 use crate::colors::{*};
 // use crate::ai::labors::AIBehaviors;
 use crate::components::{
@@ -122,7 +123,7 @@ pub fn player(store: &mut AllStoragesViewMut, pos: XY) -> EntityId {
         Actor {
             faction: Faction::Player,
             atype: ActorType::Player,
-            // //behaviors: Vec::new(),
+            behaviors: Vec::new(),
         },
         Locomotive {
             mtype: LocomotionType::Ground,
@@ -186,7 +187,7 @@ pub fn villager(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
         Actor {
             faction: Faction::Villager,
             atype: ActorType::Villager,
-            //behaviors: vec![AIBehaviors::GatherWood, AIBehaviors::GatherFish, AIBehaviors::Wander],
+            behaviors: vec![AIBehaviors::GatherWood, AIBehaviors::GatherFish, AIBehaviors::Wander],
         },
     ))
 }
@@ -218,7 +219,7 @@ pub fn fish(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
         Actor {
             faction: Faction::Nature,
             atype: ActorType::Fish,
-            //behaviors: Vec::new(),
+            behaviors: Vec::new(),
         },
         Item { typ: ItemType::Fish },
     ))
@@ -252,7 +253,7 @@ pub fn monster(store: &mut AllStoragesViewMut, xy: XY, glyph: char, name: String
         Actor {
             faction: Faction::Orcs,
             atype: ActorType::Orc,
-            //behaviors: vec![AIBehaviors::AttackEnemies],
+            behaviors: vec![AIBehaviors::AttackEnemies],
         },
         Locomotive {
             mtype: LocomotionType::Ground,
@@ -294,7 +295,7 @@ pub fn wolf(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
         Actor {
             faction: Faction::Nature,
             atype: ActorType::Wolf,
-            //behaviors: vec![AIBehaviors::AttackEnemies],
+            behaviors: vec![AIBehaviors::AttackEnemies],
         },
         Locomotive {
             mtype: LocomotionType::Ground,
@@ -340,7 +341,7 @@ pub fn big_monster(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
         Actor {
             faction: Faction::Orcs,
             atype: ActorType::Orc,
-            //behaviors: vec![AIBehaviors::AttackEnemies],
+            behaviors: vec![AIBehaviors::AttackEnemies],
         },
         Locomotive {
             mtype: LocomotionType::Ground,
@@ -591,7 +592,7 @@ pub fn spawner(
         Actor {
             atype: ActorType::Spawner,
             faction,
-            //behaviors: Vec::new(),
+            behaviors: Vec::new(),
         },
     ))
 }

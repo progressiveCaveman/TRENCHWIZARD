@@ -2,7 +2,6 @@ use assets::Assets;
 use engine::game_modes::{get_settings, GameMode};
 
 use engine::Engine;
-use engine::map::XY;
 use error_iter::ErrorIter as _;
 use input_handler::{handle_input, Action};
 use log::error;
@@ -25,7 +24,8 @@ const SCALE: i32 = 2;
 const WIDTH: i32 = 640 * SCALE;
 const HEIGHT: i32 = 480 * SCALE;
 
-type Image = (Vec<[u8; 4]>, XY);
+pub const DISABLE_AI: bool = false;
+
 
 pub const MAIN_MENU_OPTIONS: usize = 2;
 pub const MODE_SELECT_OPTIONS: usize = 3;
