@@ -223,6 +223,11 @@ fn main() -> Result<(), Error> {
             game.frame_time = last_time.elapsed().as_millis() as i32;
             last_time = Instant::now();
 
+            // query the change in mouse this update
+            if input.mouse_diff() != (0.0, 0.0) {
+                game.screen.mouse_pos = (input.mouse().unwrap().0 as i32 / 2, input.mouse().unwrap().1 as i32 / 2);
+            }
+
             // match handle_input(&event, &mut game) {
             //     Action::None => {}
             //     Action::Exit => {

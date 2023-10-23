@@ -22,7 +22,8 @@ const DEBUG_OUTLINES: bool = false;
 pub struct Screen {
     pub size: XY,
     pub input_blocking: bool,
-    consoles: Vec<Console>,
+    pub consoles: Vec<Console>,
+    pub mouse_pos: XY,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -39,6 +40,7 @@ impl Screen {
             size,
             input_blocking: false,
             consoles: Vec::new(),
+            mouse_pos: (0, 0),
         }
     }
 
@@ -81,6 +83,16 @@ impl Screen {
         }
     }
 
+    pub fn get_map_console(&self) -> Option<&Console> { 
+        for c in self.consoles.iter() {
+            if c.mode == ConsoleMode::WorldMap {
+                return Some(&c);
+            }
+        }
+
+        None
+    }
+
     // pub fn set_main_console_mode(&mut self, mode: ConsoleMode) {
     //     self.consoles[1].mode = mode;
     // }
@@ -115,6 +127,27 @@ impl Screen {
                 ),
             )
         };
+    }
+
+    pub fn get_mouse_game_pos(&self) -> XY {
+        if let Some(console) = self.get_map_console() {
+            let mp_in_map_console = (
+                self.mouse_pos.0 - console.pos.0,
+                self.mouse_pos.1 - console.pos.1
+            );
+
+            let tile_mp = (
+                mp_in_map_console.0 / console.tile_size,
+                mp_in_map_console.1 / console.tile_size
+            );
+
+            return (
+                console.map_pos.0 + tile_mp.0,
+                console.map_pos.1 + tile_mp.1
+            );
+        }
+
+        (0,0)
     }
 
     pub fn draw(&self, frame: &mut [u8], game: &Game) {
