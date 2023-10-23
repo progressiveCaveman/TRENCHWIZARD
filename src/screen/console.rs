@@ -49,7 +49,7 @@ label
 
 */
 
-use engine::{map::{Map, XY}, colors::{self}, components::{Renderable, CombatStats}, utils::InvalidPoint};
+use engine::{map::{Map, XY}, colors::{self}, components::{Renderable, CombatStats}};
 use shipyard::{UniqueView, View, Get};
 use strum::EnumCount;
 
@@ -86,7 +86,7 @@ impl Console {
             hidden: false,
             z: 1,
             mode: mode,
-            tile_size: 1,
+            tile_size: 16,
             map_pos: (0, 0),
         }
     }
@@ -226,15 +226,6 @@ impl Console {
             map.history[game.history_step].clone()
         };
 
-        let map_pos = if game.engine.settings.follow_player {
-            let ppos = game.engine.get_player_pos().0.to_xy();
-
-            let mp = (ppos.0 - self.size.0 / (2 * self.tile_size), ppos.1 - self.size.1 / (2 * self.tile_size));
-            (i32::max(0, mp.0), i32::max(0, mp.1))
-        } else {
-            self.map_pos
-        };
-
         if self.tile_size < 8 {
             let xrange = self.pos.0..self.pos.0 + self.size.0;
             let yrange = self.pos.1..self.pos.1 + self.size.1;
@@ -244,8 +235,8 @@ impl Console {
                 let yscreen = i as i32 / WIDTH;
 
                 if xrange.contains(&xscreen) && yrange.contains(&yscreen) {
-                    let xmap = map_pos.0 + (xscreen - self.pos.0) / self.tile_size;
-                    let ymap = map_pos.1 + (yscreen - self.pos.1) / self.tile_size;
+                    let xmap = self.map_pos.0 + (xscreen - self.pos.0) / self.tile_size;
+                    let ymap = self.map_pos.1 + (yscreen - self.pos.1) / self.tile_size;
 
                     if map.in_bounds((xmap, ymap)) { 
                         let idx = map.xy_idx((xmap, ymap));
@@ -257,9 +248,10 @@ impl Console {
                         }
 
                         // calculate whether we're on a border for glyph fg render
-                        let xmod = map_pos.0 + (xscreen - self.pos.0) % self.tile_size;
-                        let ymod = map_pos.1 + (yscreen - self.pos.1) % self.tile_size;
-                        let border = xmod < self.tile_size / 4 || xmod >= self.tile_size * 3 / 4 || ymod < self.tile_size / 4 || ymod >= self.tile_size * 3 / 4;
+                        let xmod = self.map_pos.0 + (xscreen - self.pos.0) % self.tile_size;
+                        let ymod = self.map_pos.1 + (yscreen - self.pos.1) % self.tile_size;
+                        let border = xmod < self.tile_size / 4 || xmod >= self.tile_size * 3 / 4 || 
+                            ymod < self.tile_size / 4 || ymod >= self.tile_size * 3 / 4;
 
                         let color = if border { render.2 } else { render.1 };
                         pixel.copy_from_slice(&color);
@@ -272,7 +264,7 @@ impl Console {
 
             for x in 0 .. widthchars {
                 for y in 0 .. heightchars {
-                    let pos = (x + map_pos.0, y + map_pos.1);
+                    let pos = (x + self.map_pos.0, y + self.map_pos.1);
                     // let idx = map.point_idx(point);
                     if x < self.pos.0 + self.size.0 + self.tile_size && y < self.pos.1 + self.size.1 + self.tile_size && map.in_bounds(pos){
                         let idx = map.xy_idx(pos);
@@ -281,7 +273,7 @@ impl Console {
                             if let Ok(rend) = vrend.get(*c) {
                                 render = (rend.glyph, rend.fg, rend.bg);
                             }
-                        }                        
+                        }
                         screen.print_cp437(
                             &game.assets,
                             frame,

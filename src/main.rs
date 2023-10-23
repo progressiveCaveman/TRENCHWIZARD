@@ -4,12 +4,14 @@ use assets::Assets;
 use engine::components::FrameTime;
 use engine::game_modes::{get_settings, GameMode};
 
+use engine::utils::InvalidPoint;
 use engine::{Engine, effects};
 use engine::systems::system_particle;
 use error_iter::ErrorIter as _;
 use log::error;
 use pixels::{Error, Pixels, SurfaceTexture};
 
+use screen::console::ConsoleMode;
 use screen::menu_config::{MainMenuSelection, ModeSelectSelection};
 use screen::Screen;
 use shipyard::{EntityId, UniqueViewMut};
@@ -100,6 +102,18 @@ impl Game {
         
         self.engine.world.run(system_particle::update_particles);
         self.engine.world.run(effects::run_effects_queue);
+
+        // update map console to follow player if applicable
+        if self.engine.settings.follow_player {
+            for c in self.screen.consoles.iter_mut() {
+                if c.mode == ConsoleMode::WorldMap {
+                    let ppos = self.engine.get_player_pos().0.to_xy();
+
+                    let mp = (ppos.0 - c.size.0 / (2 * c.tile_size), ppos.1 - c.size.1 / (2 * c.tile_size));
+                    c.map_pos = (i32::max(0, mp.0), i32::max(0, mp.1))
+                }
+            }
+        }
 
         // Main loop
         match self.state {
