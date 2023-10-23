@@ -1,4 +1,7 @@
+use std::time::Instant;
+
 use assets::Assets;
+use engine::components::FrameTime;
 use engine::game_modes::{get_settings, GameMode};
 
 use engine::{Engine, effects};
@@ -9,7 +12,7 @@ use pixels::{Error, Pixels, SurfaceTexture};
 
 use screen::menu_config::{MainMenuSelection, ModeSelectSelection};
 use screen::Screen;
-use shipyard::EntityId;
+use shipyard::{EntityId, UniqueViewMut};
 use winit::dpi::LogicalSize;
 use winit::event::Event;
 use winit::event_loop::{ControlFlow, EventLoop};
@@ -25,7 +28,7 @@ const WIDTH: i32 = 640 * SCALE;
 const HEIGHT: i32 = 480 * SCALE;
 
 pub const DISABLE_AI: bool = false;
-
+pub const DISABLE_MAPGEN_ANIMATION: bool = true;
 
 pub const MAIN_MENU_OPTIONS: usize = 2;
 pub const MODE_SELECT_OPTIONS: usize = 3;
@@ -39,6 +42,7 @@ pub struct Game {
     pub history_timer: usize,
     pub history_step: usize,
     pub autorun: bool,
+    pub frame_time: i32,
 }
 
 #[derive(PartialEq, Copy, Clone, Debug)]
@@ -77,6 +81,7 @@ impl Game {
             history_timer: 0,
             history_step: 0,
             autorun: false,
+            frame_time: 0,
         }
     }
 
@@ -85,10 +90,10 @@ impl Game {
         self.tick += 1;
 
         // automatically zoom in on small maps
-        {
-            let map = &self.engine.get_map();
-            self.screen.autozoomn_world_map(map);
-        }
+        self.screen.autozoomn_world_map(&self.engine.get_map());
+
+        // update frame time for particle engine
+        self.engine.world.borrow::<UniqueViewMut<FrameTime>>().unwrap().0 = self.frame_time as f32;
 
         // let mut new_runstate = self.state;
         // let player_id = self.engine.get_player_id();
@@ -125,7 +130,7 @@ impl Game {
                 self.history_step = self.history_timer / 5;
                 let map = self.engine.get_map();
                 
-                if self.history_step > map.history.len() + 20 {
+                if self.history_step > map.history.len() + 20 || DISABLE_MAPGEN_ANIMATION {
                     self.state = GameState::Waiting;
                 }
             },
@@ -181,6 +186,7 @@ fn main() -> Result<(), Error> {
     game.engine.get_log_mut().messages.push("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.".to_string());
     game.screen.setup_consoles();
 
+    let mut last_time = Instant::now();
     // main event loop
     event_loop.run(move |event, _, control_flow| {
         // Draw the current frame
@@ -200,6 +206,9 @@ fn main() -> Result<(), Error> {
                 *control_flow = ControlFlow::Exit;
                 return;
             }    
+
+            game.frame_time = last_time.elapsed().as_millis() as i32;
+            last_time = Instant::now();
 
             // match handle_input(&event, &mut game) {
             //     Action::None => {}

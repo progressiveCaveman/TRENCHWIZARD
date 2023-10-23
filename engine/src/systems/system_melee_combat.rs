@@ -74,10 +74,10 @@ pub fn run_melee_combat_system(store: AllStoragesView) {
                                 pos.y,
                                 0.0,
                                 0.0,
-                                COLOR_UI_4, // was 4
+                                COLOR_UI_4,
                                 COLOR_BG,
                                 '‼',
-                                250.0,
+                                500.0,
                             );
                         }
                     }
