@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use engine::{
     components::{Item, PPoint, PlayerID},
     effects::{add_effect, EffectType},
@@ -45,34 +43,16 @@ impl InputCommand {
         return match self {
             InputCommand::None => GameState::None,
             InputCommand::Move { dir } => {
+                let updown = if *dir == 8 { -1 } else if *dir == 2 { 1 } else { 0 };
                 match game.state {
-                    // GameState::Waiting => game.screen.pan_map((0, -1 * movemod)),
-                    GameState::MainMenu { selection } => return GameState::MainMenu { selection: selection.modify(*dir) },
-                    GameState::ModeSelect { selection } => return GameState::ModeSelect { selection: selection.modify(*dir) },
+                    GameState::MainMenu { selection } => return GameState::MainMenu { selection: selection.modify(updown) },
+                    GameState::ModeSelect { selection } => return GameState::ModeSelect { selection: selection.modify(updown) },
                     _ => {},
-                }
+                };
 
-                let map: UniqueView<'_, Map> = world.borrow::<UniqueView<Map>>().unwrap();
+                let tile_idx = game.engine.get_map().point_idx(dir_to_point(player_pos, *dir as usize, 1));
 
-                // hold shift to move by 10 squares at a time
-                let movemod = 1;
-
-                let mut dir_targets: HashMap<i32, usize> = HashMap::new();
-                dir_targets.insert(1, map.point_idx(dir_to_point(player_pos, 1, movemod)));
-                dir_targets.insert(2, map.point_idx(dir_to_point(player_pos, 2, movemod)));
-                dir_targets.insert(3, map.point_idx(dir_to_point(player_pos, 3, movemod)));
-                dir_targets.insert(4, map.point_idx(dir_to_point(player_pos, 4, movemod)));
-                dir_targets.insert(6, map.point_idx(dir_to_point(player_pos, 6, movemod)));
-                dir_targets.insert(7, map.point_idx(dir_to_point(player_pos, 7, movemod)));
-                dir_targets.insert(8, map.point_idx(dir_to_point(player_pos, 8, movemod)));
-                dir_targets.insert(9, map.point_idx(dir_to_point(player_pos, 9, movemod)));
-
-                add_effect(
-                    creator,
-                    EffectType::MoveOrAttack {
-                        tile_idx: dir_targets[dir],
-                    },
-                );
+                add_effect(creator, EffectType::MoveOrAttack {tile_idx});
 
                 GameState::PlayerTurn
             }
@@ -175,18 +155,24 @@ pub fn map_keys(event: WindowEvent, mode: GameMode) -> InputCommand {
             let mut cmd = match input.virtual_keycode {
                 None => InputCommand::None,
                 Some(key) => match key {
+                    VirtualKeyCode::Key1 => InputCommand::Move { dir: 1 },
+                    VirtualKeyCode::Key2 => InputCommand::Move { dir: 2 },
+                    VirtualKeyCode::Key3 => InputCommand::Move { dir: 3 },
+                    VirtualKeyCode::Key4 => InputCommand::Move { dir: 4 },
+                    VirtualKeyCode::Key5 => InputCommand::Wait,
+                    VirtualKeyCode::Key6 => InputCommand::Move { dir: 6 },
+                    VirtualKeyCode::Key7 => InputCommand::Move { dir: 7 },
+                    VirtualKeyCode::Key8 => InputCommand::Move { dir: 8 },
+                    VirtualKeyCode::Key9 => InputCommand::Move { dir: 9 },
                     VirtualKeyCode::Left => InputCommand::Move { dir: 4 },
                     VirtualKeyCode::Right => InputCommand::Move { dir: 6 },
                     VirtualKeyCode::Up => InputCommand::Move { dir: 8 },
                     VirtualKeyCode::Down => InputCommand::Move { dir: 2 },
-                    VirtualKeyCode::Y => InputCommand::Move { dir: 7 },
-                    VirtualKeyCode::U => InputCommand::Move { dir: 9 },
-                    VirtualKeyCode::N => InputCommand::Move { dir: 3 },
-                    VirtualKeyCode::B => InputCommand::Move { dir: 1 },
                     VirtualKeyCode::F => InputCommand::Fireball,
                     VirtualKeyCode::W => InputCommand::Wait,
                     VirtualKeyCode::R => InputCommand::Reset,
                     VirtualKeyCode::Return => InputCommand::Enter,
+                    VirtualKeyCode::NumpadEnter => InputCommand::Enter,
                     VirtualKeyCode::Escape => InputCommand::Escape,
                     VirtualKeyCode::Equals => InputCommand::ZoomIn,
                     VirtualKeyCode::Minus => InputCommand::ZoomOut,

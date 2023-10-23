@@ -10,6 +10,9 @@ pub enum MainMenuSelection {
 // There must be a better way to implement len and from
 impl MainMenuSelection {
     pub fn modify(&self, dir: i32) -> Self {
+        if dir == 0 {
+            return *self;
+        }
         return if dir > 0 {
             self.inc()
         } else {
