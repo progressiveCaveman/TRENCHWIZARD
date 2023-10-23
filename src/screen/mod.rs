@@ -7,7 +7,7 @@ use crate::{
         cp437_converter::string_to_cp437,
         Assets, sprites::Drawable, Image,
     },
-    Game, HEIGHT, WIDTH,
+    HEIGHT, WIDTH, game::Game,
 };
 
 use self::console::{Console, ConsoleMode};

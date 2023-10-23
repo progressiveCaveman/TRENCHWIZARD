@@ -7,7 +7,7 @@ use engine::{
 use shipyard::{EntityId, Get, UniqueView, UniqueViewMut, View};
 use winit::event::{WindowEvent, VirtualKeyCode, ElementState};
 
-use crate::{Game, GameState, screen::menu_config::{MainMenuSelection, ModeSelectSelection}};
+use crate::{screen::menu_config::{MainMenuSelection, ModeSelectSelection}, game::{Game, GameState}};
 
 
 #[derive(Copy, Clone, PartialEq, Debug)]

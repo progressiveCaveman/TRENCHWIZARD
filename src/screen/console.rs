@@ -53,7 +53,7 @@ use engine::{map::{Map, XY}, colors::{self}, components::{Renderable, CombatStat
 use shipyard::{UniqueView, View, Get};
 use strum::EnumCount;
 
-use crate::{Game, WIDTH, assets::cp437_converter::to_cp437, GameState};
+use crate::{WIDTH, assets::cp437_converter::to_cp437, game::{Game, GameState}};
 
 use super::{Glyph, UI_GLYPH_SIZE, DEBUG_OUTLINES, menu_config::{MainMenuSelection, ModeSelectSelection}, MAX_ZOOM};
 
