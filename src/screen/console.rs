@@ -73,7 +73,7 @@ pub struct Console {
     pub hidden: bool,
     pub z: i32, // not used yet
     pub mode: ConsoleMode,
-    pub zoom: i32, // TODO tile_size would be more approp name
+    pub tile_size: i32, 
     pub map_pos: XY, // Only used for map mode
 }
 
@@ -86,7 +86,7 @@ impl Console {
             hidden: false,
             z: 1,
             mode: mode,
-            zoom: 1,
+            tile_size: 1,
             map_pos: (0, 0),
         }
     }
@@ -229,13 +229,13 @@ impl Console {
         let map_pos = if game.engine.settings.follow_player {
             let ppos = game.engine.get_player_pos().0.to_xy();
 
-            let mp = (ppos.0 - self.size.0 / (2 * self.zoom), ppos.1 - self.size.1 / (2 * self.zoom));
+            let mp = (ppos.0 - self.size.0 / (2 * self.tile_size), ppos.1 - self.size.1 / (2 * self.tile_size));
             (i32::max(0, mp.0), i32::max(0, mp.1))
         } else {
             self.map_pos
         };
 
-        if self.zoom < 8 {
+        if self.tile_size < 8 {
             let xrange = self.pos.0..self.pos.0 + self.size.0;
             let yrange = self.pos.1..self.pos.1 + self.size.1;
 
@@ -244,8 +244,8 @@ impl Console {
                 let yscreen = i as i32 / WIDTH;
 
                 if xrange.contains(&xscreen) && yrange.contains(&yscreen) {
-                    let xmap = map_pos.0 + (xscreen - self.pos.0) / self.zoom;
-                    let ymap = map_pos.1 + (yscreen - self.pos.1) / self.zoom;
+                    let xmap = map_pos.0 + (xscreen - self.pos.0) / self.tile_size;
+                    let ymap = map_pos.1 + (yscreen - self.pos.1) / self.tile_size;
 
                     if map.in_bounds((xmap, ymap)) { 
                         let idx = map.xy_idx((xmap, ymap));
@@ -257,9 +257,9 @@ impl Console {
                         }
 
                         // calculate whether we're on a border for glyph fg render
-                        let xmod = map_pos.0 + (xscreen - self.pos.0) % self.zoom;
-                        let ymod = map_pos.1 + (yscreen - self.pos.1) % self.zoom;
-                        let border = xmod < self.zoom / 4 || xmod >= self.zoom * 3 / 4 || ymod < self.zoom / 4 || ymod >= self.zoom * 3 / 4;
+                        let xmod = map_pos.0 + (xscreen - self.pos.0) % self.tile_size;
+                        let ymod = map_pos.1 + (yscreen - self.pos.1) % self.tile_size;
+                        let border = xmod < self.tile_size / 4 || xmod >= self.tile_size * 3 / 4 || ymod < self.tile_size / 4 || ymod >= self.tile_size * 3 / 4;
 
                         let color = if border { render.2 } else { render.1 };
                         pixel.copy_from_slice(&color);
@@ -267,14 +267,14 @@ impl Console {
                 }
             }
         } else {
-            let widthchars = self.size.0 / self.zoom;
-            let heightchars = self.size.1 / self.zoom;
+            let widthchars = self.size.0 / self.tile_size;
+            let heightchars = self.size.1 / self.tile_size;
 
             for x in 0 .. widthchars {
                 for y in 0 .. heightchars {
                     let pos = (x + map_pos.0, y + map_pos.1);
                     // let idx = map.point_idx(point);
-                    if x < self.pos.0 + self.size.0 + self.zoom && y < self.pos.1 + self.size.1 + self.zoom && map.in_bounds(pos){
+                    if x < self.pos.0 + self.size.0 + self.tile_size && y < self.pos.1 + self.size.1 + self.tile_size && map.in_bounds(pos){
                         let idx = map.xy_idx(pos);
                         let mut render = tiles[idx].renderable();
                         for c in map.tile_content[idx].iter() {
@@ -286,12 +286,12 @@ impl Console {
                             &game.assets,
                             frame,
                             Glyph {
-                                pos: (self.pos.0 + x * self.zoom, self.pos.1 + y * self.zoom),
+                                pos: (self.pos.0 + x * self.tile_size, self.pos.1 + y * self.tile_size),
                                 ch: to_cp437(render.0),
                                 fg: render.1,
                                 bg: render.2,
                             },
-                            self.zoom
+                            self.tile_size
                         );
                     }
                 }
@@ -380,20 +380,20 @@ impl Console {
     }
 
     pub fn zoom_to_fit(&mut self, map: &Map) {
-        while self.zoom < MAX_ZOOM && (self.zoom + 1) * map.size.0 < self.size.0 && (self.zoom + 1) * map.size.1 < self.size.1 {
-            self.zoom += 1;
+        while self.tile_size < MAX_ZOOM && (self.tile_size + 1) * map.size.0 < self.size.0 && (self.tile_size + 1) * map.size.1 < self.size.1 {
+            self.tile_size += 1;
         }
     }
 
     pub fn zoom_in(&mut self) {
-        if self.zoom < MAX_ZOOM {
-            self.zoom += 1;
+        if self.tile_size < MAX_ZOOM {
+            self.tile_size += 1;
         }
     }
 
     pub fn zoom_out(&mut self) {
-        if self.zoom > 1 {
-            self.zoom -= 1;
+        if self.tile_size > 1 {
+            self.tile_size -= 1;
         }
     }
 }
