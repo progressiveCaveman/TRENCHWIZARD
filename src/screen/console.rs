@@ -49,7 +49,7 @@ label
 
 */
 
-use engine::{map::{Map, XY}, colors::{self}, components::Renderable};
+use engine::{map::{Map, XY}, colors::{self}, components::{Renderable, CombatStats}};
 use shipyard::{UniqueView, View, Get};
 use strum::EnumCount;
 
@@ -325,6 +325,7 @@ impl Console {
 
     pub fn render_info(&self, frame: &mut [u8], game: &Game) {
         let screen = &game.screen;
+        let player_id = game.engine.get_player_id().0;
 
         screen.draw_box(
             &game.assets,
@@ -335,6 +336,30 @@ impl Console {
             colors::COLOR_CLEAR,
             UI_GLYPH_SIZE
         );
+
+        let mut y = 1;
+        screen.print_string(
+            &game.assets,
+            frame,
+            "calendar",
+            (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+            colors::COLOR_UI_2,
+            UI_GLYPH_SIZE
+        );
+
+        y += 1;
+        if let Ok(vstats) = game.engine.world.borrow::<View<CombatStats>>() {
+            if let Ok(stat) = vstats.get(player_id) {
+                screen.print_string(
+                    &game.assets,
+                    frame,
+                    &format!("HP: {}/{}", stat.hp, stat.max_hp),
+                    (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                    colors::COLOR_UI_2,
+                    UI_GLYPH_SIZE
+                );
+            }
+        }
     }
 
     pub fn in_bounds(&self, pos: XY) -> bool {
