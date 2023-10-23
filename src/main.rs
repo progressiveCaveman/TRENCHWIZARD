@@ -8,8 +8,7 @@ use log::error;
 use pixels::{Error, Pixels, SurfaceTexture};
 
 use screen::menu_config::{MainMenuSelection, ModeSelectSelection};
-use screen::{Screen, MAX_ZOOM};
-use screen::console::ConsoleMode;
+use screen::Screen;
 use shipyard::EntityId;
 use winit::dpi::LogicalSize;
 use winit::event::Event;
@@ -87,18 +86,11 @@ impl Game {
 
         // automatically zoom in on small maps
         {
-            let map = self.engine.get_map();
-            for c in self.screen.consoles.iter_mut() {
-                if c.mode == ConsoleMode::WorldMap {
-                    while c.zoom < MAX_ZOOM && (c.zoom + 1) * map.size.0 < c.size.0 && (c.zoom + 1) * map.size.1 < c.size.1 {
-                        c.zoom += 1;
-                    }
-                }
-            }
+            let map = &self.engine.get_map();
+            self.screen.autozoomn_world_map(map);
         }
 
         // let mut new_runstate = self.state;
-
         // let player_id = self.engine.get_player_id();
         
         self.engine.world.run(system_particle::update_particles);

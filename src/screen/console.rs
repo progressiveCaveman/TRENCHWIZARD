@@ -55,13 +55,14 @@ use strum::EnumCount;
 
 use crate::{Game, WIDTH, assets::cp437_converter::to_cp437, GameState};
 
-use super::{Glyph, UI_GLYPH_SIZE, DEBUG_OUTLINES, menu_config::{MainMenuSelection, ModeSelectSelection}};
+use super::{Glyph, UI_GLYPH_SIZE, DEBUG_OUTLINES, menu_config::{MainMenuSelection, ModeSelectSelection}, MAX_ZOOM};
 
 #[derive(Debug, PartialEq)]
 pub enum ConsoleMode {
     MainMenu,
     WorldMap,
     Log,
+    Info,
 }
 
 #[derive(Debug)]
@@ -102,6 +103,9 @@ impl Console {
             ConsoleMode::Log => {
                 self.render_log(frame, game);
             }
+            ConsoleMode::Info => {
+                self.render_info(frame, game);
+            },
         }
 
         if DEBUG_OUTLINES {
@@ -319,10 +323,42 @@ impl Console {
         }
     }
 
+    pub fn render_info(&self, frame: &mut [u8], game: &Game) {
+        let screen = &game.screen;
+
+        screen.draw_box(
+            &game.assets,
+            frame,
+            (self.pos.0, self.pos.1),
+            (self.size.0, self.size.1),
+            colors::COLOR_UI_1,
+            colors::COLOR_CLEAR,
+            UI_GLYPH_SIZE
+        );
+    }
+
     pub fn in_bounds(&self, pos: XY) -> bool {
         return pos.0 >= self.pos.0 && 
             pos.0 <= self.pos.0 + self.size.0 && 
             pos.1 >= self.pos.1 &&
             pos.1 <= self.pos.1 + self.size.1
+    }
+
+    pub fn zoom_to_fit(&mut self, map: &Map) {
+        while self.zoom < MAX_ZOOM && (self.zoom + 1) * map.size.0 < self.size.0 && (self.zoom + 1) * map.size.1 < self.size.1 {
+            self.zoom += 1;
+        }
+    }
+
+    pub fn zoom_in(&mut self) {
+        if self.zoom < MAX_ZOOM {
+            self.zoom += 1;
+        }
+    }
+
+    pub fn zoom_out(&mut self) {
+        if self.zoom > 1 {
+            self.zoom -= 1;
+        }
     }
 }

@@ -1,6 +1,6 @@
 use std::{iter::zip, cmp};
 
-use engine::{colors::{Color, self}, map::XY};
+use engine::{colors::{Color, self}, map::{XY, Map}};
 
 use crate::{
     assets::{
@@ -16,13 +16,13 @@ pub mod console;
 pub mod menu_config;
 
 pub const MAX_ZOOM: i32 = 16;
-const UI_GLYPH_SIZE: i32 = 16;
+const UI_GLYPH_SIZE: i32 = 12;
 const DEBUG_OUTLINES: bool = false;
 
 pub struct Screen {
     pub size: XY,
     pub input_blocking: bool,
-    pub consoles: Vec<Console>,
+    consoles: Vec<Console>,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -44,17 +44,24 @@ impl Screen {
 
     pub fn setup_consoles(&mut self) {
 
-        // log console
+        // info console
         let x = 0;
         let y = 0;
-        let w = self.size.0 - 1;
+        let w = self.size.0 / 4;
         let h = 10 * UI_GLYPH_SIZE - 1;
+        self.consoles.push(Console::new((w, h), (x, y), ConsoleMode::Info));
+
+        // log console
+        let x = w;
+        let y = 0;
+        let w = self.size.0 - w - 1;
+        let h = h;
         self.consoles.push(Console::new((w, h), (x, y), ConsoleMode::Log));
 
-        // main console
+        // world console
         let x = 0;
         let y = h;
-        let w = w;
+        let w = self.size.0 - 1;
         let h = self.size.1 - h - 1;
         self.consoles.push(Console::new((w, h), (x, y), ConsoleMode::WorldMap));
 
@@ -66,19 +73,31 @@ impl Screen {
         self.consoles.push(Console::new((w, h), (x, y), ConsoleMode::MainMenu));
     }
 
-    pub fn set_main_console_mode(&mut self, mode: ConsoleMode) {
-        self.consoles[1].mode = mode;
+    pub fn autozoomn_world_map(&mut self, map: &Map) {
+        for con in self.consoles.iter_mut() {
+            if con.mode == ConsoleMode::WorldMap {
+                con.zoom_to_fit(map);
+            }
+        }
     }
 
+    // pub fn set_main_console_mode(&mut self, mode: ConsoleMode) {
+    //     self.consoles[1].mode = mode;
+    // }
+
     pub fn increment_zoom(&mut self) {
-        if self.consoles[1].zoom < MAX_ZOOM {
-            self.consoles[1].zoom += 1;
+        for con in self.consoles.iter_mut() {
+            if con.mode == ConsoleMode::WorldMap {
+                con.zoom_in();
+            }
         }
     }
 
     pub fn decrement_zoom(&mut self) {
-        if self.consoles[1].zoom > 1 {
-            self.consoles[1].zoom -= 1;
+        for con in self.consoles.iter_mut() {
+            if con.mode == ConsoleMode::WorldMap {
+                con.zoom_out();
+            }
         }
     }
 
