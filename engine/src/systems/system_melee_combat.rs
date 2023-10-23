@@ -66,8 +66,7 @@ pub fn run_melee_combat_system(store: AllStoragesView) {
                         );
                     }
 
-                    let pos = vpos.get(wants_attack.target);
-                    if let Ok(pos) = pos {
+                    if let Ok(pos) = vpos.get(wants_attack.target) {
                         for pos in pos.ps.iter() {
                             particle_builder.request(
                                 pos.x,

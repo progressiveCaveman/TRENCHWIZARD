@@ -123,7 +123,6 @@ impl Game {
             },
             // GameState::Play => {
             //     self.engine.run_systems();
-
             // },
             GameState::ShowMapHistory => {
                 self.history_timer += 1;

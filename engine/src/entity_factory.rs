@@ -107,14 +107,14 @@ fn spawn_entity(store: &mut AllStoragesViewMut, spawn: &(&usize, &String)) {
     };
 }
 
-pub fn player(store: &mut AllStoragesViewMut, pos: XY) -> EntityId {
+pub fn player(store: &mut AllStoragesViewMut, pos: XY, is_render: bool) -> EntityId {
     store.add_entity((
         Position {
             ps: vec![Point::new(pos.0, pos.1)],
         },
         Renderable {
             glyph: '@',
-            fg: COLOR_PURPLE,
+            fg: if is_render { COLOR_PURPLE } else { COLOR_BG },
             bg: COLOR_BG,
             order: RenderOrder::Player,
             ..Default::default()

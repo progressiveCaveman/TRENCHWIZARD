@@ -76,6 +76,10 @@ impl Engine {
         self.world.borrow::<UniqueView<PlayerID>>().unwrap()
     }
 
+    pub fn get_player_pos(&self) -> UniqueView<'_, PPoint> {
+        self.world.borrow::<UniqueView<PPoint>>().unwrap()
+    }
+
     pub fn run_systems(&mut self) {
         systems::run_systems(&mut self.world, true, true);
     }
@@ -140,7 +144,7 @@ impl Engine {
         // Spawn monsters and items
         map_builder.spawn_entities(&mut self.world);
 
-        // Update player position
+        // Update player position unique
         self.world.run(
             |mut ppos: UniqueViewMut<PPoint>,
              player_id: UniqueView<PlayerID>,
@@ -187,7 +191,7 @@ impl Engine {
 
         let player_id = self
             .world
-            .run(|mut store: AllStoragesViewMut| entity_factory::player(&mut store, (0, 0)));
+            .run(|mut store: AllStoragesViewMut| entity_factory::player(&mut store, (0, 0), settings.show_player));
         self.world.add_unique(PlayerID(player_id));
 
         self.world.add_unique(GameLog { messages: vec![] });

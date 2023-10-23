@@ -49,7 +49,7 @@ label
 
 */
 
-use engine::{map::{Map, XY}, colors::{self}, components::{Renderable, CombatStats}};
+use engine::{map::{Map, XY}, colors::{self}, components::{Renderable, CombatStats}, utils::InvalidPoint};
 use shipyard::{UniqueView, View, Get};
 use strum::EnumCount;
 
@@ -73,7 +73,7 @@ pub struct Console {
     pub hidden: bool,
     pub z: i32, // not used yet
     pub mode: ConsoleMode,
-    pub zoom: i32, // Only used for map mode
+    pub zoom: i32, // TODO tile_size would be more approp name
     pub map_pos: XY, // Only used for map mode
 }
 
@@ -226,22 +226,26 @@ impl Console {
             map.history[game.history_step].clone()
         };
 
+        let map_pos = if game.engine.settings.follow_player {
+            let ppos = game.engine.get_player_pos().0.to_xy();
+
+            let mp = (ppos.0 - self.size.0 / (2 * self.zoom), ppos.1 - self.size.1 / (2 * self.zoom));
+            (i32::max(0, mp.0), i32::max(0, mp.1))
+        } else {
+            self.map_pos
+        };
+
         if self.zoom < 8 {
+            let xrange = self.pos.0..self.pos.0 + self.size.0;
+            let yrange = self.pos.1..self.pos.1 + self.size.1;
+
             for (i, pixel) in frame.chunks_exact_mut(4).enumerate() {
                 let xscreen = i as i32 % WIDTH;
                 let yscreen = i as i32 / WIDTH;
 
-                let xrange = self.pos.0..self.pos.0 + self.size.0;
-                let yrange = self.pos.1..self.pos.1 + self.size.1;
-
                 if xrange.contains(&xscreen) && yrange.contains(&yscreen) {
-                    let xmap = self.map_pos.0 + (xscreen - self.pos.0) / self.zoom;
-                    let ymap = self.map_pos.1 + (yscreen - self.pos.1) / self.zoom;
-
-                    // calculate whether we're on a border for glyph fg render
-                    let xmod = self.map_pos.0 + (xscreen - self.pos.0) % self.zoom;
-                    let ymod = self.map_pos.1 + (yscreen - self.pos.1) % self.zoom;
-                    let border = xmod < self.zoom / 4 || xmod >= self.zoom * 3 / 4 || ymod < self.zoom / 4 || ymod >= self.zoom * 3 / 4;
+                    let xmap = map_pos.0 + (xscreen - self.pos.0) / self.zoom;
+                    let ymap = map_pos.1 + (yscreen - self.pos.1) / self.zoom;
 
                     if map.in_bounds((xmap, ymap)) { 
                         let idx = map.xy_idx((xmap, ymap));
@@ -251,6 +255,12 @@ impl Console {
                                 render = (rend.glyph, rend.fg, rend.bg);
                             }
                         }
+
+                        // calculate whether we're on a border for glyph fg render
+                        let xmod = map_pos.0 + (xscreen - self.pos.0) % self.zoom;
+                        let ymod = map_pos.1 + (yscreen - self.pos.1) % self.zoom;
+                        let border = xmod < self.zoom / 4 || xmod >= self.zoom * 3 / 4 || ymod < self.zoom / 4 || ymod >= self.zoom * 3 / 4;
+
                         let color = if border { render.2 } else { render.1 };
                         pixel.copy_from_slice(&color);
                     }
@@ -262,7 +272,7 @@ impl Console {
 
             for x in 0 .. widthchars {
                 for y in 0 .. heightchars {
-                    let pos = (x + self.map_pos.0, y + self.map_pos.1);
+                    let pos = (x + map_pos.0, y + map_pos.1);
                     // let idx = map.point_idx(point);
                     if x < self.pos.0 + self.size.0 + self.zoom && y < self.pos.1 + self.size.1 + self.zoom && map.in_bounds(pos){
                         let idx = map.xy_idx(pos);
