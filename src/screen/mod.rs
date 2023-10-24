@@ -69,9 +69,9 @@ impl Screen {
         self.consoles.push(Console::new((wlog, hlog), (xlog, ylog), ConsoleMode::Log));
 
         // world console
-        let xworld = wcontext;
+        let xworld = winfo;
         let yworld = hinfo;
-        let wworld = self.size.0 - wcontext - 1;
+        let wworld = self.size.0 - winfo - 1;
         let hworld = self.size.1 - hinfo - 1;
         self.consoles.push(Console::new((wworld, hworld), (xworld, yworld), ConsoleMode::WorldMap));
 

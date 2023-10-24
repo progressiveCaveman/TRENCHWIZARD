@@ -79,6 +79,8 @@ impl Game {
 
                     let mp = (ppos.0 - c.size.0 / (2 * c.gsize), ppos.1 - c.size.1 / (2 * c.gsize));
                     c.map_pos = (i32::max(0, mp.0), i32::max(0, mp.1))
+                } else {
+                    c.map_pos = (0,0);
                 }
             }
         }
@@ -103,15 +105,12 @@ impl Game {
             GameState::AiTurn => {
                 self.set_state(GameState::Waiting);
             },
-            // GameState::Play => {
-            //     self.engine.run_systems();
-            // },
             GameState::ShowMapHistory => {
                 self.history_timer += 1;
                 self.history_step = self.history_timer / 5;
                 let map = self.engine.get_map();
                 
-                if self.history_step > map.history.len() + 20 || DISABLE_MAPGEN_ANIMATION {
+                if self.history_step > map.history.len() + 20 || (DISABLE_MAPGEN_ANIMATION && self.engine.settings.mode != GameMode::MapDemo) {
                     self.state = GameState::Waiting;
                 }
             },

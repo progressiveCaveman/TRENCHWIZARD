@@ -376,11 +376,6 @@ impl Console {
         let map = world.borrow::<UniqueView<Map>>().unwrap();
         let settings = game.engine.settings;
 
-        let mpos = screen.get_mouse_game_pos();
-        if !map.in_bounds(mpos) {
-            return;
-        }
-
         screen.draw_box(
             &game.assets,
             frame,
@@ -390,6 +385,11 @@ impl Console {
             colors::COLOR_CLEAR,
             UI_GLYPH_SIZE
         );
+
+        let mpos = screen.get_mouse_game_pos();
+        if !map.in_bounds(mpos) {
+            return;
+        }
 
         let mut y = 1;
     
