@@ -45,34 +45,42 @@ impl Screen {
     }
 
     pub fn setup_consoles(&mut self) {
+        // TODO why are these -1 necessary? 
 
         // info console
-        let x = 0;
-        let y = 0;
-        let w = self.size.0 / 4;
-        let h = 10 * UI_GLYPH_SIZE - 1;
-        self.consoles.push(Console::new((w, h), (x, y), ConsoleMode::Info));
+        let xinfo = 0;
+        let yinfo = 0;
+        let winfo = 30 * UI_GLYPH_SIZE - 4; //todo this has to be 4. Gonna cause issues down the line but idk
+        let hinfo = 10 * UI_GLYPH_SIZE - 1;
+        self.consoles.push(Console::new((winfo, hinfo), (xinfo, yinfo), ConsoleMode::Info));
+
+        // context console
+        let xcontext = 0;
+        let ycontext = hinfo;
+        let wcontext = winfo;
+        let hcontext = self.size.1 - hinfo - 1;
+        self.consoles.push(Console::new((wcontext, hcontext), (xcontext, ycontext), ConsoleMode::Context));
 
         // log console
-        let x = w;
-        let y = 0;
-        let w = self.size.0 - w - 1;
-        let h = h;
-        self.consoles.push(Console::new((w, h), (x, y), ConsoleMode::Log));
+        let xlog = winfo;
+        let ylog = 0;
+        let wlog = self.size.0 - winfo - 1;
+        let hlog = hinfo;
+        self.consoles.push(Console::new((wlog, hlog), (xlog, ylog), ConsoleMode::Log));
 
         // world console
-        let x = 0;
-        let y = h;
-        let w = self.size.0 - 1;
-        let h = self.size.1 - h - 1;
-        self.consoles.push(Console::new((w, h), (x, y), ConsoleMode::WorldMap));
+        let xworld = wcontext;
+        let yworld = hinfo;
+        let wworld = self.size.0 - wcontext - 1;
+        let hworld = self.size.1 - hinfo - 1;
+        self.consoles.push(Console::new((wworld, hworld), (xworld, yworld), ConsoleMode::WorldMap));
 
         // menu console
-        let w = UI_GLYPH_SIZE * 30;
-        let h = UI_GLYPH_SIZE * 20;
-        let x = self.size.0/2 - w/2;
-        let y = self.size.1/2 - h/2;
-        self.consoles.push(Console::new((w, h), (x, y), ConsoleMode::MainMenu));
+        let wmenu = UI_GLYPH_SIZE * 30;
+        let hmenu = UI_GLYPH_SIZE * 20;
+        let xmenu = self.size.0/2 - wmenu/2;
+        let ymenu = self.size.1/2 - hmenu/2;
+        self.consoles.push(Console::new((wmenu, hmenu), (xmenu, ymenu), ConsoleMode::MainMenu));
     }
 
     pub fn autozoomn_world_map(&mut self, map: &Map) {
@@ -137,8 +145,8 @@ impl Screen {
             );
 
             let tile_mp = (
-                mp_in_map_console.0 / console.tile_size,
-                mp_in_map_console.1 / console.tile_size
+                mp_in_map_console.0 / console.gsize,
+                mp_in_map_console.1 / console.gsize
             );
 
             return (
@@ -164,21 +172,21 @@ impl Screen {
         }
     }
 
-    pub fn print_cp437(&self, assets: &Assets, frame: &mut [u8], glyph: Glyph, zoom: i32) {
+    pub fn print_cp437(&self, assets: &Assets, frame: &mut [u8], glyph: Glyph, gsize: i32) {
         // let sprite = &assets.glyph(glyph);
-        Screen::blit_glyph(frame, assets, glyph.pos, glyph, zoom);
+        Screen::blit_glyph(frame, assets, glyph.pos, glyph, gsize);
     }
 
-    pub fn print_string(&self, assets: &Assets, frame: &mut [u8], str: &str, pos: XY, color: Color, zoom: i32) {
+    pub fn print_string(&self, assets: &Assets, frame: &mut [u8], str: &str, pos: XY, color: Color, gsize: i32) {
         let chars = string_to_cp437(str);
 
         for (idx, ch) in chars.iter().enumerate() {
             self.print_cp437(assets, frame, Glyph { 
-                pos: (pos.0 + idx as i32 * UI_GLYPH_SIZE, pos.1),
+                pos: (pos.0 + idx as i32 * gsize, pos.1),
                 ch: *ch, 
                 fg: color, 
                 bg: colors::COLOR_CLEAR 
-            }, zoom);
+            }, gsize);
             // let sprite = &assets.cp437[*ch as usize];
             // Screen::blit(
             //     frame,
@@ -191,15 +199,13 @@ impl Screen {
         }
     }
 
-    pub fn draw_box(&self, assets: &Assets, frame: &mut [u8], pos: XY, size: XY, fg: Color, bg: Color, zoom: i32) {
+    pub fn draw_box(&self, assets: &Assets, frame: &mut [u8], pos: XY, size: XY, fg: Color, bg: Color, gsize: i32) {
         let vertwall = 186;
         let horizwall = 205;
         let nwcorner = 201;
         let necorner = 187;
         let secorner = 188;
         let swcorner = 200;
-
-        let gsize = UI_GLYPH_SIZE;
 
         for x in (pos.0 .. pos.0 + size.0).step_by(gsize as usize) {
             for y in (pos.1 .. pos.1 + size.1).step_by(gsize as usize) {
@@ -224,7 +230,7 @@ impl Screen {
                     0
                 };
 
-                self.print_cp437(assets, frame, Glyph { pos: (x, y), ch, fg, bg }, zoom);
+                self.print_cp437(assets, frame, Glyph { pos: (x, y), ch, fg, bg }, gsize);
             }
         }
 
@@ -281,12 +287,12 @@ impl Screen {
     }
 
     /// Blit a drawable to the pixel buffer. Assumes glyph asset has fuscia bg and grayscale fg
-    pub fn blit_glyph(frame: &mut [u8], assets: &Assets, dest: XY, glyph: Glyph, zoom: i32) {
+    pub fn blit_glyph(frame: &mut [u8], assets: &Assets, dest: XY, glyph: Glyph, gsize: i32) {
         let mut spritesheet = &assets.cp437[0];
         for ss in assets.cp437.iter() {
-            if zoom == ss.0 as i32 {
+            if gsize == ss.0 as i32 {
                 spritesheet = ss;
-            } else if zoom < ss.0 as i32 {
+            } else if gsize < ss.0 as i32 {
                 break;
             }
         }

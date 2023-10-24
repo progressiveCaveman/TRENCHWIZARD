@@ -3,7 +3,6 @@ use shipyard::{EntityId, UniqueViewMut};
 
 use crate::{screen::{Screen, menu_config::{MainMenuSelection, ModeSelectSelection}, console::ConsoleMode}, assets::Assets, WIDTH, HEIGHT, DISABLE_MAPGEN_ANIMATION};
 
-
 pub struct Game {
     pub engine: Engine,
     pub screen: Screen,
@@ -78,7 +77,7 @@ impl Game {
                 if c.mode == ConsoleMode::WorldMap {
                     let ppos = self.engine.get_player_pos().0.to_xy();
 
-                    let mp = (ppos.0 - c.size.0 / (2 * c.tile_size), ppos.1 - c.size.1 / (2 * c.tile_size));
+                    let mp = (ppos.0 - c.size.0 / (2 * c.gsize), ppos.1 - c.size.1 / (2 * c.gsize));
                     c.map_pos = (i32::max(0, mp.0), i32::max(0, mp.1))
                 }
             }
