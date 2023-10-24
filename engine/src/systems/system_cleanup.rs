@@ -13,9 +13,7 @@ pub fn run_cleanup_system(
 ) {
     for (id, stats) in (&vstats).iter().with_id() {
         if stats.hp <= 0 {
-            let player = vplayer.get(id);
-            let name = vname.get(id);
-            match player {
+            match vplayer.get(id) {
                 Err(_) => {
                     // not a player
                     if let Ok(inv) = vinv.get(id) {
@@ -27,7 +25,7 @@ pub fn run_cleanup_system(
 
                     add_effect(None, EffectType::Delete { entity: id });
 
-                    if let Ok(name) = name {
+                    if let Ok(name) = vname.get(id) {
                         log.messages.push(format!("{} is dead", &name.name));
                     }
                 }

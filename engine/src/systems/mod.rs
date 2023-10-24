@@ -17,7 +17,6 @@ pub fn run_systems(world: &mut World, _player_turn: bool, ai_turn: bool) {
     // if player_turn {
     world.run(system_fire::run_fire_system);
     // }
-    world.run(system_visibility::run_visibility_system);
 
     world.run(effects::run_effects_queue);
 
@@ -41,4 +40,7 @@ pub fn run_systems(world: &mut World, _player_turn: bool, ai_turn: bool) {
 
     world.run(effects::run_effects_queue);
     world.run(system_map_indexing::run_map_indexing_system);
+    
+    world.run(system_visibility::run_visibility_system);
+    world.run(system_cleanup::run_cleanup_system);
 }
