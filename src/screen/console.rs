@@ -464,7 +464,7 @@ impl Console {
                 screen.print_string(
                     &game.assets,
                     frame,
-                    &format!("{:?} {}", e, name.name),
+                    &format!(" {:?} {}", e, name.name),
                     (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
                     colors::COLOR_UI_2,
                     UI_GLYPH_SIZE
@@ -476,7 +476,7 @@ impl Console {
                 screen.print_string(
                     &game.assets,
                     frame,
-                    &format!("{:?}", pos.ps[0]),
+                    &format!(" {:?}", pos.ps[0]),
                     (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
                     colors::COLOR_UI_2,
                     UI_GLYPH_SIZE
@@ -488,7 +488,7 @@ impl Console {
                 screen.print_string(
                     &game.assets,
                     frame,
-                    &format!("HP: {}/{}", stats.hp, stats.max_hp),
+                    &format!(" HP: {}/{}", stats.hp, stats.max_hp),
                     (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
                     colors::COLOR_UI_2,
                     UI_GLYPH_SIZE
@@ -500,7 +500,7 @@ impl Console {
                 screen.print_string(
                     &game.assets,
                     frame,
-                    &format!("Intent: {}", intent.name),
+                    &format!(" Intent: {}", intent.name),
                     (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
                     colors::COLOR_UI_2,
                     UI_GLYPH_SIZE
@@ -511,7 +511,7 @@ impl Console {
                     screen.print_string(
                         &game.assets,
                         frame,
-                        &format!("Target: {:?}", intent.target[0].get_point(&vpos)),
+                        &format!(" Target: {:?}", intent.target[0].get_point(&vpos)),
                         (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
                         colors::COLOR_UI_2,
                         UI_GLYPH_SIZE
@@ -525,7 +525,7 @@ impl Console {
                     screen.print_string(
                         &game.assets,
                         frame,
-                        &format!("Inventory:"),
+                        &format!(" Inventory:"),
                         (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
                         colors::COLOR_UI_2,
                         UI_GLYPH_SIZE
@@ -537,7 +537,7 @@ impl Console {
                             screen.print_string(
                                 &game.assets,
                                 frame,
-                                &format!("{:?}, {}", item, name.name),
+                                &format!("  {:?}, {}", item, name.name),
                                 (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
                                 colors::COLOR_UI_2,
                                 UI_GLYPH_SIZE

@@ -67,7 +67,7 @@ impl Map {
     }
 
     pub fn in_bounds(&self, pos: XY) -> bool {
-        pos.0 < self.size.0 && pos.1 < self.size.1
+        pos.0 < self.size.0 && pos.1 < self.size.1 && pos.0 >= 0 && pos.1 >= 0
     }
 
     // fn is_exit_valid(&self, x: usize, y: usize) -> bool {
