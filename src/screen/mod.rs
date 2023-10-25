@@ -173,7 +173,10 @@ impl Screen {
     }
 
     pub fn print_cp437(&self, assets: &Assets, frame: &mut [u8], glyph: Glyph, gsize: i32) {
-        // let sprite = &assets.glyph(glyph);
+        if glyph.pos.1 >= self.size.1 - gsize || glyph.pos.0 >= self.size.0 - gsize {
+            return;
+        }
+
         Screen::blit_glyph(frame, assets, glyph.pos, glyph, gsize);
     }
 

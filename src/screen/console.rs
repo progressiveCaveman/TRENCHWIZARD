@@ -534,6 +534,9 @@ impl Console {
                     for item in inv.items.iter() {
                         if let Ok(name) = vname.get(*item) {
                             y += 1;
+                            if y > self.size.1 * self.gsize {
+                                return;
+                            }
                             screen.print_string(
                                 &game.assets,
                                 frame,
