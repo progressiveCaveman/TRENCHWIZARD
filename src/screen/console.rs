@@ -63,7 +63,8 @@ pub enum ConsoleMode {
     WorldMap,
     Log,
     Info,
-    Context
+    Context,
+    Inventory,
 }
 
 #[derive(Debug)]
@@ -92,6 +93,31 @@ impl Console {
         }
     }
 
+    pub fn in_bounds(&self, pos: XY) -> bool {
+        return pos.0 >= self.pos.0 && 
+            pos.0 <= self.pos.0 + self.size.0 && 
+            pos.1 >= self.pos.1 &&
+            pos.1 <= self.pos.1 + self.size.1
+    }
+
+    pub fn zoom_to_fit(&mut self, map: &Map) {
+        while self.gsize < MAX_ZOOM && (self.gsize + 1) * map.size.0 < self.size.0 && (self.gsize + 1) * map.size.1 < self.size.1 {
+            self.gsize += 1;
+        }
+    }
+
+    pub fn zoom_in(&mut self) {
+        if self.gsize < MAX_ZOOM {
+            self.gsize += 1;
+        }
+    }
+
+    pub fn zoom_out(&mut self) {
+        if self.gsize > 1 {
+            self.gsize -= 1;
+        }
+    }
+
     pub fn render(&self, frame: &mut [u8], game: &Game) {
         match self.mode {
             ConsoleMode::MainMenu => {
@@ -109,6 +135,9 @@ impl Console {
             },
             ConsoleMode::Context => {
                 self.render_context(frame, game);
+            },
+            ConsoleMode::Inventory => {
+                self.render_inventory(frame, game);
             },
         }
 
@@ -555,28 +584,53 @@ impl Console {
     
     }
 
-    pub fn in_bounds(&self, pos: XY) -> bool {
-        return pos.0 >= self.pos.0 && 
-            pos.0 <= self.pos.0 + self.size.0 && 
-            pos.1 >= self.pos.1 &&
-            pos.1 <= self.pos.1 + self.size.1
-    }
+    pub fn render_inventory(&self, frame: &mut [u8], game: &Game) {
+        let screen = &game.screen;
+        let player_id = game.engine.get_player_id().0;
+        let vinv = game.engine.world.borrow::<View<Inventory>>().unwrap();
+        let vname = game.engine.world.borrow::<View<Name>>().unwrap();
 
-    pub fn zoom_to_fit(&mut self, map: &Map) {
-        while self.gsize < MAX_ZOOM && (self.gsize + 1) * map.size.0 < self.size.0 && (self.gsize + 1) * map.size.1 < self.size.1 {
-            self.gsize += 1;
+
+        if game.state != GameState::ShowInventory {
+            return;
         }
-    }
 
-    pub fn zoom_in(&mut self) {
-        if self.gsize < MAX_ZOOM {
-            self.gsize += 1;
-        }
-    }
+        screen.draw_box(
+            &game.assets,
+            frame,
+            (self.pos.0, self.pos.1),
+            (self.size.0, self.size.1),
+            colors::COLOR_UI_1,
+            colors::COLOR_CLEAR,
+            UI_GLYPH_SIZE
+        );
 
-    pub fn zoom_out(&mut self) {
-        if self.gsize > 1 {
-            self.gsize -= 1;
+        let mut y = 1;
+        screen.print_string(
+            &game.assets,
+            frame,
+            "Inventory", // insert a verb here?
+            (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+            colors::COLOR_UI_2,
+            UI_GLYPH_SIZE
+        );
+
+        y += 1;
+        let invnum = 1;
+        if let Ok(inv) = vinv.get(player_id) {
+            for item in inv.items.iter() {
+                if let Ok(name) = vname.get(*item) {
+                    y += 1;
+                    screen.print_string(
+                        &game.assets,
+                        frame,
+                        &format!("({}) - {}", invnum, name.name),
+                        (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                        colors::COLOR_UI_2,
+                        UI_GLYPH_SIZE
+                    );
+                }
+            }
         }
     }
 }

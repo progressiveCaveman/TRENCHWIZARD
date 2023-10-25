@@ -18,9 +18,8 @@ pub mod input_handler;
 pub mod screen;
 pub mod game;
 
-const SCALE: i32 = 2;
-const WIDTH: i32 = 640 * SCALE;
-const HEIGHT: i32 = 480 * SCALE;
+const WIDTH: i32 = 1560;
+const HEIGHT: i32 = 960;
 
 pub const DISABLE_AI: bool = false;
 pub const DISABLE_MAPGEN_ANIMATION: bool = true;
