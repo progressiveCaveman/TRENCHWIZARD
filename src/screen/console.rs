@@ -590,7 +590,6 @@ impl Console {
         let vinv = game.engine.world.borrow::<View<Inventory>>().unwrap();
         let vname = game.engine.world.borrow::<View<Name>>().unwrap();
 
-
         if game.state != GameState::ShowInventory {
             return;
         }
@@ -616,11 +615,12 @@ impl Console {
         );
 
         y += 1;
-        let invnum = 1;
+        let mut invnum = 0;
         if let Ok(inv) = vinv.get(player_id) {
             for item in inv.items.iter() {
                 if let Ok(name) = vname.get(*item) {
                     y += 1;
+                    invnum += 1;
                     screen.print_string(
                         &game.assets,
                         frame,

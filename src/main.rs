@@ -54,6 +54,7 @@ fn main() -> Result<(), Error> {
     game.engine.reset_engine(get_settings(GameMode::RL));
     game.engine.get_log_mut().messages.push("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.".to_string());
     game.screen.setup_consoles();
+    game.set_state(GameState::Waiting);
 
     let mut last_time = Instant::now();
     // main event loop
