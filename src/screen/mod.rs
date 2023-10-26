@@ -168,7 +168,7 @@ impl Screen {
     pub fn draw(&self, frame: &mut [u8], game: &Game) {
         // clear screen
         for (_, pixel) in frame.chunks_exact_mut(4).enumerate() {
-            let rgba = [0x00, 0x00, 0x00, 0x00];
+            let rgba = [0, 0, 0, 0];
             pixel.copy_from_slice(&rgba);
         }
 
