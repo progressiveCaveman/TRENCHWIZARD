@@ -90,10 +90,10 @@ impl Screen {
         self.consoles.push(Console::new((wmenu, hmenu), (xmenu, ymenu), ConsoleMode::Inventory));
 
         // item info console
-        let wmenu = UI_GLYPH_SIZE * 50;
-        let hmenu = UI_GLYPH_SIZE * 20;
+        let wmenu = UI_GLYPH_SIZE * 30;
+        let hmenu = UI_GLYPH_SIZE * 10;
         let xmenu = self.size.0/2 - wmenu/2;
-        let ymenu = self.size.1/2 - hmenu/2;
+        let ymenu = hinfo;
         self.consoles.push(Console::new((wmenu, hmenu), (xmenu, ymenu), ConsoleMode::ItemInfo));
     }
 

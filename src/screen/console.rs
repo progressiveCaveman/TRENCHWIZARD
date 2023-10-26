@@ -607,7 +607,7 @@ impl Console {
                 screen.print_string(
                     &game.assets,
                     frame,
-                    "Item", // change to item description
+                    &format!("{}", name.name),
                     (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
                     colors::COLOR_UI_2,
                     UI_GLYPH_SIZE
@@ -618,7 +618,7 @@ impl Console {
                     screen.print_string(
                         &game.assets,
                         frame,
-                        &format!("(a) - Apply {}", name.name), 
+                        &format!("(a) - Apply"), 
                         (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
                         colors::COLOR_UI_2,
                         UI_GLYPH_SIZE
@@ -630,7 +630,7 @@ impl Console {
                     screen.print_string(
                         &game.assets,
                         frame,
-                        &format!("(e) - Equip {}", name.name), 
+                        &format!("(e) - Equip"), 
                         (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
                         colors::COLOR_UI_2,
                         UI_GLYPH_SIZE

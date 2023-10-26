@@ -78,6 +78,8 @@ impl InputCommand {
             InputCommand::Escape => {
                 match game.state {
                     GameState::MainMenu { selection: _ } => GameState::Exit,
+                    GameState::ShowInventory { selection } => GameState::Waiting,
+                    GameState::ShowItemActions { item } => GameState::Waiting,
                     _ => GameState::MainMenu { selection: MainMenuSelection::Play },
                 }
             },
