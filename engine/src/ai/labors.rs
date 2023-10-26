@@ -262,17 +262,17 @@ pub fn get_gather_wood_actions(store: &AllStorages, id: EntityId) -> Vec<Action>
                             b: 0.0,
                         },
                     ),
-                    Consideration::new(
-                        "logs in stockpile".to_string(),
-                        lminv_count,
-                        ConsiderationParam {
-                            t: ResponseCurveType::Linear,
-                            m: -1. / 50.0,
-                            k: 1.0,
-                            c: 0.0,
-                            b: 1.0,
-                        },
-                    ),
+                    // Consideration::new(
+                    //     "logs in stockpile".to_string(),
+                    //     lminv_count,
+                    //     ConsiderationParam {
+                    //         t: ResponseCurveType::Linear,
+                    //         m: -1. / 50.0,
+                    //         k: 1.0,
+                    //         c: 0.0,
+                    //         b: 1.0,
+                    //     },
+                    // ),
                     Consideration::new(
                         "logs in iventory".to_string(),
                         logs_in_inv as f32,
@@ -307,17 +307,17 @@ pub fn get_gather_wood_actions(store: &AllStorages, id: EntityId) -> Vec<Action>
                             b: 0.0,
                         },
                     ),
-                    Consideration::new(
-                        "logs in stockpile".to_string(),
-                        lminv_count,
-                        ConsiderationParam {
-                            t: ResponseCurveType::Linear,
-                            m: -1. / 50.0,
-                            k: 1.0,
-                            c: 0.0,
-                            b: 1.0,
-                        },
-                    ),
+                    // Consideration::new(
+                    //     "logs in stockpile".to_string(),
+                    //     lminv_count,
+                    //     ConsiderationParam {
+                    //         t: ResponseCurveType::Linear,
+                    //         m: -1. / 50.0,
+                    //         k: 1.0,
+                    //         c: 0.0,
+                    //         b: 1.0,
+                    //     },
+                    // ),
                     Consideration::new(
                         "logs in iventory".to_string(),
                         logs_in_inv as f32,
@@ -346,7 +346,7 @@ pub fn get_gather_wood_actions(store: &AllStorages, id: EntityId) -> Vec<Action>
         cons: vec![Consideration::new(
             "baseline".to_string(),
             1.0,
-            ConsiderationParam::new_const(0.3),
+            ConsiderationParam::new_const(0.1),
         )],
         priority: 1.0,
     });
