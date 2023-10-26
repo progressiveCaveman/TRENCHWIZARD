@@ -582,7 +582,6 @@ pub fn spawner(
     typ: SpawnerType,
     rate: i32,
 ) -> EntityId {
-    dbg!("wololo");
     store.add_entity((
         Position {
             ps: vec![Point::new( xy.0, xy.1 )],

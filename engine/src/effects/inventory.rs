@@ -14,7 +14,6 @@ pub fn pick_up(store: &AllStoragesViewMut, effect: &EffectSpawner) {
 
     if let (Some(id), EffectType::PickUp { entity: target }) = (effect.creator, &effect.effect_type) {
         let mut log = store.borrow::<UniqueViewMut<GameLog>>().unwrap();
-        let player_id = store.borrow::<UniqueView<PlayerID>>().unwrap().0;
 
         if let Err(_) = vpos.get(id) {
             dbg!("Entity doesn't have a position");
@@ -53,6 +52,7 @@ pub fn pick_up(store: &AllStoragesViewMut, effect: &EffectSpawner) {
         let _res = vpos.remove(*target);
         let _r = vpacks.add_component_unchecked(*target, InBackpack { owner: id });
 
+        let player_id = store.borrow::<UniqueView<PlayerID>>().unwrap().0;
         if id == player_id {
             let name = vname.get(*target).unwrap();
             log.messages.push(format!("You pick up the {}", name.name));

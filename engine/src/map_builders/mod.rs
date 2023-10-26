@@ -42,13 +42,14 @@ pub trait MapBuilder {
 
 pub fn random_builder(new_depth: usize, size: XY) -> Box<dyn MapBuilder> {
     let mut rng = rltk::RandomNumberGenerator::new();
-    let builder = rng.roll_dice(1, 5);
+    let builder = rng.roll_dice(1, 7);
     match builder {
         1 => Box::new(BspDungeonBuilder::new(new_depth, size)),
         2 => Box::new(BspInteriorBuilder::new(new_depth, size)),
         3 => Box::new(CellularAutomataBuilder::new(new_depth, size)),
         4 => Box::new(DrunkardsBombingRunBuilder::new(new_depth, size)),
         5 => Box::new(BspFarmBuilder::new(new_depth, size)),
+        6 => Box::new(AernaBuilder::new(new_depth, size)),
         _ => Box::new(SimpleMapBuilder::new(new_depth, size)),
     }
 }

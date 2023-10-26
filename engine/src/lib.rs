@@ -2,6 +2,7 @@
 extern crate lazy_static;
 
 use components::{Equipped, InBackpack, Player, Position, Vision, PlayerID, GameLog, FrameTime, PPoint, Turn, RNG};
+use effects::{add_effect, EffectType};
 use game_modes::{GameSettings, GameMode};
 use map::Map;
 
@@ -190,9 +191,10 @@ impl Engine {
         self.world.add_unique(Turn(0));
         self.world.add_unique(RNG(rltk::RandomNumberGenerator::new()));
 
-        let player_id = self
-            .world
-            .run(|mut store: AllStoragesViewMut| entity_factory::player(&mut store, (0, 0), settings.show_player));
+        // make a player entity
+        let player_id = self.world.run(|mut store: AllStoragesViewMut| 
+            entity_factory::player(&mut store, (0, 0), settings.show_player)
+        );
         self.world.add_unique(PlayerID(player_id));
 
         self.world.add_unique(GameLog { messages: vec![] });
@@ -208,6 +210,12 @@ impl Engine {
 
         // Generate new map
         self.generate_map( 1);
+
+        // give the player an item
+        let e = self.world.run(|mut store: AllStoragesViewMut| {
+            entity_factory::magic_missile_scroll(&mut store, (0, 0))
+        });
+        add_effect(Some(player_id), EffectType::PickUp { entity: e });
 
         self.run_systems();
     }
