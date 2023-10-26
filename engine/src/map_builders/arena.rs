@@ -85,17 +85,17 @@ impl AernaBuilder {
         self.take_snapshot();
 
         // Set the map to grass with a river
-        // for y in 1..self.map.size.1-1 {
-        //     for x in 1..self.map.size.0-1 {
-        //         let idx = self.map.xy_idx(x, y);
+        for y in 1..self.map.size.1-1 {
+            for x in 1..self.map.size.0-1 {
+                let idx = self.map.xy_idx((x, y));
 
-        //         if y > self.map.size.1 - 10 && y < self.map.size.1 - 3 {
-        //             self.map.tiles[idx] = TileType::Water;
-        //         } else {
-        //             self.map.tiles[idx] = TileType::Grass;
-        //         }
-        //     }
-        // }
+                if y > self.map.size.1 - 10 && y < self.map.size.1 - 3 {
+                    self.map.tiles[idx] = TileType::Water;
+                } else {
+                    self.map.tiles[idx] = TileType::Grass;
+                }
+            }
+        }
 
         // First we completely randomize the map, setting 55% of it to be floor.
         // for y in 1..self.map.size.1/2 {

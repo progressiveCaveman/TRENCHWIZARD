@@ -133,6 +133,7 @@ impl InputCommand {
                             ModeSelectSelection::MapDemo => game.engine.reset_engine(get_settings(GameMode::MapDemo)),
                             ModeSelectSelection::RL => game.engine.reset_engine(get_settings(GameMode::RL)),
                             ModeSelectSelection::VillageSim => game.engine.reset_engine(get_settings(GameMode::VillageSim)),
+                            ModeSelectSelection::OrcArena => game.engine.reset_engine(get_settings(GameMode::OrcArena)),
                         }
 
                         GameState::ShowMapHistory

@@ -50,6 +50,7 @@ pub enum ModeSelectSelection {
     MapDemo,
     RL,
     VillageSim,
+    OrcArena,
 }
 
 impl ModeSelectSelection {
@@ -65,15 +66,17 @@ impl ModeSelectSelection {
         match *self {
             ModeSelectSelection::MapDemo => ModeSelectSelection::RL,
             ModeSelectSelection::RL => ModeSelectSelection::VillageSim,
-            ModeSelectSelection::VillageSim => ModeSelectSelection::MapDemo,
+            ModeSelectSelection::VillageSim => ModeSelectSelection::OrcArena,
+            ModeSelectSelection::OrcArena => ModeSelectSelection::MapDemo,
         }
     }
 
     pub fn dec(&self) -> Self {
         match *self {
-            ModeSelectSelection::MapDemo => ModeSelectSelection::VillageSim,
-            ModeSelectSelection::RL => ModeSelectSelection::MapDemo,
-            ModeSelectSelection::VillageSim => ModeSelectSelection::RL,
+            ModeSelectSelection::MapDemo => ModeSelectSelection::RL,
+            ModeSelectSelection::RL => ModeSelectSelection::VillageSim,
+            ModeSelectSelection::VillageSim => ModeSelectSelection::OrcArena,
+            ModeSelectSelection::OrcArena => ModeSelectSelection::MapDemo,
         }
     }
 
@@ -82,6 +85,7 @@ impl ModeSelectSelection {
             ModeSelectSelection::MapDemo => "Map Demo",
             ModeSelectSelection::RL => "RL",
             ModeSelectSelection::VillageSim => "Village Simulator",
+            ModeSelectSelection::OrcArena => "Orc Arena",
         }
     }
 }

@@ -14,7 +14,8 @@ pub enum GameMode {
     RL, // trad roguelike, basically bracketlib tutorial in caves
     VillageSim,
     OrcHalls, // Orcs spawn in groups, for testing group tactics
-    MapDemo
+    MapDemo,
+    OrcArena,
 }
 
 pub fn get_settings(mode: GameMode) -> GameSettings {
@@ -41,6 +42,13 @@ pub fn get_settings(mode: GameMode) -> GameSettings {
             show_player: true,
         },
         GameMode::MapDemo => GameSettings {
+            mode,
+            mapsize: (160, 80),
+            follow_player: false,
+            use_player_los: false,
+            show_player: false,
+        },
+        GameMode::OrcArena => GameSettings {
             mode,
             mapsize: (160, 80),
             follow_player: false,

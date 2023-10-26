@@ -582,13 +582,14 @@ pub fn spawner(
     typ: SpawnerType,
     rate: i32,
 ) -> EntityId {
+    dbg!("wololo");
     store.add_entity((
         Position {
             ps: vec![Point::new( xy.0, xy.1 )],
         },
         Renderable {
             glyph: '&',
-            fg: FACTION_COLORS[faction as usize],
+            fg: COLOR_CHARTREUSE,
             bg: COLOR_BG,
             order: RenderOrder::Items,
             ..Default::default()

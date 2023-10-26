@@ -130,6 +130,7 @@ impl Engine {
             GameMode::RL => map_builders::rl_builder(new_depth, self.settings.mapsize),
             GameMode::OrcHalls => map_builders::orc_halls_builder(new_depth, self.settings.mapsize),
             GameMode::MapDemo => map_builders::random_builder(new_depth, self.settings.mapsize),
+            GameMode::OrcArena => map_builders::arena_builder(new_depth, self.settings.mapsize),
         };
 
         map_builder.build_map();
