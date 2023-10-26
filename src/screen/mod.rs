@@ -51,28 +51,28 @@ impl Screen {
         let xinfo = 0;
         let yinfo = 0;
         let winfo = 30 * UI_GLYPH_SIZE - 4; //todo this has to be 4. Gonna cause issues down the line but idk
-        let hinfo = 10 * UI_GLYPH_SIZE - 1;
+        let hinfo = 10 * UI_GLYPH_SIZE;
         self.consoles.push(Console::new((winfo, hinfo), (xinfo, yinfo), ConsoleMode::Info));
 
         // context console
         let xcontext = 0;
-        let ycontext = hinfo;
+        let ycontext = hinfo + 1;
         let wcontext = winfo;
-        let hcontext = self.size.1 - hinfo - 1;
+        let hcontext = self.size.1 - ycontext - UI_GLYPH_SIZE;
         self.consoles.push(Console::new((wcontext, hcontext), (xcontext, ycontext), ConsoleMode::Context));
 
         // log console
-        let xlog = winfo;
+        let xlog = winfo + 1;
         let ylog = 0;
-        let wlog = self.size.0 - winfo - 1;
+        let wlog = self.size.0 - xlog - UI_GLYPH_SIZE;
         let hlog = hinfo;
         self.consoles.push(Console::new((wlog, hlog), (xlog, ylog), ConsoleMode::Log));
 
         // world console
-        let xworld = winfo;
-        let yworld = hinfo;
-        let wworld = self.size.0 - winfo - 1;
-        let hworld = self.size.1 - hinfo - 1;
+        let xworld = winfo + 1;
+        let yworld = hinfo + 1;
+        let wworld = self.size.0 - xworld;
+        let hworld = self.size.1 - yworld;
         self.consoles.push(Console::new((wworld, hworld), (xworld, yworld), ConsoleMode::WorldMap));
 
         // menu console
@@ -82,7 +82,7 @@ impl Screen {
         let ymenu = self.size.1/2 - hmenu/2;
         self.consoles.push(Console::new((wmenu, hmenu), (xmenu, ymenu), ConsoleMode::MainMenu));
 
-        // menu console
+        // inventory console
         let wmenu = UI_GLYPH_SIZE * 40;
         let hmenu = UI_GLYPH_SIZE * 30;
         let xmenu = self.size.0 - wmenu - UI_GLYPH_SIZE;
