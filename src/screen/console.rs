@@ -1,55 +1,4 @@
-/*
-
-Each screen will have a
-state
-size
-position
-menustate index
-
-any screen can have any number of screens embedded?
-main screen has some named components?
-Simplify render to use map and only render component
-
-Have a screen mode and an active screen
-Screen mode defines game mode behavior like controls
-
-Representing the screen flow
-One file is a state machine for the screen flow
-Implementation is broken off into different file Eventually
-
-Representing menu
-Message
-[Options]
-how to pass control flow?
-
-Screen always has an active menu
-No mouse interaction to start
-
-
-Initial use cases:
-Main menu
-inventory screen
-item label
-
-
-Targeting is a special function of a screen?
-
-
-console types:
-Main menu
-Any submenus
-local map
-world map
-log
-stats
-inventory
-ais
-overlays
-label
-
-*/
-
-use engine::{map::{Map, XY}, colors::{self}, components::{Renderable, CombatStats, PPoint, FrameTime, Name, Position, Inventory}, player::get_player_map_knowledge, ai::decisions::Intent};
+use engine::{map::{Map, XY}, colors::{self}, components::{Renderable, CombatStats, PPoint, FrameTime, Name, Position, Inventory, Equippable, Consumable}, player::get_player_map_knowledge, ai::decisions::Intent};
 use shipyard::{UniqueView, View, Get};
 use strum::EnumCount;
 
@@ -65,6 +14,7 @@ pub enum ConsoleMode {
     Info,
     Context,
     Inventory,
+    ItemInfo,
 }
 
 #[derive(Debug)]
@@ -138,6 +88,9 @@ impl Console {
             },
             ConsoleMode::Inventory => {
                 self.render_inventory(frame, game);
+            },
+            ConsoleMode::ItemInfo => {
+                self.render_item_info(frame, game);
             },
         }
 
@@ -629,6 +582,62 @@ impl Console {
                         colors::COLOR_UI_2,
                         UI_GLYPH_SIZE
                     );
+                }
+            }
+        }
+    }
+
+    pub fn render_item_info(&self, frame: &mut [u8], game: &Game) {
+        let screen = &game.screen;
+        let vname = game.engine.world.borrow::<View<Name>>().unwrap();
+        let vequip = game.engine.world.borrow::<View<Equippable>>().unwrap();
+        let vconsumable = game.engine.world.borrow::<View<Consumable>>().unwrap();
+
+        if let GameState::ShowItemActions { item } = game.state {
+            if let Ok(name) = vname.get(item) {
+                screen.draw_box(
+                    &game.assets,
+                    frame,
+                    (self.pos.0, self.pos.1),
+                    (self.size.0, self.size.1),
+                    colors::COLOR_UI_1,
+                    colors::COLOR_CLEAR,
+                    UI_GLYPH_SIZE
+                );
+        
+                let mut y = 1;
+                screen.print_string(
+                    &game.assets,
+                    frame,
+                    "Item", // change to item description
+                    (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                    colors::COLOR_UI_2,
+                    UI_GLYPH_SIZE
+                );
+        
+                y += 2;
+                if let Ok(_) = vconsumable.get(item) {
+                    screen.print_string(
+                        &game.assets,
+                        frame,
+                        &format!("(u) - Use {}", name.name), 
+                        (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                        colors::COLOR_UI_2,
+                        UI_GLYPH_SIZE
+                    );
+                    y += 1;
+                }
+
+                if let Ok(_) = vequip.get(item) {
+                    screen.print_string(
+                        &game.assets,
+                        frame,
+                        &format!("(e) - Equip {}", name.name), 
+                        (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                        colors::COLOR_UI_2,
+                        UI_GLYPH_SIZE
+                    );
+                    y += 1;
                 }
             }
         }
