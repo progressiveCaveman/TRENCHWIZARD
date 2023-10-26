@@ -328,7 +328,7 @@ impl Screen {
                 // set color
                 for i2 in 0..4 {
                     if right == colors::COLOR_FUCHSIA { // background
-                        left[i2] = glyph.bg[i2];
+                        left[i2] = left[i2] / 2 + glyph.bg[i2];
                     } else { // foreground
                         left[i2] = (right[i2] as f32 * glyph.fg[i2] as f32 / 255 as f32) as u8;
                     }
