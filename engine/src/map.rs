@@ -1,6 +1,6 @@
-use rltk::{Algorithm2D, Point, BaseMap};
+use rltk::{Algorithm2D, Point, BaseMap, NavigationPath};
 use serde::{Serialize, Deserialize};
-use shipyard::{Unique, EntityId, View, Get};
+use shipyard::{EntityId, View, Get, Unique};
 
 use crate::{components::Position, utils::Target, tiles::TileType};
 
@@ -153,6 +153,12 @@ impl Map {
         let idx = self.xy_idx((x, y));
         !self.blocked[idx]
     }
+
+    pub fn get_path(&self, from: Point, tp: Point) -> NavigationPath {
+        let path = rltk::a_star_search(self.point_idx(from) as i32, self.point_idx(tp) as i32, self);
+
+        return path;
+    }
 }
 
 impl Algorithm2D for Map {
@@ -173,7 +179,7 @@ impl BaseMap for Map {
         let w = self.size.0 as usize;
         let p1 = Point::new(idx1 % w, idx1 / w);
         let p2 = Point::new(idx2 % w, idx2 / w);
-        rltk::DistanceAlg::Pythagoras.distance2d(p1, p2)
+        rltk::DistanceAlg::PythagorasSquared.distance2d(p1, p2)
     }
 
     fn get_available_exits(&self, idx: usize) -> rltk::SmallVec<[(usize, f32); 10]> {

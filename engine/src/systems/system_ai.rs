@@ -5,10 +5,10 @@ use crate::effects::{add_effect, EffectType};
 use crate::entity_factory;
 use crate::map::Map;
 use crate::tiles::TileType;
-use crate::utils::{get_neighbors, get_path, Target, InvalidPoint};
+use crate::utils::{get_neighbors, Target, InvalidPoint};
 use rltk;
 use rltk::{BaseMap, Point};
-use shipyard::{AddComponent, AllStoragesViewMut, EntityId, Get, IntoIter, IntoWithId, UniqueView, View, ViewMut};
+use shipyard::{AddComponent, AllStoragesViewMut, EntityId, Get, IntoIter, IntoWithId, UniqueView, View, ViewMut, UniqueViewMut};
 
 pub fn run_ai_system(mut store: AllStoragesViewMut) {
     let mut to_move_from_to: Vec<(EntityId, Point, Point)> = vec![];
@@ -143,11 +143,21 @@ pub fn run_ai_system(mut store: AllStoragesViewMut) {
     );
 
     for (e, from, to) in to_move_from_to {
-        let map = store.borrow::<UniqueView<Map>>().unwrap();
-        let path = get_path(&map, from, to);
+        let map = store.borrow::<UniqueViewMut<Map>>().unwrap();
+
+        if map.get_pathing_distance(from.to_index(map.size.0), to.to_index(map.size.0)) <= 2.1 {
+            add_effect(
+                Some(e),
+                EffectType::Move {
+                    tile_idx: to.to_index(map.size.0),
+                },
+            );
+            continue;
+        }
+
+        let path = map.get_path(from, to);
 
         if path.success && path.steps.len() > 1 {
-            // movement::try_move_entity(e, point_diff(from, p), gs);
             add_effect(
                 Some(e),
                 EffectType::Move {

@@ -671,7 +671,18 @@ pub fn get_attack_actions(store: &AllStorages, id: EntityId) -> Vec<Action> {
                     c: 2.0,
                     b: 1.0,
                 },
-            )],
+                ),
+                Consideration::new(
+                    "in sight".to_string(),
+                    map.distance(&vpos, Target::from(pos), Target::from(*epoint)),
+                    ConsiderationParam {
+                        t: ResponseCurveType::LessThan,
+                        m: viewshed.range as f32,
+                        k: 1.0,
+                        c: 2.0,
+                        b: 1.0,
+                    },
+                )],
             priority: 1.0,
         });
 
@@ -687,7 +698,7 @@ pub fn get_attack_actions(store: &AllStorages, id: EntityId) -> Vec<Action> {
                 map.distance(&vpos, Target::from(pos), Target::from(*epoint)),
                 ConsiderationParam {
                     t: ResponseCurveType::LessThan,
-                    m: 1.5,
+                    m: 2.1,
                     k: 1.0,
                     c: 1.0,
                     b: 1.0,

@@ -108,7 +108,7 @@ fn spawn_entity(store: &mut AllStoragesViewMut, spawn: &(&usize, &String)) {
 }
 
 pub fn player(store: &mut AllStoragesViewMut, pos: XY, is_render: bool) -> EntityId {
-    store.add_entity((
+    let e = store.add_entity((
         Position {
             ps: vec![Point::new(pos.0, pos.1)],
         },
@@ -149,7 +149,15 @@ pub fn player(store: &mut AllStoragesViewMut, pos: XY, is_render: bool) -> Entit
             capacity: 20,
             items: Vec::new(),
         },
-    ))
+    ));
+
+    store.add_component(e, (
+        DijkstraMapToMe {
+            map: DijkstraMap::new_empty(0, 0, 0.),
+        },
+    ));
+
+    e
 }
 
 /// Monsters

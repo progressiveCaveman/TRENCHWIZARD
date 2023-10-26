@@ -56,7 +56,6 @@ pub fn try_move_or_attack(store: &AllStoragesViewMut, effect: &EffectSpawner, at
 
         // do movement
         if is_camera || canmove {
-            // dbg!("can move");
             if let Ok(mut vs) = (&mut vvs).get(entity) {
                 vs.dirty = true;
             }
@@ -135,7 +134,7 @@ pub fn autoexplore(store: &AllStoragesViewMut, effect: &EffectSpawner) {
             // map.dijkstra_map = dijkstra_map.map.clone();
 
             // We have a target tile. Now follow the path up the chain
-            let t = dijkstra_backtrace(dijkstra_map, map, e_idx, target.0);
+            let t = dijkstra_backtrace(&dijkstra_map, map, e_idx, target.0);
             target = (t, 1.0);
         }
 

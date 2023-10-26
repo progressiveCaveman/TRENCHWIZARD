@@ -1,4 +1,4 @@
-use rltk::{BaseMap, DijkstraMap, NavigationPath, Point, RGBA};
+use rltk::{BaseMap, DijkstraMap, Point, RGBA};
 use shipyard::{EntityId, View, Get};
 use crate::{map::{Map, XY}, components::Position};
 
@@ -41,11 +41,9 @@ impl Target {
 
 
 /// returns the point adjacent to origin that will lead to target
-pub fn dijkstra_backtrace(dijkstra: DijkstraMap, map: &mut Map, origin: usize, mut target: usize) -> usize {
+pub fn dijkstra_backtrace(dijkstra: &DijkstraMap, map: &Map, origin: usize, mut target: usize) -> usize {
     // dbg!("dijkstra_backtrace");
     for _ in 0..1000 {
-        // dbg!("How many times does this run?");
-
         let neighbor_indices = map.get_available_exits(target);
 
         for &i in neighbor_indices.iter() {
@@ -192,12 +190,6 @@ impl InvalidPoint for Point {
     fn to_xy(&self) -> XY {
         (self.x, self.y)
     }
-}
-
-pub fn get_path(map: &Map, from: Point, tp: Point) -> NavigationPath {
-    let path = rltk::a_star_search(map.point_idx(from) as i32, map.point_idx(tp) as i32, map);
-
-    return path;
 }
 
 pub fn normalize(num: i32) -> i32 {

@@ -19,6 +19,7 @@ pub fn run_systems(world: &mut World, _player_turn: bool, ai_turn: bool) {
     // }
 
     world.run(effects::run_effects_queue);
+    world.run(system_map_indexing::run_map_indexing_system);
 
     if ai_turn && !DISABLE_AI {
         world.run(system_pathfinding::run_pathfinding_system);
@@ -27,8 +28,6 @@ pub fn run_systems(world: &mut World, _player_turn: bool, ai_turn: bool) {
     }
 
     world.run(effects::run_effects_queue);
-
-    world.run(system_map_indexing::run_map_indexing_system);
 
     world.run(system_melee_combat::run_melee_combat_system);
     world.run(item_system::run_inventory_system);
