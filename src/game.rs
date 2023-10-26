@@ -28,7 +28,7 @@ pub enum GameState {
     MainMenu{ selection: MainMenuSelection },
     ModeSelect{ selection: ModeSelectSelection },
     ShowMapHistory,
-    ShowInventory,
+    ShowInventory{ selection: usize },
     ShowItemActions {
         item: EntityId,
     },

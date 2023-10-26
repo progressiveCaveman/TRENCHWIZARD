@@ -211,9 +211,19 @@ impl Engine {
         // Generate new map
         self.generate_map( 1);
 
-        // give the player an item
+        // give the player some items
         let e = self.world.run(|mut store: AllStoragesViewMut| {
             entity_factory::magic_missile_scroll(&mut store, (0, 0))
+        });
+        add_effect(Some(player_id), EffectType::PickUp { entity: e });
+
+        let e = self.world.run(|mut store: AllStoragesViewMut| {
+            entity_factory::dagger(&mut store, (0, 0))
+        });
+        add_effect(Some(player_id), EffectType::PickUp { entity: e });
+
+        let e = self.world.run(|mut store: AllStoragesViewMut| {
+            entity_factory::fireball_scroll(&mut store, (0, 0))
         });
         add_effect(Some(player_id), EffectType::PickUp { entity: e });
 

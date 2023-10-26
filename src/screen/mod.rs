@@ -88,6 +88,13 @@ impl Screen {
         let xmenu = self.size.0 - wmenu - UI_GLYPH_SIZE;
         let ymenu = hinfo;
         self.consoles.push(Console::new((wmenu, hmenu), (xmenu, ymenu), ConsoleMode::Inventory));
+
+        // item info console
+        let wmenu = UI_GLYPH_SIZE * 50;
+        let hmenu = UI_GLYPH_SIZE * 20;
+        let xmenu = self.size.0/2 - wmenu/2;
+        let ymenu = self.size.1/2 - hmenu/2;
+        self.consoles.push(Console::new((wmenu, hmenu), (xmenu, ymenu), ConsoleMode::ItemInfo));
     }
 
     pub fn autozoomn_world_map(&mut self, map: &Map) {

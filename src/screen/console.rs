@@ -543,45 +543,43 @@ impl Console {
         let vinv = game.engine.world.borrow::<View<Inventory>>().unwrap();
         let vname = game.engine.world.borrow::<View<Name>>().unwrap();
 
-        if game.state != GameState::ShowInventory {
-            return;
-        }
-
-        screen.draw_box(
-            &game.assets,
-            frame,
-            (self.pos.0, self.pos.1),
-            (self.size.0, self.size.1),
-            colors::COLOR_UI_1,
-            colors::COLOR_CLEAR,
-            UI_GLYPH_SIZE
-        );
-
-        let mut y = 1;
-        screen.print_string(
-            &game.assets,
-            frame,
-            "Inventory", // insert a verb here?
-            (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
-            colors::COLOR_UI_2,
-            UI_GLYPH_SIZE
-        );
-
-        y += 1;
-        let mut invnum = 0;
-        if let Ok(inv) = vinv.get(player_id) {
-            for item in inv.items.iter() {
-                if let Ok(name) = vname.get(*item) {
-                    y += 1;
-                    invnum += 1;
-                    screen.print_string(
-                        &game.assets,
-                        frame,
-                        &format!("({}) - {}", invnum, name.name),
-                        (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
-                        colors::COLOR_UI_2,
-                        UI_GLYPH_SIZE
-                    );
+        if let GameState::ShowInventory { selection } = game.state { 
+            screen.draw_box(
+                &game.assets,
+                frame,
+                (self.pos.0, self.pos.1),
+                (self.size.0, self.size.1),
+                colors::COLOR_UI_1,
+                colors::COLOR_CLEAR,
+                UI_GLYPH_SIZE
+            );
+    
+            let mut y = 1;
+            screen.print_string(
+                &game.assets,
+                frame,
+                "Inventory", // insert a verb here?
+                (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                colors::COLOR_UI_2,
+                UI_GLYPH_SIZE,
+            );
+    
+            y += 1;
+            let mut invnum = 0;
+            if let Ok(inv) = vinv.get(player_id) {
+                for item in inv.items.iter() {
+                    if let Ok(name) = vname.get(*item) {
+                        y += 1;
+                        screen.print_string(
+                            &game.assets,
+                            frame,
+                            &format!("- {}", name.name),
+                            (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                            if selection == invnum { colors::COLOR_UI_3 } else { colors::COLOR_UI_2 },
+                            UI_GLYPH_SIZE
+                        );
+                        invnum += 1;
+                    }
                 }
             }
         }
@@ -620,7 +618,7 @@ impl Console {
                     screen.print_string(
                         &game.assets,
                         frame,
-                        &format!("(u) - Use {}", name.name), 
+                        &format!("(a) - Apply {}", name.name), 
                         (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
                         colors::COLOR_UI_2,
                         UI_GLYPH_SIZE

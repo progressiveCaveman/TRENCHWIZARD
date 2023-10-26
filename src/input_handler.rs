@@ -1,5 +1,5 @@
 use engine::{
-    components::{Item, PPoint, PlayerID},
+    components::{Item, PlayerID, Inventory, PPoint},
     effects::{add_effect, EffectType},
     map::Map,
     utils::dir_to_point, game_modes::{GameMode, get_settings}, player,
@@ -23,6 +23,7 @@ pub enum InputCommand {
     Fireball,
     UseStairs,
     Pause,
+    // Apply { item: EntityId }, 
 
     //debug
     Reset,
@@ -37,6 +38,7 @@ impl InputCommand {
     fn execute(&self, game: &mut Game, creator: Option<EntityId>) -> GameState {
         let world = &game.engine.world;
 
+        let player_id = world.borrow::<UniqueView<PlayerID>>().unwrap().0;
         let player_pos = world.borrow::<UniqueView<PPoint>>().unwrap().0;
 
         // return GameState::None to ignore input, GameState::PlayerTurn to advance engine
@@ -47,6 +49,18 @@ impl InputCommand {
                 match game.state {
                     GameState::MainMenu { selection } => return GameState::MainMenu { selection: selection.modify(updown) },
                     GameState::ModeSelect { selection } => return GameState::ModeSelect { selection: selection.modify(updown) },
+                    GameState::ShowInventory { selection } => {
+                        let newselection = selection as i32 + updown;
+                        if let Ok(inv) = game.engine.world.borrow::<View<Inventory>>().unwrap().get(player_id) {
+                            if newselection < 0 {
+                                return GameState::ShowInventory { selection: inv.items.len() }
+                            } else if newselection as usize >= inv.items.len() {
+                                return GameState::ShowInventory { selection: 0 }
+                            } else {
+                                return GameState::ShowInventory { selection: newselection as usize}
+                            }
+                        }
+                    },
                     _ => {},
                 };
 
@@ -56,7 +70,7 @@ impl InputCommand {
 
                 GameState::PlayerTurn
             }
-            InputCommand::ShowInventory => GameState::ShowInventory,
+            InputCommand::ShowInventory => GameState::ShowInventory { selection: 0 },
             InputCommand::Wait => {
                 add_effect(creator, EffectType::Wait {}); //todo is this weird on sim mode?
                 GameState::PlayerTurn
@@ -137,7 +151,15 @@ impl InputCommand {
                         }
 
                         GameState::ShowMapHistory
-                    }
+                    },
+                    GameState::ShowInventory { selection } => {
+                        if let Ok(inv) = world.borrow::<View<Inventory>>().unwrap().get(player_id) {
+                            if selection < inv.items.len() {
+                                return GameState::ShowItemActions { item: inv.items[selection] };
+                            }
+                        }
+                        GameState::None
+                    },
                     _ => GameState::None,
                 }
             },
@@ -149,7 +171,7 @@ impl InputCommand {
     }
 }
 
-pub fn map_keys(event: WindowEvent, mode: GameMode) -> InputCommand {
+pub fn map_keys(event: WindowEvent, game: &Game) -> InputCommand {
     //universal commands
     if let WindowEvent::KeyboardInput { input,.. } = event {
         if input.state == ElementState::Pressed {
@@ -182,7 +204,7 @@ pub fn map_keys(event: WindowEvent, mode: GameMode) -> InputCommand {
             };
     
             if cmd == InputCommand::None {
-                cmd = match mode {
+                cmd = match game.engine.settings.mode {
                     GameMode::RL | GameMode::OrcHalls => match input.virtual_keycode {
                         None => InputCommand::None,
                         Some(key) => match key {
@@ -213,10 +235,9 @@ pub fn map_keys(event: WindowEvent, mode: GameMode) -> InputCommand {
 }
 
 pub fn handle_input(event: WindowEvent, game: &mut Game) -> GameState {
-    let settings = game.engine.settings;//world.borrow::<UniqueView<GameSettings>>().unwrap();
     let player_id = game.engine.world.borrow::<UniqueViewMut<PlayerID>>().unwrap().0;
 
-    let command = map_keys(event, settings.mode);
+    let command = map_keys(event, game);
 
     return command.execute(game, Some(player_id));
 }
