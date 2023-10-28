@@ -1,5 +1,5 @@
 use engine::{
-    components::{Item, PlayerID, Inventory, PPoint},
+    components::{Item, PlayerID, Inventory, PPoint, WantsToUseItem},
     effects::{add_effect, EffectType},
     map::Map,
     utils::dir_to_point, game_modes::{GameMode, get_settings}, player,
@@ -23,7 +23,7 @@ pub enum InputCommand {
     Fireball,
     UseStairs,
     Pause,
-    // Apply { item: EntityId }, 
+    Apply, 
 
     //debug
     Reset,
@@ -77,9 +77,9 @@ impl InputCommand {
             }
             InputCommand::Escape => {
                 match game.state {
-                    GameState::MainMenu { selection: _ } => GameState::Exit,
-                    GameState::ShowInventory { selection } => GameState::Waiting,
-                    GameState::ShowItemActions { item } => GameState::Waiting,
+                    GameState::MainMenu { .. } => GameState::Exit,
+                    GameState::ShowInventory { .. } => GameState::Waiting,
+                    GameState::ShowItemActions { .. } => GameState::Waiting,
                     _ => GameState::MainMenu { selection: MainMenuSelection::Play },
                 }
             },
@@ -169,6 +169,29 @@ impl InputCommand {
                 game.autorun = !game.autorun;
                 GameState::None
             },
+            InputCommand::Apply => {
+                match game.state {
+                    // GameState::Waiting => ,
+                    GameState::ShowInventory { selection } => {
+                        let item = if let Ok(inv) = world.borrow::<View<Inventory>>().unwrap().get(player_id) {
+                            Some(inv.items[selection])
+                        } else {
+                            None
+                        };
+
+                        if let Some(item) = item {
+                            game.engine.world.add_component(player_id, WantsToUseItem { item, target: None });
+                        }
+
+                        GameState::Waiting
+                    },
+                    GameState::ShowItemActions { item } => {
+                        game.engine.world.add_component(player_id, WantsToUseItem { item, target: None });
+                        GameState::Waiting
+                    },
+                    _ => GameState::None
+                }
+            },
         };
     }
 }
@@ -214,6 +237,7 @@ pub fn map_keys(event: WindowEvent, game: &Game) -> InputCommand {
                             VirtualKeyCode::X => InputCommand::Explore,
                             VirtualKeyCode::R => InputCommand::RevealMap,
                             VirtualKeyCode::I => InputCommand::ShowInventory,
+                            VirtualKeyCode::A => InputCommand::Apply,
                             VirtualKeyCode::Escape => InputCommand::Escape,
                             _ => InputCommand::None,
                         },

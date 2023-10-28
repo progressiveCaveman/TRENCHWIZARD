@@ -353,8 +353,6 @@ impl Console {
     pub fn render_context(&self, frame: &mut [u8], game: &Game) {
         let screen = &game.screen;
         let world = &game.engine.world;
-        let player_pos = world.borrow::<UniqueView<PPoint>>().unwrap().0;
-        let frametime = world.borrow::<UniqueView<FrameTime>>().unwrap().0;
         let map = world.borrow::<UniqueView<Map>>().unwrap();
         let settings = game.engine.settings;
 
@@ -374,22 +372,13 @@ impl Console {
         }
 
         let mut y = 1;
-    
-        // let (min_x, _max_x, min_y, _max_y) = get_map_coords_for_screen(player_pos, ctx, (map.width, map.height));
-    
-        // let mouse_pos = ctx.mouse_pos();
-        // let mut map_mouse_pos = map.transform_mouse_pos(mouse_pos);
-        // map_mouse_pos.0 += min_x;
-        // map_mouse_pos.1 += min_y;
-        // if map_mouse_pos.0 >= map.width || map_mouse_pos.1 >= map.height || map_mouse_pos.0 < 0 || map_mouse_pos.1 < 0 {
-        //     return;
-        // }
-    
         let idx = map.xy_idx(mpos);
         if settings.use_player_los && !get_player_map_knowledge(world).contains_key(&idx) {
             return;
         }
     
+        let player_pos = world.borrow::<UniqueView<PPoint>>().unwrap().0;
+        let frametime = world.borrow::<UniqueView<FrameTime>>().unwrap().0;
         let vname = world.borrow::<View<Name>>().unwrap();
         let vpos = world.borrow::<View<Position>>().unwrap();
         let vstats = world.borrow::<View<CombatStats>>().unwrap();
@@ -397,9 +386,6 @@ impl Console {
         let vintent = world.borrow::<View<Intent>>().unwrap();
         
         /* Debug stuff */
-    
-        // ctx.print_color(2, ypos, Palette::MAIN_FG, Palette::MAIN_BG, format!("mouse: {:?}", map_mouse_pos));
-    
         screen.print_string(
             &game.assets,
             frame,
