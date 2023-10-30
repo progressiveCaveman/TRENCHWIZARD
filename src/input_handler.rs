@@ -1,10 +1,10 @@
 use engine::{
-    components::{Item, PlayerID, Inventory, PPoint, WantsToUseItem},
+    components::{Item, PlayerID, Inventory, PPoint, WantsToUseItem, Ranged},
     effects::{add_effect, EffectType},
     map::Map,
     utils::dir_to_point, game_modes::{GameMode, get_settings}, player,
 };
-use shipyard::{EntityId, Get, UniqueView, UniqueViewMut, View};
+use shipyard::{EntityId, Get, UniqueView, UniqueViewMut, View, ViewMut};
 use winit::event::{WindowEvent, VirtualKeyCode, ElementState};
 
 use crate::{screen::menu_config::{MainMenuSelection, ModeSelectSelection}, game::{Game, GameState}};
@@ -170,27 +170,46 @@ impl InputCommand {
                 GameState::None
             },
             InputCommand::Apply => {
-                match game.state {
-                    // GameState::Waiting => ,
+
+                let item = match game.state {
                     GameState::ShowInventory { selection } => {
-                        let item = if let Ok(inv) = world.borrow::<View<Inventory>>().unwrap().get(player_id) {
+                        if let Ok(inv) = world.borrow::<View<Inventory>>().unwrap().get(player_id) {
                             Some(inv.items[selection])
                         } else {
                             None
-                        };
-
-                        if let Some(item) = item {
-                            game.engine.world.add_component(player_id, WantsToUseItem { item, target: None });
                         }
-
-                        GameState::Waiting
                     },
                     GameState::ShowItemActions { item } => {
-                        game.engine.world.add_component(player_id, WantsToUseItem { item, target: None });
-                        GameState::Waiting
+                        Some(item)
                     },
-                    _ => GameState::None
+                    _ => None
+                };
+
+                if let Some(item) = item {
+                    let mut to_add_wants_use_item: Vec<EntityId> = Vec::new();
+                    {
+                        let vranged = game.engine.world.borrow::<ViewMut<Ranged>>().unwrap();
+                        match vranged.get(item) {
+                            Ok(is_item_ranged) => {
+                                return GameState::ShowTargeting {
+                                    range: is_item_ranged.range,
+                                    item: item,
+                                };
+                            }
+                            Err(_) => {
+                                to_add_wants_use_item.push(player_id);
+                            }
+                        }
+                    }
+    
+                    for id in to_add_wants_use_item.iter() {
+                        game.engine.world.add_component(*id, WantsToUseItem { item, target: None });
+
+                        return GameState::PlayerTurn;
+                    }
                 }
+
+                return GameState::None;
             },
         };
     }

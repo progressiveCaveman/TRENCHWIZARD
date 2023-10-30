@@ -4,7 +4,7 @@ use strum::EnumCount;
 
 use crate::{WIDTH, assets::cp437_converter::to_cp437, game::{Game, GameState}};
 
-use super::{Glyph, UI_GLYPH_SIZE, DEBUG_OUTLINES, menu_config::{MainMenuSelection, ModeSelectSelection}, MAX_ZOOM};
+use super::{Glyph, UI_GLYPH_SIZE, menu_config::{MainMenuSelection, ModeSelectSelection}, MAX_ZOOM};
 
 #[derive(Debug, PartialEq)]
 pub enum ConsoleMode {
@@ -92,22 +92,6 @@ impl Console {
             ConsoleMode::ItemInfo => {
                 self.render_item_info(frame, game);
             },
-        }
-
-        if DEBUG_OUTLINES {
-            for (i, pixel) in frame.chunks_exact_mut(4).enumerate() {
-                let xscreen = i as i32 % WIDTH;
-                let yscreen = i as i32 / WIDTH;
-
-                if self.in_bounds((xscreen, yscreen)) &&
-                    (xscreen == self.pos.0 || 
-                    xscreen == self.pos.0 + self.size.0 ||
-                    yscreen == self.pos.1 ||
-                    yscreen == self.pos.1 + self.size.1 )
-                {
-                    pixel.copy_from_slice(&colors::COLOR_PURPLE);               
-                }
-            }
         }
     }
 

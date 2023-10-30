@@ -668,7 +668,7 @@ pub fn get_attack_actions(store: &AllStorages, id: EntityId) -> Vec<Action> {
                     t: ResponseCurveType::Linear,
                     m: -1.0 / 100.0,
                     k: 1.0,
-                    c: 2.0,
+                    c: 10.0,
                     b: 1.0,
                 },
                 ),

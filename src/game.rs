@@ -114,13 +114,16 @@ impl Game {
                     self.state = GameState::Waiting;
                 }
             },
+            GameState::ShowTargeting { range, item } => {
+                // self.screen.ranged_target(frame, assets, game, range, clicked)
+            },
             _ => {},
         }
     }
 
     /// Draw the `World` state to the frame buffer.
     /// Assumes the default texture format: `wgpu::TextureFormat::Rgba8UnormSrgb`
-    pub fn draw(&self, frame: &mut [u8]) {
+    pub fn draw(&mut self, frame: &mut [u8]) {
         self.screen.draw(frame, &self);
     }
 
