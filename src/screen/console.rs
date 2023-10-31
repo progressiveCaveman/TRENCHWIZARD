@@ -790,7 +790,8 @@ impl Console {
         let player_pos = world.borrow::<UniqueView<PPoint>>().unwrap().0;
         let vvs = world.borrow::<View<Vision>>().unwrap();
 
-        self.print_string(assets, frame, "Select a target", self.pos, colors::COLOR_UI_1, UI_GLYPH_SIZE);
+        self.draw_box(assets, frame, self.pos, (20 * UI_GLYPH_SIZE, 3 * UI_GLYPH_SIZE), colors::COLOR_UI_2, colors::COLOR_BG, UI_GLYPH_SIZE);
+        self.print_string(assets, frame, "Select a target", (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + UI_GLYPH_SIZE), colors::COLOR_UI_1, UI_GLYPH_SIZE);
 
         // calculate valid cells
         let mut valid_cells: Vec<Point> = Vec::new();
