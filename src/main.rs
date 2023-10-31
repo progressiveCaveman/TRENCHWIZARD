@@ -59,9 +59,10 @@ fn main() -> Result<(), Error> {
     let mut last_time = Instant::now();
     // main event loop
     event_loop.run(move |event, _, control_flow| {
+
         // Draw the current frame
         if let Event::RedrawRequested(_) = event {
-            game.draw(pixels.frame_mut());
+            game.draw(pixels.frame_mut(), input.mouse_pressed(0));
             if let Err(err) = pixels.render() {
                 log_error("pixels.render", err);
                 *control_flow = ControlFlow::Exit;
@@ -75,7 +76,7 @@ fn main() -> Result<(), Error> {
             if input.close_requested() {
                 *control_flow = ControlFlow::Exit;
                 return;
-            }    
+            }  
 
             game.frame_time = last_time.elapsed().as_millis() as i32;
             last_time = Instant::now();
@@ -84,14 +85,6 @@ fn main() -> Result<(), Error> {
             if input.mouse_diff() != (0.0, 0.0) {
                 game.screen.mouse_pos = (input.mouse().unwrap().0 as i32 / 2, input.mouse().unwrap().1 as i32 / 2);
             }
-
-            // match handle_input(&event, &mut game) {
-            //     Action::None => {}
-            //     Action::Exit => {
-            //         *control_flow = ControlFlow::Exit;
-            //         return;
-            //     }
-            // }
 
             // Resize the window
             if let Some(size) = input.window_resized() {

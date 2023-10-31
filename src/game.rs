@@ -1,7 +1,7 @@
-use engine::{Engine, game_modes::{get_settings, GameMode}, components::FrameTime, systems::system_particle, effects, utils::InvalidPoint};
+use engine::{Engine, game_modes::{get_settings, GameMode}, components::{FrameTime, WantsToUseItem}, systems::system_particle, effects, utils::InvalidPoint};
 use shipyard::{EntityId, UniqueViewMut};
 
-use crate::{screen::{Screen, menu_config::{MainMenuSelection, ModeSelectSelection}, console::ConsoleMode}, assets::Assets, WIDTH, HEIGHT, DISABLE_MAPGEN_ANIMATION};
+use crate::{screen::{Screen, menu_config::{MainMenuSelection, ModeSelectSelection}, console::ConsoleMode, RangedTargetResult}, assets::Assets, WIDTH, HEIGHT, DISABLE_MAPGEN_ANIMATION};
 
 pub struct Game {
     pub engine: Engine,
@@ -21,9 +21,9 @@ pub enum GameState {
     None,
 
     //main loop
-    Waiting,
-    PlayerTurn,
-    AiTurn,
+    Waiting, // before anything happens
+    PlayerTurn, // after player has acted
+    AiTurn, // after systems have acted
 
     MainMenu{ selection: MainMenuSelection },
     ModeSelect{ selection: ModeSelectSelection },
@@ -64,9 +64,6 @@ impl Game {
 
         // update frame time for particle engine
         self.engine.world.borrow::<UniqueViewMut<FrameTime>>().unwrap().0 = self.frame_time as f32;
-
-        // let mut new_runstate = self.state;
-        // let player_id = self.engine.get_player_id();
         
         self.engine.world.run(system_particle::update_particles);
         self.engine.world.run(effects::run_effects_queue);
@@ -114,17 +111,31 @@ impl Game {
                     self.state = GameState::Waiting;
                 }
             },
-            GameState::ShowTargeting { range, item } => {
-                // self.screen.ranged_target(frame, assets, game, range, clicked)
-            },
             _ => {},
         }
     }
 
     /// Draw the `World` state to the frame buffer.
     /// Assumes the default texture format: `wgpu::TextureFormat::Rgba8UnormSrgb`
-    pub fn draw(&mut self, frame: &mut [u8]) {
+    pub fn draw(&mut self, frame: &mut [u8], mouseclick: bool) {
         self.screen.draw(frame, &self);
+
+        match self.state {
+            GameState::ShowTargeting { range, item } => {
+                // self.screen.ranged_target(frame, assets, game, range, clicked)
+                let (result, target) = self.screen.ranged_target(frame, &self.assets, &mut self.engine.world, range, mouseclick);
+                dbg!(result);
+                match result {
+                    RangedTargetResult::Cancel => self.state = GameState::Waiting,
+                    RangedTargetResult::NoResponse => {} ,
+                    RangedTargetResult::Selected => {
+                        self.engine.world.add_component(item, WantsToUseItem { item, target: target });
+                        self.state = GameState::PlayerTurn;    
+                    },
+                }
+            },
+            _ => {}
+        }
     }
 
     pub fn set_state(&mut self, state: GameState) {

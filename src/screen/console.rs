@@ -2,7 +2,7 @@ use std::iter::zip;
 
 use engine::{map::{Map, XY}, colors::{self, Color}, components::{Renderable, CombatStats, PPoint, FrameTime, Name, Position, Inventory, Equippable, Consumable, PlayerID, Vision}, player::get_player_map_knowledge, ai::decisions::Intent, utils::InvalidPoint};
 use rltk::Point;
-use shipyard::{UniqueView, View, Get};
+use shipyard::{UniqueView, View, Get, World};
 use strum::EnumCount;
 
 use crate::{WIDTH, assets::{cp437_converter::{to_cp437, string_to_cp437}, Assets, sprites::Drawable}, game::{Game, GameState}, HEIGHT, screen::RangedTargetResult};
@@ -763,7 +763,7 @@ impl Console {
         // }
     }
 
-    pub fn highlight_map_coord(&mut self, frame: &mut [u8], game: &Game, map_pos: XY, mut color: Color) {
+    pub fn highlight_map_coord(&mut self, frame: &mut [u8], assets: &Assets, map_pos: XY, mut color: Color) {
         // let xmap = self.map_offset.0 + (xscreen - self.pos.0) / self.gsize;
         
         // set alpha
@@ -779,25 +779,18 @@ impl Console {
             ch: to_cp437(' '),
             fg: colors::COLOR_BG,
             bg: color,
-            gsize: UI_GLYPH_SIZE,
+            gsize: self.gsize,
         };
 
-        self.print_cp437(&game.assets, frame, glyph);
+        self.print_cp437(assets, frame, glyph);
     }
 
-
-    pub fn ranged_target(&mut self, frame: &mut [u8], assets: &Assets, game: &mut Game, range: i32, clicked: bool) -> (RangedTargetResult, Option<Point>) {
-        dbg!("ranged target");
-        let world = &game.engine.world;
-        let screen = &game.screen;
+    pub fn ranged_target(&mut self, frame: &mut [u8], assets: &Assets, world: &mut World, map_mouse_pos: XY, range: i32, clicked: bool) -> (RangedTargetResult, Option<Point>) {
         let player_id = world.borrow::<UniqueView<PlayerID>>().unwrap().0;
         let player_pos = world.borrow::<UniqueView<PPoint>>().unwrap().0;
         let vvs = world.borrow::<View<Vision>>().unwrap();
 
         self.print_string(assets, frame, "Select a target", self.pos, colors::COLOR_UI_1, UI_GLYPH_SIZE);
-        // ctx.print_color(5, 12, colors::COLOR_UI_1, colors::COLOR_BG, "Select a target");
-
-        // let (min_x, max_x, min_y, max_y) = get_map_coords_for_screen(player_pos, ctx, (map.width, map.height));
 
         // calculate valid cells
         let mut valid_cells: Vec<Point> = Vec::new();
@@ -808,30 +801,12 @@ impl Console {
                     let dist = rltk::DistanceAlg::Pythagoras.distance2d(player_pos, *pt);
                     if dist as i32 <= range { // tile within range
                         valid_cells.push(*pt);
-                        self.highlight_map_coord(frame, game, pt.to_xy(), colors::COLOR_BLUE);
-
-
-                        // let screen_x = pt.x - min_x + OFFSET_X as i32;
-                        // let screen_y = pt.y - min_y + OFFSET_Y as i32; // TODO why is offset needed here??
-                        // if screen_x > 1 && screen_x < (max_x - min_x) - 1 && screen_y > 1 && screen_y < (max_y - min_y) - 1
-                        // {
-                        //     ctx.set_bg(screen_x, screen_y, RGB::named(rltk::BLUE));
-                        //     valid_cells.push(*pt);
-                        // }
-                        // ctx.set_bg(screen_x, screen_y, Palette::COLOR_4);
-                        // valid_cells.push(*pt);
+                        self.highlight_map_coord(frame, assets, pt.to_xy(), colors::COLOR_HIGHLIGHT1);
                     }
                 }
             }
         }
 
-        let map_mouse_pos = screen.get_mouse_game_pos();
-
-        // let mouse_pos = ctx.mouse_pos();
-        // let mut map_mouse_pos = map.transform_mouse_pos(mouse_pos);
-        // map_mouse_pos.0 += min_x;
-        // map_mouse_pos.1 += min_y;
-        // let map_mouse_pos = (mouse_pos.0 - map::OFFSET_X as i32, mouse_pos.1 - map::OFFSET_Y as i32);
         let mut valid_target = false;
         for pt in valid_cells.iter() {
             if pt.x == map_mouse_pos.0 && pt.y == map_mouse_pos.1 {
@@ -840,34 +815,17 @@ impl Console {
             }
         }
         if valid_target {
-            self.highlight_map_coord(frame, game, map_mouse_pos, colors::COLOR_DARK_GREEN);
-            // ctx.set_bg(mouse_pos.0, mouse_pos.1, Palette::COLOR_GREEN_DARK);
+            self.highlight_map_coord(frame, assets, map_mouse_pos, colors::COLOR_HIGHLIGHT2);
 
-            // if ctx.left_click {
-            //     return (
-            //         RangedTargetResult::Selected,
-            //         Some(Point::new(map_mouse_pos.0, map_mouse_pos.1)),
-            //     );
-            // }
             if clicked {
                 return (RangedTargetResult::Selected, Some(Point::new(map_mouse_pos.0, map_mouse_pos.1)));
             }
         } else {
-            self.highlight_map_coord(frame, game, map_mouse_pos, colors::COLOR_RED);
-            // ctx.set_bg(mouse_pos.0, mouse_pos.1, Palette::COLOR_RED);
             if clicked {
                 return (RangedTargetResult::Cancel, None);
             }
         }
 
         (RangedTargetResult::NoResponse, None)
-
-        // match ctx.key {
-        //     None => (RangedTargetResult::NoResponse, None),
-        //     Some(key) => match key {
-        //         VirtualKeyCode::Escape => return (RangedTargetResult::Cancel, None),
-        //         _ => (RangedTargetResult::NoResponse, None),
-        //     },
-        // }
     }
 }

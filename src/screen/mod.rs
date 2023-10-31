@@ -1,9 +1,11 @@
 use std::cmp;
 
 use engine::{colors::{Color, self}, map::{XY, Map}};
+use rltk::Point;
+use shipyard::World;
 
 use crate::{
-    assets::Image, WIDTH, game::Game,
+    assets::{Image, Assets}, WIDTH, game::Game,
 };
 
 use self::console::{Console, ConsoleMode};
@@ -31,7 +33,7 @@ pub struct Glyph {
     pub gsize: i32,
 }
 
-#[derive(PartialEq, Copy, Clone)]
+#[derive(PartialEq, Copy, Clone, Debug)]
 pub enum RangedTargetResult {
     Cancel,
     NoResponse,
@@ -119,9 +121,16 @@ impl Screen {
         None
     }
 
-    // pub fn set_main_console_mode(&mut self, mode: ConsoleMode) {
-    //     self.consoles[1].mode = mode;
-    // }
+    pub fn ranged_target(&mut self, frame: &mut [u8], assets: &Assets, world: &mut World, range: i32, clicked: bool) -> (RangedTargetResult, Option<Point>) {
+        let map_mouse_pos = self.get_mouse_game_pos();
+        for c in self.consoles.iter_mut() {
+            if c.mode == ConsoleMode::WorldMap {
+                return c.ranged_target(frame, assets, world, map_mouse_pos, range, clicked);
+            }
+        }
+
+        unreachable!()
+    }
 
     pub fn increment_zoom(&mut self) {
         for con in self.consoles.iter_mut() {
@@ -156,20 +165,25 @@ impl Screen {
     }
 
     pub fn get_mouse_game_pos(&self) -> XY {
+        return self.screen_pos_to_map(self.mouse_pos);
+    }
+
+    pub fn screen_pos_to_map(&self, screen_pos: XY) -> XY {
         if let Some(console) = self.get_map_console() {
-            let mp_in_map_console = (
-                self.mouse_pos.0 - console.pos.0,
-                self.mouse_pos.1 - console.pos.1
-            );
-
-            let tile_mp = (
-                mp_in_map_console.0 / console.gsize,
-                mp_in_map_console.1 / console.gsize
-            );
-
             return (
-                console.map_pos.0 + tile_mp.0,
-                console.map_pos.1 + tile_mp.1
+                (screen_pos.0 - console.pos.0) / console.gsize + console.map_pos.0,
+                (screen_pos.1 - console.pos.1) / console.gsize + console.map_pos.1,
+            );
+        }
+
+        (0,0)
+    }
+
+    pub fn map_pos_to_screen(&self, map_pos: XY) -> XY {
+        if let Some(console) = self.get_map_console() {
+            return (
+                (map_pos.0 - console.map_pos.0) * console.gsize + console.pos.0,
+                (map_pos.1 - console.map_pos.1) * console.gsize + console.pos.1,
             );
         }
 
