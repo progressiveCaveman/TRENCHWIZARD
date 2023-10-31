@@ -60,7 +60,7 @@ impl Game {
         self.tick += 1;
 
         // automatically zoom in on small maps
-        self.screen.autozoomn_world_map(&self.engine.get_map());
+        self.screen.autozoom_world_map(&self.engine.get_map());
 
         // update frame time for particle engine
         self.engine.world.borrow::<UniqueViewMut<FrameTime>>().unwrap().0 = self.frame_time as f32;

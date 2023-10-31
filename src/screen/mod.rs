@@ -101,7 +101,7 @@ impl Screen {
         self.consoles.push(Console::new((wmenu, hmenu), (xmenu, ymenu), ConsoleMode::ItemInfo));
     }
 
-    pub fn autozoomn_world_map(&mut self, map: &Map) {
+    pub fn autozoom_world_map(&mut self, map: &Map) {
         for con in self.consoles.iter_mut() {
             if con.mode == ConsoleMode::WorldMap {
                 con.zoom_to_fit(map);
