@@ -1,8 +1,11 @@
-use engine::{map::{Map, XY}, colors::{self}, components::{Renderable, CombatStats, PPoint, FrameTime, Name, Position, Inventory, Equippable, Consumable}, player::get_player_map_knowledge, ai::decisions::Intent};
+use std::iter::zip;
+
+use engine::{map::{Map, XY}, colors::{self, Color}, components::{Renderable, CombatStats, PPoint, FrameTime, Name, Position, Inventory, Equippable, Consumable, PlayerID, Vision}, player::get_player_map_knowledge, ai::decisions::Intent, utils::InvalidPoint};
+use rltk::Point;
 use shipyard::{UniqueView, View, Get};
 use strum::EnumCount;
 
-use crate::{WIDTH, assets::cp437_converter::to_cp437, game::{Game, GameState}};
+use crate::{WIDTH, assets::{cp437_converter::{to_cp437, string_to_cp437}, Assets, sprites::Drawable}, game::{Game, GameState}, HEIGHT, screen::RangedTargetResult};
 
 use super::{Glyph, UI_GLYPH_SIZE, menu_config::{MainMenuSelection, ModeSelectSelection}, MAX_ZOOM};
 
@@ -97,22 +100,20 @@ impl Console {
 
     pub fn render_main_menu(&self, frame: &mut [u8], game: &Game) {
         if let GameState::MainMenu{selection} = game.state {
-            let screen = &game.screen;
-
-            screen.draw_box(
+            self.draw_box(
                 &game.assets,
                 frame,
                 self.pos,
                 self.size,
                 colors::COLOR_UI_1,
-                colors::COLOR_BLACK_SEMI_TRANS, // todo transparancy doesn't work
+                colors::COLOR_BG,
                 UI_GLYPH_SIZE
             );
 
             let x = self.pos.0 + 3 * UI_GLYPH_SIZE;
             let mut y = self.pos.1 + 2 * UI_GLYPH_SIZE;
 
-            screen.print_string(
+            self.print_string(
                 &game.assets,
                 frame,
                 "Main Menu",
@@ -125,7 +126,7 @@ impl Console {
 
             for i in 0..=MainMenuSelection::COUNT {
                 if let Some(opt) = MainMenuSelection::from_repr(i) {
-                    screen.print_string(
+                    self.print_string(
                         &game.assets,
                         frame,
                         opt.text(),
@@ -142,22 +143,20 @@ impl Console {
 
     pub fn render_mode_select(&self, frame: &mut [u8], game: &Game) {
         if let GameState::ModeSelect{selection} = game.state {
-            let screen = &game.screen;
-
-            screen.draw_box(
+            self.draw_box(
                 &game.assets,
                 frame,
                 self.pos,
                 self.size,
                 colors::COLOR_UI_1,
-                colors::COLOR_BLACK_SEMI_TRANS, // todo transparancy doesn't work
+                colors::COLOR_BG, // todo transparancy doesn't work
                 UI_GLYPH_SIZE
             );
 
             let x = self.pos.0 + 3 * UI_GLYPH_SIZE;
             let mut y = self.pos.1 + 2 * UI_GLYPH_SIZE;
 
-            screen.print_string(
+            self.print_string(
                 &game.assets,
                 frame,
                 "Select Game Mode",
@@ -170,7 +169,7 @@ impl Console {
 
             for i in 0..=ModeSelectSelection::COUNT {
                 if let Some(opt) = ModeSelectSelection::from_repr(i) {
-                    screen.print_string(
+                    self.print_string(
                         &game.assets,
                         frame,
                         opt.text(),
@@ -188,7 +187,6 @@ impl Console {
     pub fn render_map(&self, frame: &mut [u8], game: &Game) {
         let map = game.engine.world.borrow::<UniqueView<Map>>().unwrap();
         let vrend = &mut game.engine.world.borrow::<View<Renderable>>().unwrap();
-        let screen = &game.screen;
 
         let tiles = if game.history_step >= map.history.len() || game.state != GameState::ShowMapHistory {
             map.tiles.clone()
@@ -244,7 +242,7 @@ impl Console {
                                 render = (rend.glyph, rend.fg, rend.bg);
                             }
                         }
-                        screen.print_cp437(
+                        self.print_cp437(
                             &game.assets,
                             frame,
                             Glyph {
@@ -252,8 +250,8 @@ impl Console {
                                 ch: to_cp437(render.0),
                                 fg: render.1,
                                 bg: render.2,
+                                gsize: self.gsize,
                             },
-                            self.gsize
                         );
                     }
                 }
@@ -262,15 +260,13 @@ impl Console {
     }
 
     pub fn render_log(&self, frame: &mut [u8], game: &Game) {
-        let screen = &game.screen;
-
-        screen.draw_box(
+        self.draw_box(
             &game.assets,
             frame,
             self.pos,
             self.size,
             colors::COLOR_UI_1,
-            colors::COLOR_CLEAR,
+            colors::COLOR_BG,
             UI_GLYPH_SIZE
         );
         
@@ -279,7 +275,7 @@ impl Console {
             for ms in m.chars().collect::<Vec<_>>().chunks((self.size.0 / UI_GLYPH_SIZE) as usize - 2) {
                 if y * UI_GLYPH_SIZE < self.size.1 - UI_GLYPH_SIZE {
                     let s: String = ms.into_iter().collect();
-                    screen.print_string(
+                    self.print_string(
                         &game.assets,
                         frame,
                         &s,
@@ -296,21 +292,20 @@ impl Console {
     }
 
     pub fn render_info(&self, frame: &mut [u8], game: &Game) {
-        let screen = &game.screen;
         let player_id = game.engine.get_player_id().0;
 
-        screen.draw_box(
+        self.draw_box(
             &game.assets,
             frame,
             (self.pos.0, self.pos.1),
             (self.size.0, self.size.1),
             colors::COLOR_UI_1,
-            colors::COLOR_CLEAR,
+            colors::COLOR_BG,
             UI_GLYPH_SIZE
         );
 
         let mut y = 1;
-        screen.print_string(
+        self.print_string(
             &game.assets,
             frame,
             "calendar",
@@ -322,7 +317,7 @@ impl Console {
         y += 1;
         if let Ok(vstats) = game.engine.world.borrow::<View<CombatStats>>() {
             if let Ok(stat) = vstats.get(player_id) {
-                screen.print_string(
+                self.print_string(
                     &game.assets,
                     frame,
                     &format!("HP: {}/{}", stat.hp, stat.max_hp),
@@ -340,13 +335,13 @@ impl Console {
         let map = world.borrow::<UniqueView<Map>>().unwrap();
         let settings = game.engine.settings;
 
-        screen.draw_box(
+        self.draw_box(
             &game.assets,
             frame,
             self.pos,
             self.size,
             colors::COLOR_UI_1,
-            colors::COLOR_CLEAR,
+            colors::COLOR_BG,
             UI_GLYPH_SIZE
         );
 
@@ -370,7 +365,7 @@ impl Console {
         let vintent = world.borrow::<View<Intent>>().unwrap();
         
         /* Debug stuff */
-        screen.print_string(
+        self.print_string(
             &game.assets,
             frame,
             &format!("PPOS: {:?}", player_pos),
@@ -380,7 +375,7 @@ impl Console {
         );
     
         y += 1;
-        screen.print_string(
+        self.print_string(
             &game.assets,
             frame,
             &format!("Frametime: {:?}", frametime),
@@ -391,7 +386,7 @@ impl Console {
     
         /* Normal stuff */
         y += 2;
-        screen.print_string(
+        self.print_string(
             &game.assets,
             frame,
             &format!("Tile: {:?}", map.tiles[idx]),
@@ -401,7 +396,7 @@ impl Console {
         );
     
         y += 2;
-        screen.print_string(
+        self.print_string(
             &game.assets,
             frame,
             &format!("Entities:"),
@@ -413,7 +408,7 @@ impl Console {
         for e in map.tile_content[idx].iter() {
             if let Ok(name) = vname.get(*e) {
                 y += 1;
-                screen.print_string(
+                self.print_string(
                     &game.assets,
                     frame,
                     &format!(" {:?} {}", e, name.name),
@@ -425,7 +420,7 @@ impl Console {
     
             if let Ok(pos) = vpos.get(*e) {
                 y += 1;
-                screen.print_string(
+                self.print_string(
                     &game.assets,
                     frame,
                     &format!(" {:?}", pos.ps[0]),
@@ -437,7 +432,7 @@ impl Console {
     
             if let Ok(stats) = vstats.get(*e) {
                 y += 1;
-                screen.print_string(
+                self.print_string(
                     &game.assets,
                     frame,
                     &format!(" HP: {}/{}", stats.hp, stats.max_hp),
@@ -449,7 +444,7 @@ impl Console {
     
             if let Ok(intent) = vintent.get(*e) {
                 y += 1;
-                screen.print_string(
+                self.print_string(
                     &game.assets,
                     frame,
                     &format!(" Intent: {}", intent.name),
@@ -460,7 +455,7 @@ impl Console {
     
                 if intent.target.len() > 0 {
                     y += 1;
-                    screen.print_string(
+                    self.print_string(
                         &game.assets,
                         frame,
                         &format!(" Target: {:?}", intent.target[0].get_point(&vpos)),
@@ -474,7 +469,7 @@ impl Console {
             if let Ok(inv) = vinv.get(*e) {
                 if inv.items.len() > 0 {
                     y += 1;
-                    screen.print_string(
+                    self.print_string(
                         &game.assets,
                         frame,
                         &format!(" Inventory:"),
@@ -489,7 +484,7 @@ impl Console {
                             if y > self.size.1 * self.gsize {
                                 return;
                             }
-                            screen.print_string(
+                            self.print_string(
                                 &game.assets,
                                 frame,
                                 &format!("  {:?}, {}", item, name.name),
@@ -508,24 +503,23 @@ impl Console {
     }
 
     pub fn render_inventory(&self, frame: &mut [u8], game: &Game) {
-        let screen = &game.screen;
         let player_id = game.engine.get_player_id().0;
         let vinv = game.engine.world.borrow::<View<Inventory>>().unwrap();
         let vname = game.engine.world.borrow::<View<Name>>().unwrap();
 
         if let GameState::ShowInventory { selection } = game.state { 
-            screen.draw_box(
+            self.draw_box(
                 &game.assets,
                 frame,
                 (self.pos.0, self.pos.1),
                 (self.size.0, self.size.1),
                 colors::COLOR_UI_1,
-                colors::COLOR_CLEAR,
+                colors::COLOR_BG,
                 UI_GLYPH_SIZE
             );
     
             let mut y = 1;
-            screen.print_string(
+            self.print_string(
                 &game.assets,
                 frame,
                 "Inventory", // insert a verb here?
@@ -540,7 +534,7 @@ impl Console {
                 for item in inv.items.iter() {
                     if let Ok(name) = vname.get(*item) {
                         y += 1;
-                        screen.print_string(
+                        self.print_string(
                             &game.assets,
                             frame,
                             &format!("- {}", name.name),
@@ -556,25 +550,24 @@ impl Console {
     }
 
     pub fn render_item_info(&self, frame: &mut [u8], game: &Game) {
-        let screen = &game.screen;
         let vname = game.engine.world.borrow::<View<Name>>().unwrap();
         let vequip = game.engine.world.borrow::<View<Equippable>>().unwrap();
         let vconsumable = game.engine.world.borrow::<View<Consumable>>().unwrap();
 
         if let GameState::ShowItemActions { item } = game.state {
             if let Ok(name) = vname.get(item) {
-                screen.draw_box(
+                self.draw_box(
                     &game.assets,
                     frame,
                     (self.pos.0, self.pos.1),
                     (self.size.0, self.size.1),
                     colors::COLOR_UI_1,
-                    colors::COLOR_CLEAR,
+                    colors::COLOR_BG,
                     UI_GLYPH_SIZE
                 );
         
                 let mut y = 1;
-                screen.print_string(
+                self.print_string(
                     &game.assets,
                     frame,
                     &format!("{}", name.name),
@@ -585,7 +578,7 @@ impl Console {
         
                 y += 2;
                 if let Ok(_) = vconsumable.get(item) {
-                    screen.print_string(
+                    self.print_string(
                         &game.assets,
                         frame,
                         &format!("(a) - Apply"), 
@@ -597,7 +590,7 @@ impl Console {
                 }
 
                 if let Ok(_) = vequip.get(item) {
-                    screen.print_string(
+                    self.print_string(
                         &game.assets,
                         frame,
                         &format!("(e) - Equip"), 
@@ -609,5 +602,272 @@ impl Console {
                 }
             }
         }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // render stuff
+
+    /// Blit a drawable to the pixel buffer. 
+    /// Assumes glyph asset has fuscia bg and grayscale fg
+    pub fn blit_glyph(&self, frame: &mut [u8], assets: &Assets, dest: XY, glyph: Glyph) {
+        let gsize = glyph.gsize;
+        let mut spritesheet = &assets.cp437[0];
+        for ss in assets.cp437.iter() {
+            if gsize == ss.0 as i32 {
+                spritesheet = ss;
+            } else if gsize < ss.0 as i32 {
+                break;
+            }
+        }
+
+        let sprite = &spritesheet.1[glyph.ch as usize];
+
+        assert!(dest.0 + sprite.width() as i32 <= WIDTH);
+        assert!(dest.1 + sprite.height() as i32 <= HEIGHT);
+
+        let pixels = sprite.pixels();
+        let width = sprite.width() * 4;
+
+        let mut s = 0;
+        for y in 0..sprite.height() {
+            let i = (dest.0 * 4 + dest.1 * WIDTH * 4 + y as i32 * WIDTH * 4) as usize;
+
+            let zipped = zip(
+                frame[i..i + width].chunks_exact_mut(4),
+                pixels[s..s + width].chunks_exact(4),
+            );
+
+            for (left, right) in zipped { // left is screen frame, right is glyph
+                // set color
+                for i2 in 0..4 {
+                    if right == colors::COLOR_FUCHSIA { // background
+                        left[i2] = (left[i2] as f32 * (1.0 - glyph.bg[3] as f32 /255.0)) as u8 + glyph.bg[i2];
+                    } else { // foreground
+                        left[i2] = (left[i2] as f32 * (1.0 - glyph.fg[3] as f32 /255.0)) as u8 + (right[i2] as f32 * glyph.fg[i2] as f32 / 255 as f32) as u8;
+                    }
+                }
+            }
+
+            s += width;
+        }
+    }
+
+    pub fn print_cp437(&self, assets: &Assets, frame: &mut [u8], glyph: Glyph) {
+        // if glyph.pos.1 >= self.size.1 - gsize || glyph.pos.0 >= self.size.0 - gsize {
+        //     return;
+        // }
+
+        self.blit_glyph(frame, assets, glyph.pos, glyph);
+    }
+
+    pub fn print_string(&self, assets: &Assets, frame: &mut [u8], str: &str, pos: XY, color: Color, gsize: i32) {
+        let chars = string_to_cp437(str);
+
+        for (idx, ch) in chars.iter().enumerate() {
+            self.print_cp437(assets, frame, Glyph { 
+                pos: (pos.0 + idx as i32 * gsize, pos.1),
+                ch: *ch, 
+                fg: color, 
+                bg: colors::COLOR_BG,
+                gsize, 
+            });
+            // let sprite = &assets.cp437[*ch as usize];
+            // Screen::blit(
+            //     frame,
+            //     Point {
+            //         x: pos.x + idx * 8,
+            //         y: pos.y,
+            //     },
+            //     sprite,
+            // );
+        }
+    }
+
+    pub fn draw_box(&self, assets: &Assets, frame: &mut [u8], pos: XY, size: XY, fg: Color, bg: Color, gsize: i32) {
+        let vertwall = 186;
+        let horizwall = 205;
+        let nwcorner = 201;
+        let necorner = 187;
+        let secorner = 188;
+        let swcorner = 200;
+
+        for x in (pos.0 .. pos.0 + size.0).step_by(gsize as usize) {
+            for y in (pos.1 .. pos.1 + size.1).step_by(gsize as usize) {
+                let firstcolumn = x < pos.0 + gsize;
+                let lastcolumn = x >= pos.0 + size.0 - gsize;
+                let firstrow = y < pos.1 + gsize;
+                let lastrow = y >= pos.1 + size.1 - gsize;
+
+                let ch = if firstrow && firstcolumn {
+                    nwcorner
+                } else if firstrow && lastcolumn {
+                    necorner
+                } else if lastrow && firstcolumn {
+                    swcorner
+                } else if lastrow && lastcolumn {
+                    secorner
+                } else if firstrow || lastrow {
+                    horizwall
+                } else if firstcolumn || lastcolumn {
+                    vertwall
+                } else {
+                    0
+                };
+
+                self.print_cp437(assets, frame, Glyph { pos: (x, y), ch, fg, bg, gsize });
+            }
+        }
+
+        // if x < 1 || x > map.width-2 || y < 1 || y > map.height-2 as i32 { return 35; }
+        // let mut mask : u8 = 0;
+
+        // if is_revealed_and_wall(map, x, y - 1) { mask +=1; }
+        // if is_revealed_and_wall(map, x, y + 1) { mask +=2; }
+        // if is_revealed_and_wall(map, x - 1, y) { mask +=4; }
+        // if is_revealed_and_wall(map, x + 1, y) { mask +=8; }
+
+        // match mask {
+        //     0 => { 9 } // Pillar because we can't see neighbors
+        //     1 => { 186 } // Wall only to the north
+        //     2 => { 186 } // Wall only to the south
+        //     3 => { 186 } // Wall to the north and south
+        //     4 => { 205 } // Wall only to the west
+        //     5 => { 188 } // Wall to the north and west
+        //     6 => { 187 } // Wall to the south and west
+        //     7 => { 185 } // Wall to the north, south and west
+        //     8 => { 205 } // Wall only to the east
+        //     9 => { 200 } // Wall to the north and east
+        //     10 => { 201 } // Wall to the south and east
+        //     11 => { 204 } // Wall to the north, south and east
+        //     12 => { 205 } // Wall to the east and west
+        //     13 => { 202 } // Wall to the east, west, and south
+        //     14 => { 203 } // Wall to the east, west, and north
+        //     15 => { 206 }  // ╬ Wall on all sides
+        //     _ => { 35 } // We missed one?
+        // }
+    }
+
+    pub fn highlight_map_coord(&mut self, frame: &mut [u8], game: &Game, map_pos: XY, mut color: Color) {
+        // let xmap = self.map_offset.0 + (xscreen - self.pos.0) / self.gsize;
+        
+        // set alpha
+        color[3] = 128;
+
+        let pos = (
+            self.pos.0 + (map_pos.0 - self.map_pos.0) * self.gsize, 
+            self.pos.1 + (map_pos.1 - self.map_pos.1) * self.gsize, 
+        );
+
+        let glyph = Glyph {
+            pos,
+            ch: to_cp437(' '),
+            fg: colors::COLOR_BG,
+            bg: color,
+            gsize: UI_GLYPH_SIZE,
+        };
+
+        self.print_cp437(&game.assets, frame, glyph);
+    }
+
+
+    pub fn ranged_target(&mut self, frame: &mut [u8], assets: &Assets, game: &mut Game, range: i32, clicked: bool) -> (RangedTargetResult, Option<Point>) {
+        dbg!("ranged target");
+        let world = &game.engine.world;
+        let screen = &game.screen;
+        let player_id = world.borrow::<UniqueView<PlayerID>>().unwrap().0;
+        let player_pos = world.borrow::<UniqueView<PPoint>>().unwrap().0;
+        let vvs = world.borrow::<View<Vision>>().unwrap();
+
+        self.print_string(assets, frame, "Select a target", self.pos, colors::COLOR_UI_1, UI_GLYPH_SIZE);
+        // ctx.print_color(5, 12, colors::COLOR_UI_1, colors::COLOR_BG, "Select a target");
+
+        // let (min_x, max_x, min_y, max_y) = get_map_coords_for_screen(player_pos, ctx, (map.width, map.height));
+
+        // calculate valid cells
+        let mut valid_cells: Vec<Point> = Vec::new();
+        match vvs.get(player_id) {
+            Err(_e) => return (RangedTargetResult::Cancel, None),
+            Ok(player_vs) => {
+                for pt in player_vs.visible_tiles.iter() {
+                    let dist = rltk::DistanceAlg::Pythagoras.distance2d(player_pos, *pt);
+                    if dist as i32 <= range { // tile within range
+                        valid_cells.push(*pt);
+                        self.highlight_map_coord(frame, game, pt.to_xy(), colors::COLOR_BLUE);
+
+
+                        // let screen_x = pt.x - min_x + OFFSET_X as i32;
+                        // let screen_y = pt.y - min_y + OFFSET_Y as i32; // TODO why is offset needed here??
+                        // if screen_x > 1 && screen_x < (max_x - min_x) - 1 && screen_y > 1 && screen_y < (max_y - min_y) - 1
+                        // {
+                        //     ctx.set_bg(screen_x, screen_y, RGB::named(rltk::BLUE));
+                        //     valid_cells.push(*pt);
+                        // }
+                        // ctx.set_bg(screen_x, screen_y, Palette::COLOR_4);
+                        // valid_cells.push(*pt);
+                    }
+                }
+            }
+        }
+
+        let map_mouse_pos = screen.get_mouse_game_pos();
+
+        // let mouse_pos = ctx.mouse_pos();
+        // let mut map_mouse_pos = map.transform_mouse_pos(mouse_pos);
+        // map_mouse_pos.0 += min_x;
+        // map_mouse_pos.1 += min_y;
+        // let map_mouse_pos = (mouse_pos.0 - map::OFFSET_X as i32, mouse_pos.1 - map::OFFSET_Y as i32);
+        let mut valid_target = false;
+        for pt in valid_cells.iter() {
+            if pt.x == map_mouse_pos.0 && pt.y == map_mouse_pos.1 {
+                valid_target = true;
+                break;
+            }
+        }
+        if valid_target {
+            self.highlight_map_coord(frame, game, map_mouse_pos, colors::COLOR_DARK_GREEN);
+            // ctx.set_bg(mouse_pos.0, mouse_pos.1, Palette::COLOR_GREEN_DARK);
+
+            // if ctx.left_click {
+            //     return (
+            //         RangedTargetResult::Selected,
+            //         Some(Point::new(map_mouse_pos.0, map_mouse_pos.1)),
+            //     );
+            // }
+            if clicked {
+                return (RangedTargetResult::Selected, Some(Point::new(map_mouse_pos.0, map_mouse_pos.1)));
+            }
+        } else {
+            self.highlight_map_coord(frame, game, map_mouse_pos, colors::COLOR_RED);
+            // ctx.set_bg(mouse_pos.0, mouse_pos.1, Palette::COLOR_RED);
+            if clicked {
+                return (RangedTargetResult::Cancel, None);
+            }
+        }
+
+        (RangedTargetResult::NoResponse, None)
+
+        // match ctx.key {
+        //     None => (RangedTargetResult::NoResponse, None),
+        //     Some(key) => match key {
+        //         VirtualKeyCode::Escape => return (RangedTargetResult::Cancel, None),
+        //         _ => (RangedTargetResult::NoResponse, None),
+        //     },
+        // }
     }
 }

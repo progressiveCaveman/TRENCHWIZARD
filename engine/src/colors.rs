@@ -25,7 +25,6 @@ impl ColorUtils for Color {
 
 pub const COLOR_CLEAR: Color = [0, 0, 0, 0];
 pub const COLOR_BLACK: Color = [0, 0, 0, 255];
-pub const COLOR_BLACK_SEMI_TRANS: Color = [0, 0, 0, 100];
 pub const COLOR_DARKEST_GREY: Color = [31, 31, 31, 255];
 pub const COLOR_DARKER_GREY: Color = [63, 63, 63, 255];
 pub const COLOR_DARK_GREY: Color = [95, 95, 95, 255];
@@ -226,7 +225,7 @@ pub const COLOR_WATER: Color = COLOR_DARK_BLUE;
 pub const COLOR_SAND: Color = COLOR_DESATURATED_YELLOW;
 pub const COLOR_DIRT: Color = COLOR_DARKEST_GREEN;
 pub const COLOR_STONE: Color = COLOR_GREY;
-pub const COLOR_BG: Color = [0, 0, 0, 255];
+pub const COLOR_BG: Color = [0, 0, 0, 200];
 pub const COLOR_HIGHLIGHT: Color = [128, 128, 128, 128];
 pub const COLOR_ITEM: Color = COLOR_DARK_YELLOW;
 pub const COLOR_WALL: Color = COLOR_GREY;
