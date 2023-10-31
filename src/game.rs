@@ -124,7 +124,6 @@ impl Game {
             GameState::ShowTargeting { range, item } => {
                 // self.screen.ranged_target(frame, assets, game, range, clicked)
                 let (result, target) = self.screen.ranged_target(frame, &self.assets, &mut self.engine.world, range, mouseclick);
-                dbg!(result);
                 match result {
                     RangedTargetResult::Cancel => self.state = GameState::Waiting,
                     RangedTargetResult::NoResponse => {} ,

@@ -38,13 +38,13 @@ pub fn run_item_use_system(store: AllStoragesViewMut) {
     let mut vinbackpack = store.borrow::<ViewMut<InBackpack>>().unwrap();
 
     for (id, use_item) in vwants.iter().with_id() {
-        let mut used_item = true;
+        let mut used_item = false;
 
         // Find all targets
         let mut targets: Vec<EntityId> = Vec::new();
         let mut target_tiles: Vec<usize> = Vec::new();
         match use_item.target {
-            None => targets.push(player_id.0),
+            None => targets.push(id),
             Some(t) => {
                 match vaoe.get(use_item.item) {
                     Err(_e) => {
@@ -60,6 +60,7 @@ pub fn run_item_use_system(store: AllStoragesViewMut) {
                     }
                     Ok(aoe) => {
                         // AOE
+                        used_item = true;
                         let mut affected_tiles = rltk::field_of_view(t, aoe.radius, &*map);
                         affected_tiles.retain(|p| p.x > 0 && p.x < map.size.0 - 1 && p.y > 0 && p.y < map.size.1 - 1);
                         for pt in affected_tiles.iter() {
@@ -109,7 +110,6 @@ pub fn run_item_use_system(store: AllStoragesViewMut) {
         match item_heals {
             Err(_e) => {}
             Ok(healer) => {
-                used_item = false;
                 for target in targets.iter() {
                     let stats = vstats.get(*target);
                     match stats {
@@ -156,7 +156,6 @@ pub fn run_item_use_system(store: AllStoragesViewMut) {
         match deals_damage {
             Err(_e) => {}
             Ok(dd) => {
-                used_item = false;
                 for target in targets.iter() {
                     add_effect(
                         Some(id),
@@ -198,7 +197,6 @@ pub fn run_item_use_system(store: AllStoragesViewMut) {
         match confusion {
             Err(_e) => {}
             Ok(confusion) => {
-                used_item = false;
                 for target in targets.iter() {
                     add_effect(
                         Some(id),
@@ -236,8 +234,7 @@ pub fn run_item_use_system(store: AllStoragesViewMut) {
         }
 
         // Remove item if it's consumable
-        let consumable = vconsumable.get(use_item.item);
-        match consumable {
+        match vconsumable.get(use_item.item) {
             Err(_e) => {}
             Ok(_) => {
                 if used_item {
@@ -247,8 +244,7 @@ pub fn run_item_use_system(store: AllStoragesViewMut) {
         }
 
         // Equip if item is equippable
-        let equippable = vequippable.get(use_item.item);
-        match equippable {
+        match vequippable.get(use_item.item) {
             Err(_e) => {}
             Ok(equippable) => {
                 let target = targets[0];
