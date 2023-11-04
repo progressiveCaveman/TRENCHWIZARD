@@ -113,7 +113,7 @@ pub fn get_neighbors(point: Point) -> Vec<Point> {
 // }
 
 // translates dir according to roguelike numpad convention - 1 is SW, 9 is NE
-pub fn dir_to_point(pos: Point, dir: usize, dismod: i32) -> Point {
+pub fn dir_to_point(pos: Point, dir: i32, dismod: i32) -> Point {
     match dir {
         1 => Point {
             x: pos.x - dismod,
@@ -148,6 +148,44 @@ pub fn dir_to_point(pos: Point, dir: usize, dismod: i32) -> Point {
             y: pos.y - dismod,
         },
         _ => Point { x: pos.x, y: pos.y },
+    }
+}
+
+pub fn dir_to_offset(dir: i32) -> Point {
+    match dir {
+        1 => Point {
+            x: -1,
+            y: 1,
+        },
+        2 => Point {
+            x: 0,
+            y: 1,
+        },
+        3 => Point {
+            x: 1,
+            y: 1,
+        },
+        4 => Point {
+            x: -1,
+            y: 0,
+        },
+        6 => Point {
+            x: 1,
+            y: 0,
+        },
+        7 => Point {
+            x: -1,
+            y: -1,
+        },
+        8 => Point {
+            x: 0,
+            y: -1,
+        },
+        9 => Point {
+            x: 1,
+            y: -1,
+        },
+        _ => Point { x: 0, y: 0 },
     }
 }
 

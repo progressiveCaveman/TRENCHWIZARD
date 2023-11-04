@@ -102,6 +102,16 @@ impl Screen {
         self.consoles.push(Console::new((wmenu, hmenu), (xmenu, ymenu), ConsoleMode::ItemInfo));
     }
 
+    pub fn reset(&mut self) {
+        // currently all this does is reset viewport on mapview
+        for con in self.consoles.iter_mut() {
+            if con.mode == ConsoleMode::WorldMap {
+                for _ in 0..MAX_ZOOM { con.zoom_out() }
+                con.map_pos = (0, 0);
+            }
+        }
+    }
+
     pub fn autozoom_world_map(&mut self, map: &Map) {
         for con in self.consoles.iter_mut() {
             if con.mode == ConsoleMode::WorldMap {
@@ -147,7 +157,7 @@ impl Screen {
         }
     }
 
-    pub fn pan_map(&mut self, offset: (i32, i32)) {
+    pub fn pan_map(&mut self, offset: XY) {
         self.consoles[1].map_pos = {
             let mp = self.consoles[1].map_pos;
             (

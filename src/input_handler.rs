@@ -2,7 +2,7 @@ use engine::{
     components::{Item, PlayerID, Inventory, PPoint, WantsToUseItem, Ranged, CombatStats, Position},
     effects::{add_effect, EffectType},
     map::{Map, to_point},
-    utils::{dir_to_point, InvalidPoint}, game_modes::{GameMode, get_settings}, player,
+    utils::{dir_to_point, InvalidPoint, dir_to_offset}, game_modes::{GameMode, get_settings}, player,
 };
 use rltk::DistanceAlg;
 use shipyard::{EntityId, Get, UniqueView, UniqueViewMut, View, ViewMut, IntoIter, IntoWithId};
@@ -47,6 +47,10 @@ impl InputCommand {
         return match self {
             InputCommand::None => GameState::None,
             InputCommand::Move { dir } => {
+                if game.engine.settings.mode == GameMode::MapDemo {
+                    game.screen.pan_map(dir_to_offset(*dir).to_xy());
+                }
+
                 let updown = if *dir == 8 { -1 } else if *dir == 2 { 1 } else { 0 };
                 match game.state {
                     GameState::MainMenu { selection } => return GameState::MainMenu { selection: selection.modify(updown) },
@@ -66,7 +70,7 @@ impl InputCommand {
                     _ => {},
                 };
 
-                let tile_idx = game.engine.get_map().point_idx(dir_to_point(player_pos, *dir as usize, 1));
+                let tile_idx = game.engine.get_map().point_idx(dir_to_point(player_pos, *dir, 1));
 
                 add_effect(creator, EffectType::MoveOrAttack {tile_idx});
 
@@ -146,6 +150,7 @@ impl InputCommand {
                         }
                     },
                     GameState::ModeSelect { selection } => {
+                        game.screen.reset();
                         match selection {
                             ModeSelectSelection::MapDemo => game.engine.reset_engine(get_settings(GameMode::MapDemo)),
                             ModeSelectSelection::RL => game.engine.reset_engine(get_settings(GameMode::RL)),

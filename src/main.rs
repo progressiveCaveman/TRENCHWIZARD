@@ -22,7 +22,7 @@ const WIDTH: i32 = 1560;
 const HEIGHT: i32 = 960;
 
 pub const DISABLE_AI: bool = false;
-pub const DISABLE_MAPGEN_ANIMATION: bool = true;
+pub const DISABLE_MAPGEN_ANIMATION: bool = false;
 
 pub const MAIN_MENU_OPTIONS: usize = 2;
 pub const MODE_SELECT_OPTIONS: usize = 3;
