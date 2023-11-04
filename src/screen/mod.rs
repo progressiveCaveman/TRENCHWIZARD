@@ -52,8 +52,6 @@ impl Screen {
     }
 
     pub fn setup_consoles(&mut self) {
-        // TODO why are these -1 necessary? 
-
         // info console
         let xinfo = 0;
         let yinfo = 0;

@@ -371,13 +371,19 @@ pub fn big_monster(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
 
 /// consumables
 
+const WEAPON_GLYPH: char = '/';
+const ARMOR_GLYPH: char = '{';
+const POTION_GLYPH: char = '!';
+const SCROLL_GLYPH: char = '?';
+const LOG_GLYPH: char = '=';
+
 pub fn health_potion(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
     store.add_entity((
         Position {
             ps: vec![Point::new( xy.0, xy.1 )],
         },
         Renderable {
-            glyph: 'p',
+            glyph: POTION_GLYPH,
             fg: COLOR_ITEM,
             bg: COLOR_BG,
             order: RenderOrder::Items,
@@ -398,7 +404,7 @@ pub fn magic_missile_scroll(store: &mut AllStoragesViewMut, xy: XY) -> EntityId 
             ps: vec![Point::new( xy.0, xy.1 )],
         },
         Renderable {
-            glyph: '(',
+            glyph: SCROLL_GLYPH,
             fg: COLOR_ITEM,
             bg: COLOR_BG,
             order: RenderOrder::Items,
@@ -420,7 +426,7 @@ pub fn fireball_scroll(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
             ps: vec![Point::new( xy.0, xy.1 )],
         },
         Renderable {
-            glyph: '*',
+            glyph: SCROLL_GLYPH,
             fg: COLOR_ITEM,
             bg: COLOR_BG,
             order: RenderOrder::Items,
@@ -443,7 +449,7 @@ pub fn confusion_scroll(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
             ps: vec![Point::new( xy.0, xy.1 )],
         },
         Renderable {
-            glyph: '&',
+            glyph: SCROLL_GLYPH,
             fg: COLOR_ITEM,
             bg: COLOR_BG,
             order: RenderOrder::Items,
@@ -467,7 +473,7 @@ pub fn dagger(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
             ps: vec![Point::new( xy.0, xy.1 )],
         },
         Renderable {
-            glyph: '│',
+            glyph: WEAPON_GLYPH,
             fg: COLOR_ITEM,
             bg: COLOR_BG,
             order: RenderOrder::Items,
@@ -490,14 +496,14 @@ pub fn longsword(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
             ps: vec![Point::new( xy.0, xy.1 )],
         },
         Renderable {
-            glyph: '│',
+            glyph: WEAPON_GLYPH,
             fg: COLOR_ITEM,
             bg: COLOR_BG,
             order: RenderOrder::Items,
             ..Default::default()
         },
         Name {
-            name: "Dagger".to_string(),
+            name: "longsword".to_string(),
         },
         Item { typ: ItemType::Shield },
         Equippable {
@@ -513,7 +519,7 @@ pub fn shield(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
             ps: vec![Point::new( xy.0, xy.1 )],
         },
         Renderable {
-            glyph: '°',
+            glyph: ARMOR_GLYPH,
             fg: COLOR_ITEM,
             bg: COLOR_BG,
             order: RenderOrder::Items,
@@ -536,7 +542,7 @@ pub fn tower_shield(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
             ps: vec![Point::new( xy.0, xy.1 )],
         },
         Renderable {
-            glyph: '°',
+            glyph: ARMOR_GLYPH,
             fg: COLOR_ITEM,
             bg: COLOR_BG,
             order: RenderOrder::Items,
@@ -559,7 +565,7 @@ pub fn log(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
             ps: vec![Point::new( xy.0, xy.1 )],
         },
         Renderable {
-            glyph: '=',
+            glyph: LOG_GLYPH,
             fg: COLOR_CEDAR,
             bg: COLOR_BG,
             order: RenderOrder::Items,
