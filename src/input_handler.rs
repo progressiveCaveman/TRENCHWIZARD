@@ -1,10 +1,11 @@
 use engine::{
-    components::{Item, PlayerID, Inventory, PPoint, WantsToUseItem, Ranged},
+    components::{Item, PlayerID, Inventory, PPoint, WantsToUseItem, Ranged, CombatStats, Position},
     effects::{add_effect, EffectType},
-    map::Map,
-    utils::dir_to_point, game_modes::{GameMode, get_settings}, player,
+    map::{Map, to_point},
+    utils::{dir_to_point, InvalidPoint}, game_modes::{GameMode, get_settings}, player,
 };
-use shipyard::{EntityId, Get, UniqueView, UniqueViewMut, View, ViewMut};
+use rltk::DistanceAlg;
+use shipyard::{EntityId, Get, UniqueView, UniqueViewMut, View, ViewMut, IntoIter, IntoWithId};
 use winit::event::{WindowEvent, VirtualKeyCode, ElementState};
 
 use crate::{screen::menu_config::{MainMenuSelection, ModeSelectSelection}, game::{Game, GameState}};
@@ -31,7 +32,8 @@ pub enum InputCommand {
     //ui
     ZoomIn,
     ZoomOut,
-    Enter
+    Enter,
+    Tab,
 }
 
 impl InputCommand {
@@ -78,8 +80,7 @@ impl InputCommand {
             InputCommand::Escape => {
                 match game.state {
                     GameState::MainMenu { .. } => GameState::Exit,
-                    GameState::ShowInventory { .. } => GameState::Waiting,
-                    GameState::ShowItemActions { .. } => GameState::Waiting,
+                    GameState::ShowInventory { .. } | GameState::ShowItemActions { .. } | GameState::ShowTargeting { .. } => GameState::Waiting,
                     _ => GameState::MainMenu { selection: MainMenuSelection::Play },
                 }
             },
@@ -162,6 +163,15 @@ impl InputCommand {
                         }
                         GameState::None
                     },
+                    GameState::ShowTargeting { range, item, target } => {
+                        // if target is valid use item
+                        if DistanceAlg::Pythagoras.distance2d(to_point(target), player_pos) < range as f32 {
+                            game.engine.world.add_component(player_id, WantsToUseItem { item, target: Some(to_point(target)) });
+                            return GameState::PlayerTurn;
+                        }
+
+                        GameState::Waiting
+                    },
                     _ => GameState::None,
                 }
             },
@@ -170,7 +180,6 @@ impl InputCommand {
                 GameState::None
             },
             InputCommand::Apply => {
-
                 let item = match game.state {
                     GameState::ShowInventory { selection } => {
                         if let Ok(inv) = world.borrow::<View<Inventory>>().unwrap().get(player_id) {
@@ -188,12 +197,13 @@ impl InputCommand {
                 if let Some(item) = item {
                     let mut to_add_wants_use_item: Vec<EntityId> = Vec::new();
                     {
-                        let vranged = game.engine.world.borrow::<ViewMut<Ranged>>().unwrap();
+                        let vranged: ViewMut<'_, Ranged, shipyard::track::Untracked> = game.engine.world.borrow::<ViewMut<Ranged>>().unwrap();
                         match vranged.get(item) {
                             Ok(is_item_ranged) => {
                                 return GameState::ShowTargeting {
                                     range: is_item_ranged.range,
                                     item: item,
+                                    target: (0,0) // todo pick closest target. Break this and tab code into a function
                                 };
                             }
                             Err(_) => {
@@ -210,6 +220,41 @@ impl InputCommand {
                 }
 
                 return GameState::None;
+            },
+            InputCommand::Tab => {
+                match game.state {
+                    GameState::ShowTargeting { range, item, target } => {
+                        // get nearby units with stats, index through them, when target is found select the next one. Kind of a hack but maybe it works
+                        let vstats = game.engine.world.borrow::<ViewMut<CombatStats>>().unwrap();
+                        let vpos = game.engine.world.borrow::<ViewMut<Position>>().unwrap();
+
+                        let mut targetfound = false;
+                        let mut firsttarget = (0, 0);
+                        for (id, (_, pos)) in (&vstats, &vpos).iter().with_id() {
+                            if id == player_id {
+                                continue;
+                            }
+
+                            let distance = DistanceAlg::Pythagoras.distance2d(pos.ps[0], player_pos);
+                            if distance < range as f32 {
+                                if firsttarget == (0,0) {
+                                    firsttarget = pos.ps[0].to_xy();
+                                }
+                                for p in pos.ps.iter() {
+                                    if targetfound {
+                                        return GameState::ShowTargeting { range, item, target: pos.ps[0].to_xy() };
+                                    }
+                                    if p == &to_point(target) {
+                                        targetfound = true;
+                                    }
+                                }
+                            }
+                        }
+
+                        return GameState::ShowTargeting { range, item, target: firsttarget };
+                    },
+                    _ => game.state
+                }
             },
         };
     }
@@ -243,6 +288,7 @@ pub fn map_keys(event: WindowEvent, game: &Game) -> InputCommand {
                     VirtualKeyCode::Escape => InputCommand::Escape,
                     VirtualKeyCode::Equals => InputCommand::ZoomIn,
                     VirtualKeyCode::Minus => InputCommand::ZoomOut,
+                    VirtualKeyCode::Tab => InputCommand::Tab,
                     _ => InputCommand::None,
                 },
             };

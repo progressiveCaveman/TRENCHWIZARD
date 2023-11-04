@@ -1,4 +1,4 @@
-use engine::{Engine, game_modes::{get_settings, GameMode}, components::{FrameTime, WantsToUseItem}, systems::system_particle, effects, utils::InvalidPoint};
+use engine::{Engine, game_modes::{get_settings, GameMode}, components::{FrameTime, WantsToUseItem}, systems::system_particle, effects, utils::InvalidPoint, map::XY};
 use shipyard::{EntityId, UniqueViewMut};
 
 use crate::{screen::{Screen, menu_config::{MainMenuSelection, ModeSelectSelection}, console::ConsoleMode, RangedTargetResult}, assets::Assets, WIDTH, HEIGHT, DISABLE_MAPGEN_ANIMATION};
@@ -35,6 +35,7 @@ pub enum GameState {
     ShowTargeting {
         range: i32,
         item: EntityId,
+        target: XY,
     },
     GameOver,
     Exit
@@ -121,9 +122,9 @@ impl Game {
         self.screen.draw(frame, &self);
 
         match self.state {
-            GameState::ShowTargeting { range, item } => {
+            GameState::ShowTargeting { range, item, target } => {
                 // self.screen.ranged_target(frame, assets, game, range, clicked)
-                let (result, target) = self.screen.ranged_target(frame, &self.assets, &mut self.engine.world, range, mouseclick);
+                let (result, target) = self.screen.ranged_target(frame, &self.assets, &mut self.engine.world, range, mouseclick, target);
                 match result {
                     RangedTargetResult::Cancel => self.state = GameState::Waiting,
                     RangedTargetResult::NoResponse => {} ,
@@ -131,6 +132,7 @@ impl Game {
                         self.engine.world.add_component(item, WantsToUseItem { item, target: target });
                         self.state = GameState::PlayerTurn;    
                     },
+                    RangedTargetResult::NewTarget { target } => self.state = GameState::ShowTargeting { range, item, target },
                 }
             },
             _ => {}

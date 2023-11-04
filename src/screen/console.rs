@@ -1,6 +1,6 @@
 use std::iter::zip;
 
-use engine::{map::{Map, XY}, colors::{self, Color}, components::{Renderable, CombatStats, PPoint, FrameTime, Name, Position, Inventory, Equippable, Consumable, PlayerID, Vision}, player::get_player_map_knowledge, ai::decisions::Intent, utils::InvalidPoint};
+use engine::{map::{Map, XY}, colors::{self, Color}, components::{CombatStats, PPoint, FrameTime, Name, Position, Inventory, Equippable, Consumable, PlayerID, Vision}, player::get_player_map_knowledge, ai::decisions::Intent, utils::InvalidPoint};
 use rltk::Point;
 use shipyard::{UniqueView, View, Get, World};
 use strum::EnumCount;
@@ -186,13 +186,6 @@ impl Console {
 
     pub fn render_map(&self, frame: &mut [u8], game: &Game) {
         let map = game.engine.world.borrow::<UniqueView<Map>>().unwrap();
-        let vrend = &mut game.engine.world.borrow::<View<Renderable>>().unwrap();
-
-        let tiles = if game.history_step >= map.history.len() || game.state != GameState::ShowMapHistory {
-            map.tiles.clone()
-        } else {
-            map.history[game.history_step].clone()
-        };
 
         if self.gsize < 8 {
             let xrange = self.pos.0..self.pos.0 + self.size.0;
@@ -206,14 +199,15 @@ impl Console {
                     let xmap = self.map_pos.0 + (xscreen - self.pos.0) / self.gsize;
                     let ymap = self.map_pos.1 + (yscreen - self.pos.1) / self.gsize;
 
-                    if map.in_bounds((xmap, ymap)) { 
-                        let idx = map.xy_idx((xmap, ymap));
-                        let mut render = tiles[idx].renderable();
-                        for c in map.tile_content[idx].iter() {
-                            if let Ok(rend) = vrend.get(*c) {
-                                render = (rend.glyph, rend.fg, rend.bg);
-                            }
-                        }
+                    if map.in_bounds((xmap, ymap)) {
+                        // let idx = map.xy_idx((xmap, ymap));
+                        // let mut render = tiles[idx].renderable();
+                        // for c in map.tile_content[idx].iter() {
+                        //     if let Ok(rend) = vrend.get(*c) {
+                        //         render = (rend.glyph, rend.fg, rend.bg);
+                        //     }
+                        // }
+                        let render = map.get_renderable((xmap, ymap), &game.engine.settings, &game.engine.world);
 
                         // calculate whether we're on a border for glyph fg render
                         let xmod = self.map_pos.0 + (xscreen - self.pos.0) % self.gsize;
@@ -233,15 +227,8 @@ impl Console {
             for x in 0 .. widthchars {
                 for y in 0 .. heightchars {
                     let pos = (x + self.map_pos.0, y + self.map_pos.1);
-                    // let idx = map.point_idx(point);
                     if x < self.pos.0 + self.size.0 + self.gsize && y < self.pos.1 + self.size.1 + self.gsize && map.in_bounds(pos){
-                        let idx = map.xy_idx(pos);
-                        let mut render = tiles[idx].renderable();
-                        for c in map.tile_content[idx].iter() {
-                            if let Ok(rend) = vrend.get(*c) {
-                                render = (rend.glyph, rend.fg, rend.bg);
-                            }
-                        }
+                        let render = map.get_renderable(pos, &game.engine.settings, &game.engine.world);
                         self.print_cp437(
                             &game.assets,
                             frame,
@@ -785,7 +772,7 @@ impl Console {
         self.print_cp437(assets, frame, glyph);
     }
 
-    pub fn ranged_target(&mut self, frame: &mut [u8], assets: &Assets, world: &mut World, map_mouse_pos: XY, range: i32, clicked: bool) -> (RangedTargetResult, Option<Point>) {
+    pub fn ranged_target(&mut self, frame: &mut [u8], assets: &Assets, world: &mut World, map_mouse_pos: XY, range: i32, clicked: bool, target: XY) -> (RangedTargetResult, Option<Point>) {
         let player_id = world.borrow::<UniqueView<PlayerID>>().unwrap().0;
         let player_pos = world.borrow::<UniqueView<PPoint>>().unwrap().0;
         let vvs = world.borrow::<View<Vision>>().unwrap();
@@ -801,13 +788,19 @@ impl Console {
                 for pt in player_vs.visible_tiles.iter() {
                     let dist = rltk::DistanceAlg::Pythagoras.distance2d(player_pos, *pt);
                     if dist as i32 <= range { // tile within range
+                        let color = if pt.to_xy() == target {
+                            colors::COLOR_HIGHLIGHT2
+                        } else {
+                            colors::COLOR_HIGHLIGHT1
+                        };
                         valid_cells.push(*pt);
-                        self.highlight_map_coord(frame, assets, pt.to_xy(), colors::COLOR_HIGHLIGHT1);
+                        self.highlight_map_coord(frame, assets, pt.to_xy(), color);
                     }
                 }
             }
         }
 
+        // handle mouse
         let mut valid_target = false;
         for pt in valid_cells.iter() {
             if pt.x == map_mouse_pos.0 && pt.y == map_mouse_pos.1 {
@@ -820,6 +813,8 @@ impl Console {
 
             if clicked {
                 return (RangedTargetResult::Selected, Some(Point::new(map_mouse_pos.0, map_mouse_pos.1)));
+            } else {
+                return (RangedTargetResult::NewTarget { target: map_mouse_pos }, None);
             }
         } else {
             if clicked {

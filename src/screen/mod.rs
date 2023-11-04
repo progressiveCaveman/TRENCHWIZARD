@@ -37,6 +37,7 @@ pub struct Glyph {
 pub enum RangedTargetResult {
     Cancel,
     NoResponse,
+    NewTarget{ target: XY },
     Selected,
 }
 
@@ -121,11 +122,11 @@ impl Screen {
         None
     }
 
-    pub fn ranged_target(&mut self, frame: &mut [u8], assets: &Assets, world: &mut World, range: i32, clicked: bool) -> (RangedTargetResult, Option<Point>) {
+    pub fn ranged_target(&mut self, frame: &mut [u8], assets: &Assets, world: &mut World, range: i32, clicked: bool, target: XY) -> (RangedTargetResult, Option<Point>) {
         let map_mouse_pos = self.get_mouse_game_pos();
         for c in self.consoles.iter_mut() {
             if c.mode == ConsoleMode::WorldMap {
-                return c.ranged_target(frame, assets, world, map_mouse_pos, range, clicked);
+                return c.ranged_target(frame, assets, world, map_mouse_pos, range, clicked, target);
             }
         }
 

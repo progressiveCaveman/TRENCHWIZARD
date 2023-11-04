@@ -1,10 +1,13 @@
 use rltk::{Algorithm2D, Point, BaseMap, NavigationPath};
 use serde::{Serialize, Deserialize};
-use shipyard::{EntityId, View, Get, Unique};
+use shipyard::{EntityId, View, Get, Unique, World};
 
-use crate::{components::Position, utils::Target, tiles::TileType};
+use crate::{components::{Position, Renderable}, utils::Target, tiles::{TileType, TileRenderable}, game_modes::GameSettings, player, colors::{COLOR_BG, ColorUtils}};
 
 pub type XY = (i32, i32);
+pub fn to_point(xy: XY) -> Point {
+    Point::new(xy.0, xy.1)
+}
 
 #[derive(Default, Serialize, Deserialize, Clone, Unique)]
 pub struct Map {
@@ -68,6 +71,45 @@ impl Map {
 
     pub fn in_bounds(&self, pos: XY) -> bool {
         pos.0 < self.size.0 && pos.1 < self.size.1 && pos.0 >= 0 && pos.1 >= 0
+    }
+
+    pub fn get_renderable(&self, pos: XY, settings: &GameSettings, world: &World) -> TileRenderable {
+        let vrend = world.borrow::<View<Renderable>>().unwrap();
+        let idx: usize = self.xy_idx(pos);
+
+        if settings.use_player_los {
+            let mut render = (' ', COLOR_BG, COLOR_BG);
+            if let Some(knowledge) = player::get_player_map_knowledge(world).get(&idx) {
+                render = knowledge.0.renderable();
+                for c in knowledge.1.iter() {
+                    if let Ok(rend) = vrend.get(*c) {
+                        render = (rend.glyph, rend.fg, rend.bg);
+                    }
+                }
+                render.1 = render.1.scale(0.5);
+            }
+
+            let vision = player::get_player_viewshed(world);
+            if vision.visible_tiles.contains(&Point::new(pos.0, pos.1)) {
+                render = self.tiles[idx].renderable();
+                for c in self.tile_content[idx].iter() {
+                    if let Ok(rend) = vrend.get(*c) {
+                        render = (rend.glyph, rend.fg, rend.bg);
+                    }
+                }   
+            }
+
+            return render;
+        }
+
+        let mut render = self.tiles[idx].renderable();
+        for c in self.tile_content[idx].iter() {
+            if let Ok(rend) = vrend.get(*c) {
+                render = (rend.glyph, rend.fg, rend.bg);
+            }
+        }
+
+        return render;
     }
 
     // fn is_exit_valid(&self, x: usize, y: usize) -> bool {
