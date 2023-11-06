@@ -129,7 +129,7 @@ impl InputCommand {
                 GameState::None
             }
             InputCommand::Reset => {
-                game.engine.reset_engine(game.engine.settings);
+                game.reset(None);
                 GameState::ShowMapHistory
             },
             InputCommand::ZoomIn => {
@@ -152,10 +152,10 @@ impl InputCommand {
                     GameState::ModeSelect { selection } => {
                         game.screen.reset();
                         match selection {
-                            ModeSelectSelection::MapDemo => game.engine.reset_engine(get_settings(GameMode::MapDemo)),
-                            ModeSelectSelection::RL => game.engine.reset_engine(get_settings(GameMode::RL)),
-                            ModeSelectSelection::VillageSim => game.engine.reset_engine(get_settings(GameMode::VillageSim)),
-                            ModeSelectSelection::OrcArena => game.engine.reset_engine(get_settings(GameMode::OrcArena)),
+                            ModeSelectSelection::MapDemo => game.reset(Some(get_settings(GameMode::MapDemo))),
+                            ModeSelectSelection::RL => game.reset(Some(get_settings(GameMode::RL))),
+                            ModeSelectSelection::VillageSim => game.reset(Some(get_settings(GameMode::VillageSim))),
+                            ModeSelectSelection::OrcArena => game.reset(Some(get_settings(GameMode::OrcArena))),
                         }
 
                         GameState::ShowMapHistory

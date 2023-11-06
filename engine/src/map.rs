@@ -73,9 +73,14 @@ impl Map {
         pos.0 < self.size.0 && pos.1 < self.size.1 && pos.0 >= 0 && pos.1 >= 0
     }
 
-    pub fn get_renderable(&self, pos: XY, settings: &GameSettings, world: &World) -> TileRenderable {
+
+    pub fn get_renderable(&self, pos: XY, settings: &GameSettings, world: &World, historyidx: Option<usize>) -> TileRenderable {
         let vrend = world.borrow::<View<Renderable>>().unwrap();
         let idx: usize = self.xy_idx(pos);
+
+        if let Some(hidx) = historyidx {
+            return self.history[usize::min(hidx, self.history.len() - 1)][idx].renderable();
+        }
 
         if settings.use_player_los {
             let mut render = (' ', COLOR_BG, COLOR_BG);

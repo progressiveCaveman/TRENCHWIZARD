@@ -186,6 +186,11 @@ impl Console {
 
     pub fn render_map(&self, frame: &mut [u8], game: &Game) {
         let map = game.engine.world.borrow::<UniqueView<Map>>().unwrap();
+        let hidx = if game.state == GameState::ShowMapHistory {
+            Some(game.history_step)
+        } else {
+            None
+        };
 
         if self.gsize < 8 {
             let xrange = self.pos.0..self.pos.0 + self.size.0;
@@ -207,7 +212,7 @@ impl Console {
                         //         render = (rend.glyph, rend.fg, rend.bg);
                         //     }
                         // }
-                        let render = map.get_renderable((xmap, ymap), &game.engine.settings, &game.engine.world);
+                        let render = map.get_renderable((xmap, ymap), &game.engine.settings, &game.engine.world, hidx);
 
                         // calculate whether we're on a border for glyph fg render
                         let xmod = self.map_pos.0 + (xscreen - self.pos.0) % self.gsize;
@@ -228,7 +233,7 @@ impl Console {
                 for y in 0 .. heightchars {
                     let pos = (x + self.map_pos.0, y + self.map_pos.1);
                     if x < self.pos.0 + self.size.0 + self.gsize && y < self.pos.1 + self.size.1 + self.gsize && map.in_bounds(pos){
-                        let render = map.get_renderable(pos, &game.engine.settings, &game.engine.world);
+                        let render = map.get_renderable(pos, &game.engine.settings, &game.engine.world, hidx);
                         self.print_cp437(
                             &game.assets,
                             frame,

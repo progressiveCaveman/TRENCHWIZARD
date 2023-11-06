@@ -1,4 +1,4 @@
-use engine::{Engine, game_modes::{get_settings, GameMode}, components::{FrameTime, WantsToUseItem}, systems::system_particle, effects, utils::InvalidPoint, map::XY};
+use engine::{Engine, game_modes::{get_settings, GameMode, GameSettings}, components::{FrameTime, WantsToUseItem}, systems::system_particle, effects, utils::InvalidPoint, map::XY};
 use shipyard::{EntityId, UniqueViewMut};
 
 use crate::{screen::{Screen, menu_config::{MainMenuSelection, ModeSelectSelection}, console::ConsoleMode, RangedTargetResult}, assets::Assets, WIDTH, HEIGHT, DISABLE_MAPGEN_ANIMATION};
@@ -88,7 +88,6 @@ impl Game {
             GameState::Waiting => {
                 if self.autorun {
                     self.set_state(GameState::PlayerTurn);
-
                 }
             },
             GameState::PlayerTurn => {
@@ -102,7 +101,7 @@ impl Game {
                 self.history_timer += 1;
                 self.history_step = self.history_timer / 5;
                 let map = self.engine.get_map();
-                
+
                 if self.history_step > map.history.len() + 20 || (DISABLE_MAPGEN_ANIMATION && self.engine.settings.mode != GameMode::MapDemo) {
                     self.state = GameState::Waiting;
                 }
@@ -145,5 +144,13 @@ impl Game {
         }
 
         self.state = state;
+    }
+
+    pub fn reset(&mut self, settings: Option<GameSettings>) {
+        self.state = GameState::ShowMapHistory;
+        match settings {
+            Some(s) => self.engine.reset_engine(s),
+            None => self.engine.reset_engine(self.engine.settings),
+        }
     }
 }
