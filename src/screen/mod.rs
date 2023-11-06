@@ -251,28 +251,6 @@ impl Screen {
         }
     }
 
-    // pub fn highlight_map_coord(&mut self, frame: &mut [u8], game: &Game, map_pos: XY, mut color: Color) {
-    //     // let xmap = self.map_offset.0 + (xscreen - self.pos.0) / self.gsize;
-        
-    //     let mapcon = self.get_map_console().unwrap();
-    //     // set alpha
-    //     color[3] = 128;
-
-    //     let pos = (
-    //         mapcon.pos.0 + (map_pos.0 - mapcon.map_pos.0) * mapcon.gsize, 
-    //         mapcon.pos.1 + (map_pos.1 - mapcon.map_pos.1) * mapcon.gsize, 
-    //     );
-
-    //     let glyph = Glyph {
-    //         pos,
-    //         ch: to_cp437(' '),
-    //         fg: colors::COLOR_CLEAR,
-    //         bg: color,
-    //     };
-
-    //     self.print_cp437(&game.assets, frame, glyph, UI_GLYPH_SIZE);
-    // }
-
     // /// Draw a line to the pixel buffer using Bresenham's algorithm.
     // pub(crate) fn line(screen: &mut [u8], p1: &Point, p2: &Point, color: [u8; 4]) {
     //     let p1 = (p1.x as i64, p1.y as i64);

@@ -297,14 +297,14 @@ impl Console {
         );
 
         let mut y = 1;
-        self.print_string(
-            &game.assets,
-            frame,
-            "calendar",
-            (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
-            colors::COLOR_UI_2,
-            UI_GLYPH_SIZE
-        );
+        // self.print_string(
+        //     &game.assets,
+        //     frame,
+        //     "calendar",
+        //     (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+        //     colors::COLOR_UI_2,
+        //     UI_GLYPH_SIZE
+        // );
 
         y += 1;
         if let Ok(vstats) = game.engine.world.borrow::<View<CombatStats>>() {

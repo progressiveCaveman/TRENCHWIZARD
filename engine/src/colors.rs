@@ -217,7 +217,7 @@ pub const COLOR_PEACH: Color = [255, 159, 127, 255];
 
 pub const COLOR_BROWN: Color = [139, 69, 19, 255];
 
-pub const COLOR_UI_1: Color = COLOR_LIGHT_PURPLE;
+pub const COLOR_UI_1: Color = COLOR_DARKER_PURPLE;
 pub const COLOR_UI_2: Color = COLOR_GREEN;
 pub const COLOR_UI_3: Color = COLOR_CYAN;
 pub const COLOR_UI_4: Color = COLOR_LIGHTER_PURPLE;
