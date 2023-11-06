@@ -73,10 +73,10 @@ impl ModeSelectSelection {
 
     pub fn dec(&self) -> Self {
         match *self {
-            ModeSelectSelection::MapDemo => ModeSelectSelection::RL,
-            ModeSelectSelection::RL => ModeSelectSelection::VillageSim,
-            ModeSelectSelection::VillageSim => ModeSelectSelection::OrcArena,
-            ModeSelectSelection::OrcArena => ModeSelectSelection::MapDemo,
+            ModeSelectSelection::MapDemo => ModeSelectSelection::OrcArena,
+            ModeSelectSelection::RL => ModeSelectSelection::MapDemo,
+            ModeSelectSelection::VillageSim => ModeSelectSelection::RL,
+            ModeSelectSelection::OrcArena => ModeSelectSelection::VillageSim,
         }
     }
 
