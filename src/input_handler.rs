@@ -74,17 +74,17 @@ impl InputCommand {
 
                 add_effect(creator, EffectType::MoveOrAttack {tile_idx});
 
-                GameState::PlayerTurn
+                GameState::PlayerActed
             }
             InputCommand::ShowInventory => GameState::ShowInventory { selection: 0 },
             InputCommand::Wait => {
                 add_effect(creator, EffectType::Wait {}); //todo is this weird on sim mode?
-                GameState::PlayerTurn
+                GameState::PlayerActed
             }
             InputCommand::Escape => {
                 match game.state {
                     GameState::MainMenu { .. } => GameState::Exit,
-                    GameState::ShowInventory { .. } | GameState::ShowItemActions { .. } | GameState::ShowTargeting { .. } => GameState::Waiting,
+                    GameState::ShowInventory { .. } | GameState::ShowItemActions { .. } | GameState::ShowTargeting { .. } => GameState::PreTurn,
                     _ => GameState::MainMenu { selection: MainMenuSelection::Play },
                 }
             },
@@ -98,17 +98,17 @@ impl InputCommand {
                     }
                 });
 
-                GameState::PlayerTurn
+                GameState::PlayerActed
             }
             InputCommand::Explore => {
                 add_effect(creator, EffectType::Explore {});
 
-                GameState::PlayerTurn
+                GameState::PlayerActed
             }
             InputCommand::RevealMap => {
                 player::reveal_map(&world);
 
-                GameState::PlayerTurn
+                GameState::PlayerActed
             }
             InputCommand::Fireball => {
                 dbg!("fireball is broken");
@@ -172,10 +172,10 @@ impl InputCommand {
                         // if target is valid use item
                         if DistanceAlg::Pythagoras.distance2d(to_point(target), player_pos) < range as f32 {
                             game.engine.world.add_component(player_id, WantsToUseItem { item, target: Some(to_point(target)) });
-                            return GameState::PlayerTurn;
+                            return GameState::PlayerActed;
                         }
 
-                        GameState::Waiting
+                        GameState::PreTurn
                     },
                     _ => GameState::None,
                 }
@@ -220,7 +220,7 @@ impl InputCommand {
                     for id in to_add_wants_use_item.iter() {
                         game.engine.world.add_component(*id, WantsToUseItem { item, target: None });
 
-                        return GameState::PlayerTurn;
+                        return GameState::PlayerActed;
                     }
                 }
 

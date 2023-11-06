@@ -21,9 +21,9 @@ pub enum GameState {
     None,
 
     //main loop
-    Waiting, // before anything happens
-    PlayerTurn, // after player has acted
-    AiTurn, // after systems have acted
+    PreTurn, // before anything happens
+    PlayerActed, // after player has acted
+    PostTurn, // after systems have acted
 
     MainMenu{ selection: MainMenuSelection },
     ModeSelect{ selection: ModeSelectSelection },
@@ -85,17 +85,17 @@ impl Game {
 
         // Main loop
         match self.state {
-            GameState::Waiting => {
+            GameState::PreTurn => {
                 if self.autorun {
-                    self.set_state(GameState::PlayerTurn);
+                    self.set_state(GameState::PlayerActed);
                 }
             },
-            GameState::PlayerTurn => {
-                self.set_state(GameState::AiTurn);
+            GameState::PlayerActed => {
+                self.set_state(GameState::PostTurn);
                 self.engine.run_systems();
             },
-            GameState::AiTurn => {
-                self.set_state(GameState::Waiting);
+            GameState::PostTurn => {
+                self.set_state(GameState::PreTurn);
             },
             GameState::ShowMapHistory => {
                 self.history_timer += 1;
@@ -103,7 +103,7 @@ impl Game {
                 let map = self.engine.get_map();
 
                 if self.history_step > map.history.len() + 20 || (DISABLE_MAPGEN_ANIMATION && self.engine.settings.mode != GameMode::MapDemo) {
-                    self.state = GameState::Waiting;
+                    self.state = GameState::PreTurn;
                 }
             },
             _ => {},
@@ -120,11 +120,11 @@ impl Game {
                 // self.screen.ranged_target(frame, assets, game, range, clicked)
                 let (result, target) = self.screen.ranged_target(frame, &self.assets, &mut self.engine.world, range, mouseclick, target);
                 match result {
-                    RangedTargetResult::Cancel => self.state = GameState::Waiting,
+                    RangedTargetResult::Cancel => self.state = GameState::PreTurn,
                     RangedTargetResult::NoResponse => {} ,
                     RangedTargetResult::Selected => {
                         self.engine.world.add_component(item, WantsToUseItem { item, target: target });
-                        self.state = GameState::PlayerTurn;    
+                        self.state = GameState::PlayerActed;    
                     },
                     RangedTargetResult::NewTarget { target } => self.state = GameState::ShowTargeting { range, item, target },
                 }
