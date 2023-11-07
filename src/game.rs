@@ -1,5 +1,5 @@
-use engine::{Engine, game_modes::{get_settings, GameMode, GameSettings}, components::{FrameTime, WantsToUseItem}, systems::system_particle, effects, utils::InvalidPoint, map::XY};
-use shipyard::{EntityId, UniqueViewMut};
+use engine::{Engine, game_modes::{get_settings, GameMode, GameSettings}, components::{FrameTime, WantsToUseItem, CombatStats}, systems::system_particle, effects, utils::InvalidPoint, map::XY};
+use shipyard::{EntityId, UniqueViewMut, View, Get};
 
 use crate::{screen::{Screen, menu_config::{MainMenuSelection, ModeSelectSelection}, console::ConsoleMode, RangedTargetResult}, assets::Assets, WIDTH, HEIGHT, DISABLE_MAPGEN_ANIMATION};
 
@@ -86,6 +86,23 @@ impl Game {
         // Main loop
         match self.state {
             GameState::PreTurn => {
+                // check if player is dead
+                let player_id = self.engine.get_player_id().0;
+                let mut gameover = false;
+                {
+                    let vstats = self.engine.world.borrow::<View<CombatStats>>().unwrap();
+                    if let Ok(stats) = vstats.get(player_id) {
+                        if stats.hp <=0 {
+                            gameover = true;
+                            dbg!("game over");
+                        }
+                    }
+                }
+
+                if gameover {
+                    self.set_state(GameState::GameOver);
+                }
+
                 if self.autorun {
                     self.set_state(GameState::PlayerActed);
                 }
@@ -106,6 +123,9 @@ impl Game {
                     self.state = GameState::PreTurn;
                 }
             },
+            GameState::GameOver => {
+                self.reset(None);
+            }
             _ => {},
         }
     }

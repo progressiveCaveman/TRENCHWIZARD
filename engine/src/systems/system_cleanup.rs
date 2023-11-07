@@ -30,8 +30,7 @@ pub fn run_cleanup_system(
                     }
                 }
                 Ok(_p) => {
-                    todo!("Game over");
-                    // *runstate = RunState::GameOver;
+                    // game over handled in main loop
                 }
             }
         }
