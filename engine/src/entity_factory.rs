@@ -5,9 +5,9 @@ use crate::colors::{*};
 // use crate::ai::labors::AIBehaviors;
 use crate::components::{
     Actor, ActorType, AreaOfEffect, BlocksTile, ChiefHouse, CombatStats, Confusion, Consumable, DealsDamage,
-    DijkstraMapToMe, EquipmentSlot, Equippable, Faction, Fire, FishCleaner, Flammable, Inventory, Item, ItemType,
+    DijkstraMapToMe, EquipmentSlot, Equippable, Faction, FishCleaner, Flammable, Inventory, Item, ItemType,
     LocomotionType, Locomotive, LumberMill, MeleeDefenseBonus, MeleePowerBonus, Name, PlankHouse, Player, Position,
-    ProvidesHealing, Ranged, Renderable, SpatialKnowledge, Spawner, SpawnerType, Tree, Vision, RNG,
+    ProvidesHealing, Ranged, Renderable, SpatialKnowledge, Spawner, SpawnerType, Tree, Vision, RNG, CausesFire,
 };
 use crate::map::{Map, XY};
 // use crate::systems::system_fire::NEW_FIRE_TURNS;
@@ -440,6 +440,7 @@ pub fn fireball_scroll(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
         DealsDamage { damage: 20 },
         Ranged { range: 6 },
         AreaOfEffect { radius: 3 },
+        CausesFire { turns: 5 }
     ))
 }
 
@@ -772,6 +773,6 @@ pub fn tmp_fireball(store: &mut AllStoragesViewMut) -> EntityId {
         DealsDamage { damage: 20 },
         Ranged { range: 6 },
         AreaOfEffect { radius: 3 },
-        Fire { turns: 5 },
+        CausesFire { turns: 5 },
     ))
 }

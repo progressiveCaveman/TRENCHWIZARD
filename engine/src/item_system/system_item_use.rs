@@ -1,7 +1,7 @@
 use crate::colors::{COLOR_UI_3, COLOR_BG};
 use crate::components::{
-    AreaOfEffect, CombatStats, Confusion, Consumable, DealsDamage, Equippable, Equipped, Fire, InBackpack, Inventory,
-    Name, ProvidesHealing, WantsToUseItem, GameLog, PlayerID,
+    AreaOfEffect, CombatStats, Confusion, Consumable, DealsDamage, Equippable, Equipped, InBackpack, Inventory,
+    Name, ProvidesHealing, WantsToUseItem, GameLog, PlayerID, CausesFire,
 };
 use crate::effects::add_effect;
 use crate::effects::{EffectType, Targets};
@@ -25,7 +25,7 @@ pub fn run_item_use_system(store: AllStoragesViewMut) {
     let mut vwants = store.borrow::<ViewMut<WantsToUseItem>>().unwrap();
     let vaoe = store.borrow::<View<AreaOfEffect>>().unwrap();
     let vstats = store.borrow::<ViewMut<CombatStats>>().unwrap();
-    let vfire = store.borrow::<View<Fire>>().unwrap();
+    let vcausesfire = store.borrow::<View<CausesFire>>().unwrap();
     let vprovideshealing = store.borrow::<View<ProvidesHealing>>().unwrap();
     let vname = store.borrow::<View<Name>>().unwrap();
     let vpos = store.borrow::<View<Position>>().unwrap();
@@ -90,59 +90,51 @@ pub fn run_item_use_system(store: AllStoragesViewMut) {
         }
 
         // Apply fire if it applies fire
-        let item_fires = vfire.get(use_item.item);
-        match item_fires {
-            Err(_e) => {}
-            Ok(fire) => {
-                add_effect(
-                    Some(id),
-                    EffectType::Fire {
-                        turns: fire.turns,
-                        target: Targets::Tiles { tiles: target_tiles },
-                    },
-                );
-                used_item = true;
-            }
+        if let Ok(fire) = vcausesfire.get(use_item.item) {
+            add_effect(
+                Some(id),
+                EffectType::Fire {
+                    turns: fire.turns,
+                    target: Targets::Tiles { tiles: target_tiles },
+                },
+            );
+            used_item = true;
         }
 
         // Apply heal if it provides healing
-        let item_heals = vprovideshealing.get(use_item.item);
-        match item_heals {
-            Err(_e) => {}
-            Ok(healer) => {
-                for target in targets.iter() {
-                    let stats = vstats.get(*target);
-                    match stats {
-                        Err(_e) => {}
-                        Ok(_stats) => {
-                            add_effect(
-                                Some(id),
-                                EffectType::Heal {
-                                    amount: healer.heal,
-                                    target: Targets::Single { target: *target },
-                                },
-                            );
-                            if id == player_id.0 {
-                                // todo should this code be in /effects?
-                                let name = vname.get(use_item.item).unwrap();
-                                log.messages
-                                    .push(format!("You use the {}, healing {} hp", name.name, healer.heal));
-                            }
-                            used_item = true;
+        if let Ok(healer) = vprovideshealing.get(use_item.item) {
+            for target in targets.iter() {
+                let stats = vstats.get(*target);
+                match stats {
+                    Err(_e) => {}
+                    Ok(_stats) => {
+                        add_effect(
+                            Some(id),
+                            EffectType::Heal {
+                                amount: healer.heal,
+                                target: Targets::Single { target: *target },
+                            },
+                        );
+                        if id == player_id.0 {
+                            // todo should this code be in /effects?
+                            let name = vname.get(use_item.item).unwrap();
+                            log.messages
+                                .push(format!("You use the {}, healing {} hp", name.name, healer.heal));
+                        }
+                        used_item = true;
 
-                            if let Ok(pos) = vpos.get(*target) {
-                                for pos in pos.ps.iter() {
-                                    p_builder.request(
-                                        pos.x,
-                                        pos.y,
-                                        0.0,
-                                        -3.0,
-                                        COLOR_UI_3,
-                                        COLOR_BG,
-                                        '♥',
-                                        1000.0,
-                                    )
-                                }
+                        if let Ok(pos) = vpos.get(*target) {
+                            for pos in pos.ps.iter() {
+                                p_builder.request(
+                                    pos.x,
+                                    pos.y,
+                                    0.0,
+                                    -3.0,
+                                    COLOR_UI_3,
+                                    COLOR_BG,
+                                    '♥',
+                                    1000.0,
+                                )
                             }
                         }
                     }
@@ -152,115 +144,101 @@ pub fn run_item_use_system(store: AllStoragesViewMut) {
         to_remove_wants_use.push(id);
 
         // Apply damage to target if it deals damage
-        let deals_damage = vdealsdamage.get(use_item.item);
-        match deals_damage {
-            Err(_e) => {}
-            Ok(dd) => {
-                for target in targets.iter() {
-                    add_effect(
-                        Some(id),
-                        EffectType::Damage {
-                            amount: dd.damage,
-                            target: Targets::Single { target: *target },
-                        },
-                    );
-                    if id == player_id.0 {
-                        let monster_name = vname.get(*target).unwrap();
-                        let item_name = vname.get(use_item.item).unwrap();
-                        log.messages.push(format!(
-                            "You use {} on {}, dealing {} hp",
-                            item_name.name, monster_name.name, dd.damage
-                        ));
-                    }
-                    used_item = true;
+        if let Ok(dd) = vdealsdamage.get(use_item.item) {
+            for target in targets.iter() {
+                add_effect(
+                    Some(id),
+                    EffectType::Damage {
+                        amount: dd.damage,
+                        target: Targets::Single { target: *target },
+                    },
+                );
+                if id == player_id.0 {
+                    let monster_name = vname.get(*target).unwrap();
+                    let item_name = vname.get(use_item.item).unwrap();
+                    log.messages.push(format!(
+                        "You use {} on {}, dealing {} hp",
+                        item_name.name, monster_name.name, dd.damage
+                    ));
+                }
+                used_item = true;
 
-                    if let Ok(pos) = vpos.get(*target) {
-                        for pos in pos.ps.iter() {
-                            p_builder.request(
-                                pos.x,
-                                pos.y,
-                                0.0,
-                                0.0,
-                                COLOR_UI_3,
-                                COLOR_BG,
-                                '‼',
-                                250.0,
-                            )
-                        }
+                if let Ok(pos) = vpos.get(*target) {
+                    for pos in pos.ps.iter() {
+                        p_builder.request(
+                            pos.x,
+                            pos.y,
+                            0.0,
+                            0.0,
+                            COLOR_UI_3,
+                            COLOR_BG,
+                            '‼',
+                            250.0,
+                        )
                     }
                 }
             }
         }
 
         // Apply confusion
-        let confusion = vconfusion.get(use_item.item);
-        match confusion {
-            Err(_e) => {}
-            Ok(confusion) => {
-                for target in targets.iter() {
-                    add_effect(
-                        Some(id),
-                        EffectType::Confusion {
-                            turns: confusion.turns,
-                            target: Targets::Single { target: *target },
-                        },
-                    );
-                    if id == player_id.0 {
-                        let monster_name = vname.get(*target).unwrap();
-                        let item_name = vname.get(use_item.item).unwrap();
-                        log.messages.push(format!(
-                            "You use {} on {}, confusing them",
-                            item_name.name, monster_name.name
-                        ));
-                    }
-                    used_item = true;
+        if let Ok(confusion) = vconfusion.get(use_item.item){
+            for target in targets.iter() {
+                add_effect(
+                    Some(id),
+                    EffectType::Confusion {
+                        turns: confusion.turns,
+                        target: Targets::Single { target: *target },
+                    },
+                );
+                if id == player_id.0 {
+                    let monster_name = vname.get(*target).unwrap();
+                    let item_name = vname.get(use_item.item).unwrap();
+                    log.messages.push(format!(
+                        "You use {} on {}, confusing them",
+                        item_name.name, monster_name.name
+                    ));
+                }
+                used_item = true;
 
-                    if let Ok(pos) = vpos.get(*target) {
-                        for pos in pos.ps.iter() {
-                            p_builder.request(
-                                pos.x,
-                                pos.y,
-                                0.0,
-                                0.0,
-                                COLOR_UI_3,
-                                COLOR_BG,
-                                '?',
-                                300.0,
-                            )
-                        }
+                if let Ok(pos) = vpos.get(*target) {
+                    for pos in pos.ps.iter() {
+                        p_builder.request(
+                            pos.x,
+                            pos.y,
+                            0.0,
+                            0.0,
+                            COLOR_UI_3,
+                            COLOR_BG,
+                            '?',
+                            300.0,
+                        )
                     }
                 }
             }
         }
 
         // Remove item if it's consumable
-        match vconsumable.get(use_item.item) {
-            Err(_e) => {}
-            Ok(_) => {
-                if used_item {
-                    to_remove.push((id, use_item.item));
-                }
+        if let Ok(_) = vconsumable.get(use_item.item) {
+            if used_item {
+                to_remove.push((id, use_item.item));
             }
         }
 
         // Equip if item is equippable
-        match vequippable.get(use_item.item) {
-            Err(_e) => {}
-            Ok(equippable) => {
-                let target = targets[0];
+        if let Ok(equippable) = vequippable.get(use_item.item) {
+            let target = targets[0];
 
-                // Unequip already equipped item
-                for (id, (equipped, name)) in (&vequipped, &vname).iter().with_id() {
-                    //world.query::<(&Equipped, &Name)>().iter() {
-                    if equipped.owner == target && equipped.slot == equippable.slot {
-                        to_unequip.push((id, name.clone(), target));
-                    }
+            // Unequip already equipped item
+            for (id, (equipped, name)) in (&vequipped, &vname).iter().with_id() {
+                //world.query::<(&Equipped, &Name)>().iter() {
+                if equipped.owner == target && equipped.slot == equippable.slot {
+                    to_unequip.push((id, name.clone(), target));
                 }
-
-                // Actually equip item
-                let item_name = (*vname.get(use_item.item).unwrap()).clone();
-                to_equip.push((use_item.item, *equippable, item_name, target));
             }
+
+            // Actually equip item
+            let item_name = (*vname.get(use_item.item).unwrap()).clone();
+            to_equip.push((use_item.item, *equippable, item_name, target));
         }
     }
 

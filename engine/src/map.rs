@@ -2,7 +2,7 @@ use rltk::{Algorithm2D, Point, BaseMap, NavigationPath};
 use serde::{Serialize, Deserialize};
 use shipyard::{EntityId, View, Get, Unique, World};
 
-use crate::{components::{Position, Renderable}, utils::Target, tiles::{TileType, TileRenderable}, game_modes::GameSettings, player, colors::{COLOR_BG, ColorUtils}};
+use crate::{components::{Position, Renderable}, utils::Target, tiles::{TileType, TileRenderable}, game_modes::GameSettings, player, colors::{COLOR_BG, ColorUtils, COLOR_FIRE}};
 
 pub type XY = (i32, i32);
 pub fn to_point(xy: XY) -> Point {
@@ -97,6 +97,10 @@ impl Map {
             let vision = player::get_player_viewshed(world);
             if vision.visible_tiles.contains(&Point::new(pos.0, pos.1)) {
                 render = self.tiles[idx].renderable();
+                if self.fire_turns[idx] > 0 {
+                    render = ('^', COLOR_FIRE, render.2);
+                }
+
                 for c in self.tile_content[idx].iter() {
                     if let Ok(rend) = vrend.get(*c) {
                         render = (rend.glyph, rend.fg, rend.bg);
@@ -132,10 +136,11 @@ impl Map {
     }
 
     pub fn is_flammable(&self, idx: usize) -> bool {
-        self.tiles[idx] == TileType::Grass
-            || self.tiles[idx] == TileType::Wheat
-            || self.tiles[idx] == TileType::WoodWall
-            || self.tiles[idx] == TileType::WoodDoor
+        match self.tiles[idx] {
+            TileType::Sand | TileType::Dirt | TileType::Stone | TileType::Floor | TileType::Grass | TileType::Wheat | TileType::WoodWall | 
+            TileType::WoodDoor | TileType::WoodFloor => true,
+            _ => false
+        }
     }
 
     pub fn blocks_movement(&self, idx: usize) -> bool {

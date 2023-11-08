@@ -335,7 +335,12 @@ pub struct AreaOfEffect {
 /// Fire components
 
 #[derive(Component, Clone, Copy)]
-pub struct Fire {
+pub struct OnFire {
+    pub turns: i32,
+}
+
+#[derive(Component, Clone, Copy)]
+pub struct CausesFire {
     pub turns: i32,
 }
 

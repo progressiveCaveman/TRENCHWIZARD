@@ -1,4 +1,4 @@
-use crate::components::{CombatStats, Fire, Position};
+use crate::components::{CombatStats, Position, OnFire};
 use crate::effects::{add_effect, EffectType, Targets};
 use crate::map::Map;
 use crate::tiles::TileType;
@@ -12,12 +12,12 @@ pub fn run_fire_system(
     mut map: UniqueViewMut<Map>,
     vpos: View<Position>,
     vstats: ViewMut<CombatStats>,
-    mut vfire: ViewMut<Fire>,
+    mut vonfire: ViewMut<OnFire>,
 ) {
     let mut rng = RandomNumberGenerator::new();
 
     // damage all entities on fire. If they are standing somewhere flammable, ignite it
-    for (id, (pos, _, _)) in (&vpos, &vstats, &vfire).iter().with_id() {
+    for (id, (pos, _, _)) in (&vpos, &vstats, &vonfire).iter().with_id() {
         add_effect(
             None,
             EffectType::Damage {
@@ -36,7 +36,7 @@ pub fn run_fire_system(
 
     // reduce fire turns and remove expired fire components
     let mut to_remove: Vec<EntityId> = vec![];
-    (&mut vfire).iter().with_id().for_each(|(id, fire)| {
+    (&mut vonfire).iter().with_id().for_each(|(id, fire)| {
         fire.turns -= 1;
 
         if fire.turns <= 0 {
@@ -45,12 +45,12 @@ pub fn run_fire_system(
         }
     });
     for e in to_remove.iter() {
-        vfire.remove(*e);
+        vonfire.remove(*e);
     }
 
-    // reduce fire turns on tiles
     for idx in 0..(map.size.0 * map.size.1) as usize {
         if map.fire_turns[idx] > 0 {
+            // reduce fire turns on tiles
             map.fire_turns[idx] -= 1;
 
             if map.fire_turns[idx] == 0 && map.is_flammable(idx) {

@@ -2,10 +2,10 @@ use engine::{
     components::{Item, PlayerID, Inventory, PPoint, WantsToUseItem, Ranged, CombatStats, Position},
     effects::{add_effect, EffectType},
     map::{Map, to_point},
-    utils::{dir_to_point, InvalidPoint, dir_to_offset}, game_modes::{GameMode, get_settings}, player,
+    utils::{dir_to_point, InvalidPoint, dir_to_offset}, game_modes::{GameMode, get_settings}, player, entity_factory,
 };
 use rltk::DistanceAlg;
-use shipyard::{EntityId, Get, UniqueView, UniqueViewMut, View, ViewMut, IntoIter, IntoWithId};
+use shipyard::{EntityId, Get, UniqueView, UniqueViewMut, View, ViewMut, IntoIter, IntoWithId, AllStoragesViewMut};
 use winit::event::{WindowEvent, VirtualKeyCode, ElementState};
 
 use crate::{screen::menu_config::{MainMenuSelection, ModeSelectSelection}, game::{Game, GameState}};
@@ -111,14 +111,13 @@ impl InputCommand {
                 GameState::PlayerActed
             }
             InputCommand::Fireball => {
-                dbg!("fireball is broken");
-                GameState::None
-                // GameState::ShowTargeting {
-                //     range: 6,
-                //     item: world.run(|mut store: AllStoragesViewMut| {
-                //         entity_factory::tmp_fireball(&mut store)
-                //     }),
-                // }
+                let fireball = entity_factory::tmp_fireball(&mut game.engine.world.borrow::<AllStoragesViewMut>().unwrap());
+
+                return GameState::ShowTargeting {
+                    range: 6,
+                    item: fireball,
+                    target: (0,0)
+                };
             }
             InputCommand::UseStairs => {
                 // if player::try_next_level(&world) {
