@@ -235,12 +235,12 @@ pub fn get_gather_wood_actions(store: &AllStorages, id: EntityId) -> Vec<Action>
     // if wood in inventory
     // for each LumberMill
     for lm in lumber_mills {
-        let lminv = if let Ok(inv) = vinv.get(lm) {
-            inv
-        } else {
-            continue;
-        };
-        let lminv_count = lminv.count_type(&vitem, ItemType::Log) as f32;
+        // let lminv = if let Ok(inv) = vinv.get(lm) {
+        //     inv
+        // } else {
+        //     continue;
+        // };
+        // let lminv_count = lminv.count_type(&vitem, ItemType::Log) as f32;
 
         if logs_in_inv > 0 {
             potential_actions.push(Action {

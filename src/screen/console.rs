@@ -590,7 +590,7 @@ impl Console {
                         colors::COLOR_UI_2,
                         UI_GLYPH_SIZE
                     );
-                    y += 1;
+                    // y += 1;
                 }
             }
         }

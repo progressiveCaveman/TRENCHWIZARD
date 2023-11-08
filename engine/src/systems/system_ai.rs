@@ -212,7 +212,7 @@ pub fn run_ai_system(mut store: AllStoragesViewMut) {
     for (pos, faction) in to_spawn_orc.iter() {
         let e = entity_factory::orc(&mut store, pos.to_xy());
         store.run(|mut vactor: ViewMut<Actor>| {
-            if let Ok(mut spawned_actor) = (&mut vactor).get(e) {
+            if let Ok(spawned_actor) = (&mut vactor).get(e) {
                 spawned_actor.faction = *faction;
             } else {
                 dbg!("Error: Orc isn't an actor, this shouldn't happen");
