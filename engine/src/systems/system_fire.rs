@@ -75,7 +75,7 @@ pub fn run_fire_system(
                     let (nx, ny) = (x + dx, y + dy);
                     if map.in_bounds((nx, ny)) {
                         let idx = map.xy_idx((nx, ny));
-                        if map.fire_turns[idx] == 0 && map.is_flammable(idx) && rng.range(0, 10) == 0 {
+                        if map.fire_turns[idx] == 0 && map.is_flammable(idx) && rng.range(0, 100) == 0 {
                             map.fire_turns[idx] = NEW_FIRE_TURNS;
                         }
                     }
