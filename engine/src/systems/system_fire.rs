@@ -1,4 +1,4 @@
-use crate::components::{CombatStats, Position, OnFire};
+use crate::components::{PhysicalStats, Position, OnFire};
 use crate::effects::{add_effect, EffectType, Targets};
 use crate::map::Map;
 use crate::tiles::TileType;
@@ -11,7 +11,7 @@ pub const NEW_FIRE_TURNS: i32 = 10;
 pub fn run_fire_system(
     mut map: UniqueViewMut<Map>,
     vpos: View<Position>,
-    vstats: ViewMut<CombatStats>,
+    vstats: ViewMut<PhysicalStats>,
     mut vonfire: ViewMut<OnFire>,
 ) {
     let mut rng = RandomNumberGenerator::new();

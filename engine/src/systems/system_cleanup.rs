@@ -1,10 +1,10 @@
-use crate::components::{CombatStats, Equipped, InBackpack, Inventory, Name, Player, GameLog};
+use crate::components::{PhysicalStats, Equipped, InBackpack, Inventory, Name, Player, GameLog};
 use crate::effects::{add_effect, EffectType};
 use shipyard::{Get, IntoIter, IntoWithId, Remove, UniqueViewMut, View, ViewMut};
 
 pub fn run_cleanup_system(
     mut log: UniqueViewMut<GameLog>,
-    vstats: View<CombatStats>,
+    vstats: View<PhysicalStats>,
     vinv: View<Inventory>,
     vplayer: View<Player>,
     vname: View<Name>,

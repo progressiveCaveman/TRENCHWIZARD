@@ -2,7 +2,7 @@ use crate::colors::{COLOR_BG, COLOR_UI_4};
 use crate::components::GameLog;
 use crate::effects::{EffectType, Targets};
 use crate::{
-    components::{CombatStats, Equipped, MeleeDefenseBonus, MeleePowerBonus, Name, Position, WantsToAttack},
+    components::{PhysicalStats, Equipped, MeleeDefenseBonus, MeleePowerBonus, Name, Position, WantsToAttack},
     effects::add_effect,
     systems::system_particle::ParticleBuilder,
 };
@@ -14,7 +14,7 @@ pub fn run_melee_combat_system(store: AllStoragesView) {
 
     let mut vwants = store.borrow::<ViewMut<WantsToAttack>>().unwrap();
     let vname = store.borrow::<View<Name>>().unwrap();
-    let vstats = store.borrow::<View<CombatStats>>().unwrap();
+    let vstats = store.borrow::<View<PhysicalStats>>().unwrap();
     let vmeleepower = store.borrow::<View<MeleePowerBonus>>().unwrap();
     let vmeleedefense = store.borrow::<View<MeleeDefenseBonus>>().unwrap();
     let vequipped = store.borrow::<View<Equipped>>().unwrap();

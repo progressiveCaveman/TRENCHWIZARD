@@ -19,6 +19,7 @@ pub struct Map {
     #[serde(skip_serializing)]
     #[serde(skip_deserializing)]
     pub tile_content: Vec<Vec<EntityId>>,
+    pub vegetation: Vec<i32>,
 
     pub history: Vec<Vec<TileType>>,
 }
@@ -33,6 +34,7 @@ impl Map {
             fire_turns: vec![0; count],
             tile_content: vec![Vec::new(); count],
             history: Vec::new(),
+            vegetation: vec![0; count],
         }
     }
 

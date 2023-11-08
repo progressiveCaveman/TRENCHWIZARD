@@ -1,6 +1,6 @@
 use crate::colors::{COLOR_UI_3, COLOR_BG};
 use crate::components::{
-    AreaOfEffect, CombatStats, Confusion, Consumable, DealsDamage, Equippable, Equipped, InBackpack, Inventory,
+    AreaOfEffect, PhysicalStats, Confusion, Consumable, DealsDamage, Equippable, Equipped, InBackpack, Inventory,
     Name, ProvidesHealing, WantsToUseItem, GameLog, PlayerID, CausesFire,
 };
 use crate::effects::add_effect;
@@ -24,7 +24,7 @@ pub fn run_item_use_system(store: AllStoragesViewMut) {
 
     let mut vwants = store.borrow::<ViewMut<WantsToUseItem>>().unwrap();
     let vaoe = store.borrow::<View<AreaOfEffect>>().unwrap();
-    let vstats = store.borrow::<ViewMut<CombatStats>>().unwrap();
+    let vstats = store.borrow::<ViewMut<PhysicalStats>>().unwrap();
     let vcausesfire = store.borrow::<View<CausesFire>>().unwrap();
     let vprovideshealing = store.borrow::<View<ProvidesHealing>>().unwrap();
     let vname = store.borrow::<View<Name>>().unwrap();

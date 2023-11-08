@@ -184,7 +184,7 @@ pub struct Locomotive {
 pub struct BlocksTile {}
 
 #[derive(Component, Copy, Clone, Debug, PartialEq)]
-pub struct CombatStats {
+pub struct PhysicalStats {
     pub max_hp: i32,
     pub hp: i32,
     pub defense: i32,

@@ -1,5 +1,5 @@
 use engine::{
-    components::{Item, PlayerID, Inventory, PPoint, WantsToUseItem, Ranged, CombatStats, Position},
+    components::{Item, PlayerID, Inventory, PPoint, WantsToUseItem, Ranged, PhysicalStats, Position},
     effects::{add_effect, EffectType},
     map::{Map, to_point},
     utils::{dir_to_point, InvalidPoint, dir_to_offset}, game_modes::{GameMode, get_settings}, player, entity_factory,
@@ -229,7 +229,7 @@ impl InputCommand {
                 match game.state {
                     GameState::ShowTargeting { range, item, target } => {
                         // get nearby units with stats, index through them, when target is found select the next one. Kind of a hack but maybe it works
-                        let vstats = game.engine.world.borrow::<ViewMut<CombatStats>>().unwrap();
+                        let vstats = game.engine.world.borrow::<ViewMut<PhysicalStats>>().unwrap();
                         let vpos = game.engine.world.borrow::<ViewMut<Position>>().unwrap();
 
                         let mut targetfound = false;

@@ -1,6 +1,6 @@
 use std::iter::zip;
 
-use engine::{map::{Map, XY}, colors::{self, Color}, components::{CombatStats, PPoint, FrameTime, Name, Position, Inventory, Equippable, Consumable, PlayerID, Vision}, player::get_player_map_knowledge, ai::decisions::Intent, utils::InvalidPoint};
+use engine::{map::{Map, XY}, colors::{self, Color}, components::{PhysicalStats, PPoint, FrameTime, Name, Position, Inventory, Equippable, Consumable, PlayerID, Vision}, player::get_player_map_knowledge, ai::decisions::Intent, utils::InvalidPoint};
 use rltk::Point;
 use shipyard::{UniqueView, View, Get, World};
 use strum::EnumCount;
@@ -307,7 +307,7 @@ impl Console {
         // );
 
         y += 1;
-        if let Ok(vstats) = game.engine.world.borrow::<View<CombatStats>>() {
+        if let Ok(vstats) = game.engine.world.borrow::<View<PhysicalStats>>() {
             if let Ok(stat) = vstats.get(player_id) {
                 self.print_string(
                     &game.assets,
@@ -352,7 +352,7 @@ impl Console {
         let frametime = world.borrow::<UniqueView<FrameTime>>().unwrap().0;
         let vname = world.borrow::<View<Name>>().unwrap();
         let vpos = world.borrow::<View<Position>>().unwrap();
-        let vstats = world.borrow::<View<CombatStats>>().unwrap();
+        let vstats = world.borrow::<View<PhysicalStats>>().unwrap();
         let vinv = world.borrow::<View<Inventory>>().unwrap();
         let vintent = world.borrow::<View<Intent>>().unwrap();
         

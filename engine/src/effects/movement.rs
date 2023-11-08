@@ -4,7 +4,7 @@ use shipyard::{AddComponent, Get, UniqueViewMut, View, ViewMut};
 use super::*;
 use crate::{
     components::{
-        BlocksTile, CombatStats, IsCamera, LocomotionType, Locomotive, Player, Position, SpatialKnowledge,
+        BlocksTile, PhysicalStats, IsCamera, LocomotionType, Locomotive, Player, Position, SpatialKnowledge,
         Vision, WantsToAttack, OnFire,
     },
     map::Map,
@@ -158,7 +158,7 @@ pub fn autoexplore(store: &AllStoragesViewMut, effect: &EffectSpawner) {
 }
 
 pub fn skip_turn(store: &AllStoragesViewMut, effect: &EffectSpawner) {
-    let mut vstats = store.borrow::<ViewMut<CombatStats>>().unwrap();
+    let mut vstats = store.borrow::<ViewMut<PhysicalStats>>().unwrap();
     let vfire = store.borrow::<View<OnFire>>().unwrap();
 
     if let Some(id) = effect.creator {
@@ -217,7 +217,7 @@ pub fn get_target(
     pos: &Position,
     dp: Point,
 ) -> Option<EntityId> {
-    let vstats = store.borrow::<View<CombatStats>>().unwrap();
+    let vstats = store.borrow::<View<PhysicalStats>>().unwrap();
 
     // check for combat stats on entity
     if let Err(_) = vstats.get(entity) {

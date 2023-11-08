@@ -4,7 +4,7 @@ use crate::ai::labors::AIBehaviors;
 use crate::colors::{*};
 // use crate::ai::labors::AIBehaviors;
 use crate::components::{
-    Actor, ActorType, AreaOfEffect, BlocksTile, ChiefHouse, CombatStats, Confusion, Consumable, DealsDamage,
+    Actor, ActorType, AreaOfEffect, BlocksTile, ChiefHouse, PhysicalStats, Confusion, Consumable, DealsDamage,
     DijkstraMapToMe, EquipmentSlot, Equippable, Faction, FishCleaner, Flammable, Inventory, Item, ItemType,
     LocomotionType, Locomotive, LumberMill, MeleeDefenseBonus, MeleePowerBonus, Name, PlankHouse, Player, Position,
     ProvidesHealing, Ranged, Renderable, SpatialKnowledge, Spawner, SpawnerType, Tree, Vision, RNG, CausesFire,
@@ -137,7 +137,7 @@ pub fn player(store: &mut AllStoragesViewMut, pos: XY, is_render: bool) -> Entit
         Name {
             name: "Player".to_string(),
         },
-        CombatStats {
+        PhysicalStats {
             max_hp: 30,
             hp: 30,
             defense: 2,
@@ -269,7 +269,7 @@ pub fn monster(store: &mut AllStoragesViewMut, xy: XY, glyph: char, name: String
         },
         Name { name },
         BlocksTile {},
-        CombatStats {
+        PhysicalStats {
             max_hp: 8,
             hp: 8,
             defense: 1,
@@ -313,7 +313,7 @@ pub fn wolf(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
             name: "Wolf".to_string(),
         },
         BlocksTile {},
-        CombatStats {
+        PhysicalStats {
             max_hp: 8,
             hp: 8,
             defense: 1,
@@ -359,7 +359,7 @@ pub fn big_monster(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
             name: "Monster".to_string(),
         },
         BlocksTile {},
-        CombatStats {
+        PhysicalStats {
             max_hp: 8,
             hp: 8,
             defense: 1,
