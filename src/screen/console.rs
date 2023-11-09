@@ -322,11 +322,11 @@ impl Console {
         }
 
         if let Ok(vonfire) = game.engine.world.borrow::<View<OnFire>>() {
-            if let Ok(_) = vonfire.get(player_id) {
+            if let Ok(fire) = vonfire.get(player_id) {
                 self.print_string(
                     &game.assets,
                     frame,
-                    &format!("FIRE"),
+                    &format!("FIRE {}", fire.turns),
                     (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
                     colors::COLOR_FIRE,
                     UI_GLYPH_SIZE

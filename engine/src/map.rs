@@ -84,8 +84,9 @@ impl Map {
             return self.history[usize::min(hidx, self.history.len() - 1)][idx].renderable();
         }
 
+        let mut render = (' ', COLOR_BG, COLOR_BG);
+
         if settings.use_player_los {
-            let mut render = (' ', COLOR_BG, COLOR_BG);
             if let Some(knowledge) = player::get_player_map_knowledge(world).get(&idx) {
                 render = knowledge.0.renderable();
                 for c in knowledge.1.iter() {
@@ -100,24 +101,26 @@ impl Map {
             if vision.visible_tiles.contains(&Point::new(pos.0, pos.1)) {
                 render = self.tiles[idx].renderable();
                 if self.fire_turns[idx] > 0 {
-                    render = ('^', COLOR_FIRE, render.2);
+                    render = (render.0, render.1, COLOR_FIRE);
                 }
 
                 for c in self.tile_content[idx].iter() {
                     if let Ok(rend) = vrend.get(*c) {
-                        render = (rend.glyph, rend.fg, rend.bg);
+                        render = (rend.glyph, rend.fg, render.2);
                     }
                 }   
             }
-
-            return render;
+        } else {
+            render = self.tiles[idx].renderable();
+            for c in self.tile_content[idx].iter() {
+                if let Ok(rend) = vrend.get(*c) {
+                    render = (rend.glyph, rend.fg, rend.bg);
+                }
+            }
         }
 
-        let mut render = self.tiles[idx].renderable();
-        for c in self.tile_content[idx].iter() {
-            if let Ok(rend) = vrend.get(*c) {
-                render = (rend.glyph, rend.fg, rend.bg);
-            }
+        if self.fire_turns[idx] > 0 {
+            render = (render.0, render.1, COLOR_FIRE);
         }
 
         return render;
