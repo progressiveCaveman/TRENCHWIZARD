@@ -94,7 +94,7 @@ impl Game {
                     if let Ok(stats) = vstats.get(player_id) {
                         if stats.hp <=0 {
                             gameover = true;
-                            dbg!("game over");
+                            // dbg!("game over");
                         }
                     }
                 }

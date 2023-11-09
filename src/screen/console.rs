@@ -1,6 +1,6 @@
 use std::iter::zip;
 
-use engine::{map::{Map, XY}, colors::{self, Color}, components::{PhysicalStats, PPoint, FrameTime, Name, Position, Inventory, Equippable, Consumable, PlayerID, Vision}, player::get_player_map_knowledge, ai::decisions::Intent, utils::InvalidPoint};
+use engine::{map::{Map, XY}, colors::{self, Color}, components::{PhysicalStats, PPoint, FrameTime, Name, Position, Inventory, Equippable, Consumable, PlayerID, Vision, OnFire}, player::get_player_map_knowledge, ai::decisions::Intent, utils::InvalidPoint};
 use rltk::Point;
 use shipyard::{UniqueView, View, Get, World};
 use strum::EnumCount;
@@ -317,6 +317,21 @@ impl Console {
                     colors::COLOR_UI_2,
                     UI_GLYPH_SIZE
                 );
+                y += 1;
+            }
+        }
+
+        if let Ok(vonfire) = game.engine.world.borrow::<View<OnFire>>() {
+            if let Ok(_) = vonfire.get(player_id) {
+                self.print_string(
+                    &game.assets,
+                    frame,
+                    &format!("FIRE"),
+                    (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                    colors::COLOR_FIRE,
+                    UI_GLYPH_SIZE
+                );
+                y += 1;
             }
         }
     }
