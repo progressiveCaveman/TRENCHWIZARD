@@ -23,7 +23,6 @@ pub mod game_modes;
 pub mod tiles;
 pub mod systems;
 pub mod effects;
-pub mod item_system;
 pub mod ai;
 pub mod player;
 

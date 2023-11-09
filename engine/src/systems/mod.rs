@@ -1,6 +1,6 @@
 use shipyard::World;
 
-use crate::{effects, DISABLE_AI, item_system};
+use crate::{effects, DISABLE_AI};
 
 pub mod system_ai;
 pub mod system_ai_fish;
@@ -12,6 +12,8 @@ pub mod system_melee_combat;
 pub mod system_particle;
 pub mod system_pathfinding;
 pub mod system_visibility;
+pub mod system_inventory;
+pub mod system_item_use;
 
 pub fn run_systems(world: &mut World, _player_turn: bool, ai_turn: bool) {
     // if player_turn {
@@ -30,11 +32,11 @@ pub fn run_systems(world: &mut World, _player_turn: bool, ai_turn: bool) {
     world.run(effects::run_effects_queue);
 
     world.run(system_melee_combat::run_melee_combat_system);
-    world.run(item_system::run_inventory_system);
+    world.run(system_inventory::run_inventory_system);
     world.run(system_dissasemble::run_dissasemble_system);
-    world.run(item_system::run_drop_item_system);
-    world.run(item_system::run_unequip_item_system);
-    world.run(item_system::run_item_use_system);
+    world.run(system_inventory::run_drop_item_system);
+    world.run(system_inventory::run_unequip_item_system);
+    world.run(system_item_use::run_item_use_system);
     world.run(system_particle::spawn_particles);
 
     world.run(effects::run_effects_queue);
