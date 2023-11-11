@@ -331,7 +331,7 @@ impl Console {
                     colors::COLOR_FIRE,
                     UI_GLYPH_SIZE
                 );
-                y += 1;
+                // y += 1;
             }
         }
     }
@@ -370,6 +370,7 @@ impl Console {
         let vstats = world.borrow::<View<PhysicalStats>>().unwrap();
         let vinv = world.borrow::<View<Inventory>>().unwrap();
         let vintent = world.borrow::<View<Intent>>().unwrap();
+        let vonfire = world.borrow::<View<OnFire>>().unwrap();
         
         /* Debug stuff */
         self.print_string(
@@ -445,6 +446,18 @@ impl Console {
                     &format!(" HP: {}/{}", stats.hp, stats.max_hp),
                     (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
                     colors::COLOR_UI_2,
+                    UI_GLYPH_SIZE
+                );
+            }
+
+            if let Ok(fire) = vonfire.get(*e) {
+                y += 1;
+                self.print_string(
+                    &game.assets,
+                    frame,
+                    &format!("FIRE {}", fire.turns),
+                    (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                    colors::COLOR_FIRE,
                     UI_GLYPH_SIZE
                 );
             }

@@ -14,7 +14,7 @@ pub fn inflict_fire(store: &mut AllStoragesViewMut, effect: &EffectSpawner) {
                     to_add_fire.push((
                         target,
                         OnFire {
-                            turns: cmp::max(fire.turns, *turns),
+                            turns: cmp::min(fire.turns, *turns),
                         },
                     ));
                 } else {

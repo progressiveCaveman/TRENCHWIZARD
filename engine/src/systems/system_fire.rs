@@ -4,20 +4,21 @@ use crate::map::Map;
 use crate::tiles::TileType;
 use crate::utils::InvalidPoint;
 use rltk::RandomNumberGenerator;
-use shipyard::{EntityId, IntoIter, IntoWithId, Remove, UniqueViewMut, View, ViewMut};
+use shipyard::{EntityId, IntoIter, IntoWithId, Remove, UniqueViewMut, ViewMut};
 
 pub const NEW_FIRE_TURNS: i32 = 10;
+pub const MAX_FIRE: i32 = 10;
 
 pub fn run_fire_system(
     mut map: UniqueViewMut<Map>,
-    vpos: View<Position>,
+    vpos: ViewMut<Position>,
     vstats: ViewMut<PhysicalStats>,
     mut vonfire: ViewMut<OnFire>,
 ) {
     let mut rng = RandomNumberGenerator::new();
 
     // damage all entities on fire. If they are standing somewhere flammable, ignite it
-    for (id, (pos, _, _)) in (&vpos, &vstats, &vonfire).iter().with_id() {
+    for (id, (pos, _, fire)) in (&vpos, &vstats, &vonfire).iter().with_id() {
         add_effect(
             None,
             EffectType::Damage {
@@ -29,7 +30,7 @@ pub fn run_fire_system(
         for pos in pos.ps.iter() {
             let idx = map.xy_idx(pos.to_xy());
             if map.is_flammable(idx) && map.fire_turns[idx] == 0 {
-                map.fire_turns[idx] = NEW_FIRE_TURNS;
+                map.fire_turns[idx] = fire.turns;
             }
         }
     }
@@ -37,7 +38,7 @@ pub fn run_fire_system(
     // reduce fire turns and remove expired fire components
     let mut to_remove: Vec<EntityId> = vec![];
     (&mut vonfire).iter().with_id().for_each(|(id, fire)| {
-        fire.turns -= 1;
+        fire.turns = i32::min(fire.turns - 1, MAX_FIRE);
 
         if fire.turns <= 0 {
             to_remove.push(id);
@@ -62,7 +63,7 @@ pub fn run_fire_system(
                 add_effect(
                     None,
                     EffectType::Fire {
-                        turns: NEW_FIRE_TURNS,
+                        turns: map.fire_turns[idx],
                         target: Targets::Single { target: *e },
                     },
                 );
