@@ -4,6 +4,7 @@ use crate::{map::{Map, XY}, components::Position};
 
 pub mod rect;
 pub mod weighted_table;
+pub mod vision;
 
 #[derive(Clone, Debug, Copy)]
 pub enum Target {

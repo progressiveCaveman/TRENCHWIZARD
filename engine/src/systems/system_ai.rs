@@ -1,12 +1,12 @@
 use crate::ai::decisions::{Intent, Task};
 use crate::ai::labors;
-use crate::components::{Actor, ActorType, DijkstraMapToMe, Faction, Position, Spawner, SpawnerType, Turn};
+use crate::components::{Actor, ActorType, DijkstraMapToMe, Faction, Position, Spawner, SpawnerType, Turn, PlayerID, Vision};
 use crate::effects::{add_effect, EffectType};
 use crate::entity_factory;
 use crate::map::Map;
 use crate::tiles::TileType;
+use crate::utils::vision::vision_contains;
 use crate::utils::{get_neighbors, Target, InvalidPoint};
-use rltk;
 use rltk::{BaseMap, Point};
 use shipyard::{AddComponent, AllStoragesViewMut, EntityId, Get, IntoIter, IntoWithId, UniqueView, View, ViewMut, UniqueViewMut};
 
@@ -20,20 +20,34 @@ pub fn run_ai_system(mut store: AllStoragesViewMut) {
     store.run(
         |map: UniqueView<Map>,
          turn: UniqueView<Turn>,
+         playerid: UniqueView<PlayerID>,
          vactor: View<Actor>,
          vpos: View<Position>,
+         vvision: View<Vision>,
          vdijkstra: View<DijkstraMapToMe>,
          mut vintent: ViewMut<Intent>,
          vspawner: ViewMut<Spawner>| {
-            for (id, (actor, pos)) in (&vactor, &vpos).iter().with_id() {
+            for (id, (actor, pos, vision)) in (&vactor, &vpos, &vvision).iter().with_id() {
                 // if actor.atype != ActorType::Villager && actor.atype != ActorType::Orc {
                 //     continue;
                 // }
 
                 let new_intent = match actor.atype {
                     ActorType::Player => continue,
-                    ActorType::Orc | ActorType::Villager | ActorType::Wolf => labors::get_action(&store, id).intent,
                     ActorType::Fish => continue,
+                    ActorType::Orc | ActorType::Wolf=> {
+                        if vision_contains(&store, vision.clone(), playerid.0) { //todo vision.clone bad
+                            Intent {
+                                name: "Attack player".to_string(),
+                                task: Task::Attack,
+                                target: vec![Target::ENTITY(playerid.0)],
+                                turn: *turn,
+                            }
+                        } else {
+                            continue;
+                        }
+                    },
+                    ActorType::Villager => labors::get_action(&store, id).intent,
                     ActorType::Spawner => {
                         if let Ok(spawner) = vspawner.get(id) {
                             if turn.0 % spawner.rate == 0 {
@@ -116,7 +130,6 @@ pub fn run_ai_system(mut store: AllStoragesViewMut) {
                     Task::Attack => {
                         if let Target::ENTITY(target) = new_intent.target[0] {
                             if let Ok(target_pos) = vpos.get(target) {
-                                dbg!(1);
                                 to_attack.push((id, target_pos.ps[0]));
                             }
                         } else if let Target::LOCATION(loc) = new_intent.target[0] {
