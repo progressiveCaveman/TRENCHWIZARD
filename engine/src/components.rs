@@ -193,25 +193,6 @@ pub struct PhysicalStats {
 }
 
 #[derive(Component, Clone, Debug, PartialEq)]
-pub struct Inventory {
-    pub capacity: i32,
-    pub items: Vec<EntityId>,
-}
-
-impl Inventory {
-    pub fn count_type(&self, vitems: &View<Item>, item_type: ItemType) -> i32 {
-        let mut count = 0;
-        for item in vitems.iter() {
-            if item.typ == item_type {
-                count += 1;
-            }
-        }
-
-        return count;
-    }
-}
-
-#[derive(Component, Clone, Debug, PartialEq)]
 pub struct SpatialKnowledge {
     pub tiles: HashMap<usize, (TileType, Vec<EntityId>)>,
 }
@@ -255,10 +236,60 @@ pub struct WantsToUseItem {
 
 /// Inventory components
 
-#[derive(Component, PartialEq, Copy, Clone)]
+#[derive(Component, Clone, Debug, PartialEq)]
+pub struct Inventory {
+    pub capacity: i32,
+    pub items: Vec<EntityId>,
+}
+
+impl Inventory {
+    pub fn count_type(&self, vitems: &View<Item>, item_type: ItemType) -> i32 {
+        let mut count = 0;
+        for item in vitems.iter() {
+            if item.typ == item_type {
+                count += 1;
+            }
+        }
+
+        return count;
+    }
+}
+
+#[derive(Component)]
+pub struct InBackpack {
+    pub owner: EntityId,
+}
+
+#[derive(Component, PartialEq, Copy, Clone, Eq, Hash, Debug)]
 pub enum EquipmentSlot {
-    RightHand,
     LeftHand,
+    RightHand,
+    Torso,
+    Head,
+    Legs,
+    Feet,
+    Back,
+}
+
+#[derive(Component, Clone, PartialEq)]
+pub struct Equipment {
+    pub items: HashMap<EquipmentSlot, Option<EntityId>>,
+}
+
+impl Equipment {
+    pub fn new() -> Self {
+        Self { 
+            items: HashMap::from([
+                (EquipmentSlot::LeftHand, None),
+                (EquipmentSlot::RightHand, None),
+                (EquipmentSlot::Torso, None),
+                (EquipmentSlot::Head, None),
+                (EquipmentSlot::Legs, None),
+                (EquipmentSlot::Feet, None),
+                (EquipmentSlot::Back, None),
+            ]) 
+        }
+    }
 }
 
 #[derive(Component, Copy, Clone)]
@@ -267,14 +298,9 @@ pub struct Equippable {
 }
 
 #[derive(Component)]
-pub struct Equipped {
+pub struct Equipped { // todo is this necessary?
     pub owner: EntityId,
     pub slot: EquipmentSlot,
-}
-
-#[derive(Component)]
-pub struct InBackpack {
-    pub owner: EntityId,
 }
 
 /// Item properties

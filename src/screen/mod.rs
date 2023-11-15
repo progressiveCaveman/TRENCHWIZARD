@@ -88,8 +88,8 @@ impl Screen {
         self.consoles.push(Console::new((wmenu, hmenu), (xmenu, ymenu), ConsoleMode::MainMenu));
 
         // inventory console
-        let wmenu = UI_GLYPH_SIZE * 40;
-        let hmenu = UI_GLYPH_SIZE * 30;
+        let wmenu = UI_GLYPH_SIZE * 30;
+        let hmenu = UI_GLYPH_SIZE * 40;
         let xmenu = self.size.0 - wmenu - UI_GLYPH_SIZE;
         let ymenu = hinfo;
         self.consoles.push(Console::new((wmenu, hmenu), (xmenu, ymenu), ConsoleMode::Inventory));

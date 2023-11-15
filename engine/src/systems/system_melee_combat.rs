@@ -23,13 +23,11 @@ pub fn run_melee_combat_system(store: AllStoragesView) {
     let mut to_remove_wants_melee: Vec<EntityId> = vec![];
 
     for (id, (wants_attack, name, stats)) in (&vwants, &vname, &vstats).iter().with_id() {
-        //&mut world.query::<(&WantsToAttack, &Name, &CombatStats)>() {
         if stats.hp > 0 {
             let target_stats = vstats.get(wants_attack.target).unwrap();
             if target_stats.hp > 0 {
                 let mut offensize_bonus = 0;
                 for (_item_id, (power_bonus, equipped)) in (&vmeleepower, &vequipped).iter().with_id() {
-                    //.query::<(&MeleePowerBonus, &Equipped)>().iter() {
                     if equipped.owner == id {
                         offensize_bonus += power_bonus.power
                     }
@@ -38,7 +36,6 @@ pub fn run_melee_combat_system(store: AllStoragesView) {
                 if target_stats.hp > 0 {
                     let mut defensize_bonus = 0;
                     for (_item_id, (defense_bonus, equipped)) in (&vmeleedefense, &vequipped).iter().with_id() {
-                        //world.query::<(&MeleeDefenseBonus, &Equipped)>().iter() {
                         if equipped.owner == wants_attack.target {
                             defensize_bonus += defense_bonus.defense
                         }

@@ -1,8 +1,8 @@
 use std::iter::zip;
 
-use engine::{map::{Map, XY}, colors::{self, Color}, components::{PhysicalStats, PPoint, FrameTime, Name, Position, Inventory, Equippable, Consumable, PlayerID, Vision, OnFire}, player::get_player_map_knowledge, ai::decisions::Intent, utils::InvalidPoint};
+use engine::{map::{Map, XY}, colors::{self, Color}, components::{PhysicalStats, PPoint, FrameTime, Name, Position, Inventory, Equippable, Consumable, PlayerID, Vision, OnFire, Equipment}, player::get_player_map_knowledge, ai::decisions::Intent, utils::InvalidPoint};
 use rltk::Point;
-use shipyard::{UniqueView, View, Get, World};
+use shipyard::{UniqueView, View, Get, World, IntoIter, IntoWithId};
 use strum::EnumCount;
 
 use crate::{WIDTH, assets::{cp437_converter::{to_cp437, string_to_cp437}, Assets, sprites::Drawable}, game::{Game, GameState}, HEIGHT, screen::RangedTargetResult};
@@ -525,6 +525,7 @@ impl Console {
     pub fn render_inventory(&self, frame: &mut [u8], game: &Game) {
         let player_id = game.engine.get_player_id().0;
         let vinv = game.engine.world.borrow::<View<Inventory>>().unwrap();
+        let vequipment = game.engine.world.borrow::<View<Equipment>>().unwrap();
         let vname = game.engine.world.borrow::<View<Name>>().unwrap();
 
         if let GameState::ShowInventory { selection } = game.state { 
@@ -539,6 +540,49 @@ impl Console {
             );
     
             let mut y = 1;
+            self.print_string(
+                &game.assets,
+                frame,
+                "Equipment", // insert a verb here?
+                (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                colors::COLOR_UI_2,
+                UI_GLYPH_SIZE,
+            );
+
+            y += 2;
+            for (_id, equipment) in (&vequipment).iter().with_id() {
+                for (eslot, item) in equipment.items.iter() {
+                    let mut name = "";
+                    if let Some(item) = item {
+                        if let Ok(iname) = vname.get(*item) {
+                            name = &iname.name
+                        } 
+                    }
+
+                    self.print_string(
+                        &game.assets,
+                        frame,
+                        &format!("{:?} - {}", eslot, name),
+                        (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                        colors::COLOR_UI_2,
+                        UI_GLYPH_SIZE
+                    );
+                    y += 1;
+                }
+            }
+
+            y += 1;
+            self.draw_box(
+                &game.assets,
+                frame,
+                (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                (self.size.0 - 2 * UI_GLYPH_SIZE, 2 * UI_GLYPH_SIZE),
+                colors::COLOR_UI_1,
+                colors::COLOR_BG,
+                UI_GLYPH_SIZE
+            );
+
+            y += 3;
             self.print_string(
                 &game.assets,
                 frame,
