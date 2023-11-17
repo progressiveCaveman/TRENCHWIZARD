@@ -9,6 +9,8 @@ use crate::{
     RenderOrder, colors::Color,
 };
 
+pub const PARTICLE_TIME: f32 = 100.0;
+
 #[derive(Debug)]
 struct ParticleRequest {
     x: i32,

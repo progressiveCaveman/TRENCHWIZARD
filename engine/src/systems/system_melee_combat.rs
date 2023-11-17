@@ -8,6 +8,8 @@ use crate::{
 };
 use shipyard::{AllStoragesView, EntityId, Get, IntoIter, IntoWithId, Remove, UniqueViewMut, View, ViewMut};
 
+use super::system_particle::PARTICLE_TIME;
+
 pub fn run_melee_combat_system(store: AllStoragesView) {
     let mut log = store.borrow::<UniqueViewMut<GameLog>>().unwrap();
     let mut particle_builder = store.borrow::<UniqueViewMut<ParticleBuilder>>().unwrap();
@@ -73,7 +75,7 @@ pub fn run_melee_combat_system(store: AllStoragesView) {
                                 COLOR_UI_4,
                                 COLOR_BG,
                                 '‼',
-                                500.0,
+                                PARTICLE_TIME,
                             );
                         }
                     }

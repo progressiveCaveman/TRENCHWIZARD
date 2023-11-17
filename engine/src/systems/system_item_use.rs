@@ -12,6 +12,8 @@ use shipyard::{
     ViewMut,
 };
 
+use super::system_particle::PARTICLE_TIME;
+
 pub fn run_item_use_system(store: AllStoragesViewMut) {
     let mut log = store.borrow::<UniqueViewMut<GameLog>>().unwrap(); //res.get_mut::<GameLog>().unwrap();
     let player_id = store.borrow::<UniqueView<PlayerID>>().ok().unwrap(); //res.get::<EntityId>().unwrap();
@@ -81,7 +83,7 @@ pub fn run_item_use_system(store: AllStoragesViewMut) {
                                 COLOR_UI_3,
                                 COLOR_BG,
                                 'o',
-                                250.0,
+                                PARTICLE_TIME,
                             )
                         }
                     }
@@ -127,13 +129,13 @@ pub fn run_item_use_system(store: AllStoragesViewMut) {
                             for pos in pos.ps.iter() {
                                 p_builder.request(
                                     pos.x,
-                                    pos.y,
+                                    pos.y - 1,
                                     0.0,
                                     -3.0,
                                     COLOR_UI_3,
                                     COLOR_BG,
                                     '♥',
-                                    1000.0,
+                                    PARTICLE_TIME,
                                 )
                             }
                         }
@@ -173,7 +175,7 @@ pub fn run_item_use_system(store: AllStoragesViewMut) {
                             COLOR_UI_3,
                             COLOR_BG,
                             '‼',
-                            250.0,
+                            PARTICLE_TIME,
                         )
                     }
                 }
@@ -210,7 +212,7 @@ pub fn run_item_use_system(store: AllStoragesViewMut) {
                             COLOR_UI_3,
                             COLOR_BG,
                             '?',
-                            300.0,
+                            PARTICLE_TIME,
                         )
                     }
                 }
