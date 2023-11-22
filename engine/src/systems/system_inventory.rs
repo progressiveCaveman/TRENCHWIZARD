@@ -1,7 +1,7 @@
-use shipyard::{IntoIter, IntoWithId, Remove, View, ViewMut, UniqueViewMut, EntityId, AddComponent, Get};
+use shipyard::{IntoIter, IntoWithId, Remove, View, ViewMut, UniqueViewMut, EntityId, Get};
 
 use crate::ai::decisions::{Intent, Task};
-use crate::components::{Inventory, WantsToPickupItem, GameLog, Player, WantsToUnequipItem, Equipped, InBackpack, Name};
+use crate::components::{Inventory, WantsToPickupItem, GameLog, Player, WantsToUnequipItem, Equipped, Name};
 use crate::effects::{add_effect, EffectType};
 use crate::utils::Target;
 use crate::components::WantsToDropItem;
@@ -43,18 +43,17 @@ pub fn run_inventory_system(vinv: View<Inventory>, vwants: View<WantsToPickupIte
 pub fn run_unequip_item_system(
     mut log: UniqueViewMut<GameLog>,
     vplayer: View<Player>,
-    vinv: View<Inventory>,
+    mut vinv: ViewMut<Inventory>,
     mut vwants: ViewMut<WantsToUnequipItem>,
     mut vequip: ViewMut<Equipped>,
-    mut vbackpack: ViewMut<InBackpack>,
     vname: View<Name>,
 ) {
     let mut to_remove_wants: Vec<EntityId> = vec![];
+    let mut to_unequip = vec![];
 
     for (id, (_, wants_unequip)) in (&vinv, &vwants).iter().with_id() {
         to_remove_wants.push(id);
-        vequip.remove(wants_unequip.item);
-        vbackpack.add_component_unchecked(wants_unequip.item, InBackpack { owner: id });
+        to_unequip.push((id, wants_unequip.item));
 
         if let Ok(_) = vplayer.get(id) {
             if let Ok(item_name) = vname.get(wants_unequip.item) {
@@ -63,8 +62,12 @@ pub fn run_unequip_item_system(
         }
     }
 
-    for e in to_remove_wants.iter() {
-        vwants.remove(*e);
+    for (entity, item) in to_unequip.iter() {
+        vwants.remove(*entity);
+        vequip.remove(*item);
+        if let Ok(inv) = (&mut vinv).get(*entity){
+            inv.items.push(*item);
+        }
     }
 }
 

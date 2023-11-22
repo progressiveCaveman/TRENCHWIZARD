@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate lazy_static;
 
-use components::{Equipped, InBackpack, Player, Position, Vision, PlayerID, GameLog, FrameTime, PPoint, Turn, RNG};
+use components::{Equipped, Player, Position, Vision, PlayerID, GameLog, FrameTime, PPoint, Turn, RNG, Inventory};
 use effects::{add_effect, EffectType};
 use game_modes::{GameSettings, GameMode};
 use map::Map;
@@ -91,7 +91,7 @@ impl Engine {
         let player_id = world.borrow::<UniqueView<PlayerID>>().unwrap().0;
 
         let vplayer = world.borrow::<View<Player>>().unwrap();
-        let vpack = world.borrow::<View<InBackpack>>().unwrap();
+        let vinv = world.borrow::<View<Inventory>>().unwrap();
         let vequipped = world.borrow::<View<Equipped>>().unwrap();
 
         for id in entities.iter() {
@@ -99,9 +99,12 @@ impl Engine {
 
             if let Ok(_) = vplayer.get(id) {
                 to_delete = false;
-            } else if let Ok(backpack) = vpack.get(id) {
-                if backpack.owner == player_id {
-                    to_delete = false;
+            } else if let Ok(inventory) = vinv.get(player_id) {
+                for e in inventory.items.iter() {
+                    if *e == id {
+                        to_delete = false;
+                        break;
+                    }
                 }
             } else if let Ok(equipped) = vequipped.get(id) {
                 if equipped.owner == player_id {

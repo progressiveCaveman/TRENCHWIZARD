@@ -2,7 +2,7 @@ use shipyard::{AddComponent, Get, Remove, UniqueView, UniqueViewMut, View, ViewM
 
 use super::*;
 use crate::{
-    components::{Equipped, InBackpack, Inventory, Name, Position, WantsToPickupItem}, GameLog, PlayerID,
+    components::{Equipped, Inventory, Name, Position, WantsToPickupItem}, GameLog, PlayerID,
 };
 
 pub fn pick_up(store: &AllStoragesViewMut, effect: &EffectSpawner) {
@@ -10,7 +10,6 @@ pub fn pick_up(store: &AllStoragesViewMut, effect: &EffectSpawner) {
     let vname = store.borrow::<View<Name>>().unwrap();
     let mut vinv = store.borrow::<ViewMut<Inventory>>().unwrap();
     let mut vwantspickup = store.borrow::<ViewMut<WantsToPickupItem>>().unwrap();
-    let mut vpacks = store.borrow::<ViewMut<InBackpack>>().unwrap();
 
     if let (Some(id), EffectType::PickUp { entity: target }) = (effect.creator, &effect.effect_type) {
         let mut log = store.borrow::<UniqueViewMut<GameLog>>().unwrap();
@@ -49,8 +48,7 @@ pub fn pick_up(store: &AllStoragesViewMut, effect: &EffectSpawner) {
             }
         }
 
-        let _res = vpos.remove(*target);
-        let _r = vpacks.add_component_unchecked(*target, InBackpack { owner: id });
+        vpos.remove(*target);
 
         let player_id = store.borrow::<UniqueView<PlayerID>>().unwrap().0;
         if id == player_id {
@@ -65,7 +63,6 @@ pub fn pick_up(store: &AllStoragesViewMut, effect: &EffectSpawner) {
 pub fn drop_item(store: &AllStoragesViewMut, effect: &EffectSpawner) {
     let mut vpos = store.borrow::<ViewMut<Position>>().unwrap();
     let mut vinv = store.borrow::<ViewMut<Inventory>>().unwrap();
-    let mut vpack = store.borrow::<ViewMut<InBackpack>>().unwrap();
     let mut vequipped = store.borrow::<ViewMut<Equipped>>().unwrap();
 
     if let (Some(id), EffectType::Drop { entity: target }) = (effect.creator, &effect.effect_type) {
@@ -75,12 +72,9 @@ pub fn drop_item(store: &AllStoragesViewMut, effect: &EffectSpawner) {
             unreachable!()
         };
         if let Ok(inv) = (&mut vinv).get(id) {
-            if let Some(pos) = inv.items.iter().position(|x| *x == *target) {
-                inv.items.remove(pos);
-            }
+            inv.items.retain(|&eid| eid != *target); // remove item from inventory
         }
 
-        vpack.remove(id);
         vequipped.remove(id);
         vpos.add_component_unchecked(*target, Position { ps: vec![pos] });
     }

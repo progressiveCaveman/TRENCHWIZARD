@@ -773,7 +773,7 @@ pub fn tmp_fireball(store: &mut AllStoragesViewMut) -> EntityId {
         Consumable {},
         DealsDamage { damage: 20 },
         Ranged { range: 6 },
-        AreaOfEffect { radius: 3 },
-        CausesFire { turns: 5 },
+        AreaOfEffect { radius: 1 },
+        CausesFire { turns: 3 },
     ))
 }

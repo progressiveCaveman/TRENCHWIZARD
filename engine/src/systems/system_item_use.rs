@@ -1,6 +1,6 @@
 use crate::colors::{COLOR_UI_3, COLOR_BG};
 use crate::components::{
-    AreaOfEffect, PhysicalStats, Confusion, Consumable, DealsDamage, Equippable, Equipped, InBackpack, Inventory,
+    AreaOfEffect, PhysicalStats, Confusion, Consumable, DealsDamage, Equippable, Equipped, Inventory,
     Name, ProvidesHealing, WantsToUseItem, GameLog, PlayerID, CausesFire,
 };
 use crate::effects::add_effect;
@@ -37,7 +37,6 @@ pub fn run_item_use_system(store: AllStoragesViewMut) {
     let vequippable = store.borrow::<View<Equippable>>().unwrap();
     let mut vequipped = store.borrow::<ViewMut<Equipped>>().unwrap();
     let mut vinv = store.borrow::<ViewMut<Inventory>>().unwrap();
-    let mut vinbackpack = store.borrow::<ViewMut<InBackpack>>().unwrap();
 
     for (id, use_item) in vwants.iter().with_id() {
         let mut used_item = false;
@@ -232,7 +231,6 @@ pub fn run_item_use_system(store: AllStoragesViewMut) {
 
             // Unequip already equipped item
             for (id, (equipped, name)) in (&vequipped, &vname).iter().with_id() {
-                //world.query::<(&Equipped, &Name)>().iter() {
                 if equipped.owner == target && equipped.slot == equippable.slot {
                     to_unequip.push((id, name.clone(), target));
                 }
@@ -260,14 +258,21 @@ pub fn run_item_use_system(store: AllStoragesViewMut) {
 
     for (id, name, target) in to_unequip {
         vequipped.remove(id);
-        vinbackpack.add_component_unchecked(id, InBackpack { owner: target });
+        if let Ok(inv) = (&mut vinv).get(target) {
+            inv.items.push(id)
+        } else {
+            dbg!("warning: entity unequipped item without inventory");
+        }
         if target == player_id.0 {
             log.messages.push(format!("You unequip your {}", name.name));
         }
     }
 
     for (id, equippable, name, target) in to_equip {
-        vinbackpack.remove(id);
+        if let Ok(inv) = (&mut vinv).get(target) {
+            inv.items.retain(|&eid| eid != id); // remove item from inventory
+        }
+
         vequipped.add_component_unchecked(
             id,
             Equipped {

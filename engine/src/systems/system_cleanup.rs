@@ -1,14 +1,13 @@
-use crate::components::{PhysicalStats, Equipped, InBackpack, Inventory, Name, Player, GameLog};
+use crate::components::{PhysicalStats, Equipped, Inventory, Name, Player, GameLog};
 use crate::effects::{add_effect, EffectType};
 use shipyard::{Get, IntoIter, IntoWithId, Remove, UniqueViewMut, View, ViewMut};
 
 pub fn run_cleanup_system(
     mut log: UniqueViewMut<GameLog>,
     vstats: View<PhysicalStats>,
-    vinv: View<Inventory>,
     vplayer: View<Player>,
     vname: View<Name>,
-    mut vpack: ViewMut<InBackpack>,
+    mut vinv: ViewMut<Inventory>,
     mut vequip: ViewMut<Equipped>,
 ) {
     for (id, stats) in (&vstats).iter().with_id() {
@@ -16,11 +15,12 @@ pub fn run_cleanup_system(
             match vplayer.get(id) {
                 Err(_) => {
                     // not a player
-                    if let Ok(inv) = vinv.get(id) {
+                    if let Ok(inv) = (&mut vinv).get(id) {
                         for e in inv.items.iter() {
-                            vpack.remove(*e);
                             vequip.remove(*e);
                         }
+
+                        inv.items.clear();
                     }
 
                     add_effect(None, EffectType::Delete { entity: id });

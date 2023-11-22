@@ -255,11 +255,6 @@ impl Inventory {
     }
 }
 
-#[derive(Component)]
-pub struct InBackpack {
-    pub owner: EntityId,
-}
-
 #[derive(Component, PartialEq, Copy, Clone, Eq, Hash, Debug)]
 pub enum EquipmentSlot {
     LeftHand,
