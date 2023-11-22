@@ -1,7 +1,7 @@
 use crate::colors::{COLOR_UI_3, COLOR_BG};
 use crate::components::{
     AreaOfEffect, PhysicalStats, Confusion, Consumable, DealsDamage, Equippable, Equipped, Inventory,
-    Name, ProvidesHealing, WantsToUseItem, GameLog, PlayerID, CausesFire,
+    Name, ProvidesHealing, WantsToUseItem, GameLog, PlayerID, CausesFire, Equipment,
 };
 use crate::effects::add_effect;
 use crate::effects::{EffectType, Targets};
@@ -37,6 +37,7 @@ pub fn run_item_use_system(store: AllStoragesViewMut) {
     let vequippable = store.borrow::<View<Equippable>>().unwrap();
     let mut vequipped = store.borrow::<ViewMut<Equipped>>().unwrap();
     let mut vinv = store.borrow::<ViewMut<Inventory>>().unwrap();
+    let mut vequipment = store.borrow::<ViewMut<Equipment>>().unwrap();
 
     for (id, use_item) in vwants.iter().with_id() {
         let mut used_item = false;
@@ -263,23 +264,33 @@ pub fn run_item_use_system(store: AllStoragesViewMut) {
         } else {
             dbg!("warning: entity unequipped item without inventory");
         }
+
+        if let Ok(equipment) = (&mut vequipment).get(target) {
+            equipment.unequip(id);
+        }
+
         if target == player_id.0 {
             log.messages.push(format!("You unequip your {}", name.name));
         }
     }
 
-    for (id, equippable, name, target) in to_equip {
+    for (item, equippable, name, target) in to_equip {
         if let Ok(inv) = (&mut vinv).get(target) {
-            inv.items.retain(|&eid| eid != id); // remove item from inventory
+            inv.items.retain(|&eid| eid != item); // remove item from inventory
         }
 
         vequipped.add_component_unchecked(
-            id,
+            item,
             Equipped {
                 owner: target,
                 slot: equippable.slot,
             },
         );
+
+        if let Ok(equipment) = (&mut vequipment).get(target) {
+            equipment.equip(item, equippable.slot);
+        }
+
         if target == player_id.0 {
             log.messages.push(format!("You equip your {}", name.name));
         }

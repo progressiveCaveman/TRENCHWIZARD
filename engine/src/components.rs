@@ -3,6 +3,8 @@ use std::collections::HashMap;
 use rltk::{self, DijkstraMap, Point};
 use serde::{Deserialize, Serialize};
 use shipyard::{Component, EntityId, IntoIter, View, Unique};
+use strum::IntoEnumIterator; // 0.17.1
+use strum_macros::EnumIter; // 0.17.1
 
 use crate::{
     map::Map,
@@ -255,7 +257,7 @@ impl Inventory {
     }
 }
 
-#[derive(Component, PartialEq, Copy, Clone, Eq, Hash, Debug)]
+#[derive(Component, PartialEq, Copy, Clone, Eq, Hash, Debug, EnumIter)]
 pub enum EquipmentSlot {
     LeftHand,
     RightHand,
@@ -283,6 +285,20 @@ impl Equipment {
                 (EquipmentSlot::Feet, None),
                 (EquipmentSlot::Back, None),
             ]) 
+        }
+    }
+
+    pub fn equip(&mut self, item: EntityId, slot: EquipmentSlot) {
+        self.items.insert(slot, Some(item));
+    }
+
+    pub fn unequip(&mut self, id: EntityId) {
+        for slot in EquipmentSlot::iter() {
+            if let Some(item) = self.items.get(&slot).unwrap() {
+                if *item == id {
+                    self.items.insert(slot, None);
+                }
+            }
         }
     }
 }
