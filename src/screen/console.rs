@@ -129,7 +129,7 @@ impl Console {
                     self.print_string(
                         &game.assets,
                         frame,
-                        opt.text(),
+                        &opt.to_string(),
                         (x, y),
                         if selection as usize == i { colors::COLOR_UI_3 } else { colors::COLOR_UI_2 },
                         UI_GLYPH_SIZE
@@ -172,7 +172,7 @@ impl Console {
                     self.print_string(
                         &game.assets,
                         frame,
-                        opt.text(),
+                        &opt.to_string(),
                         (x, y),
                         if selection as usize == i { colors::COLOR_UI_3 } else { colors::COLOR_UI_2 },
                         UI_GLYPH_SIZE

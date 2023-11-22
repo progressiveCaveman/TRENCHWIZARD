@@ -1,99 +1,74 @@
-use strum_macros::{EnumCount as EnumCountMacro, EnumIter, FromRepr};
+use strum::EnumCount;
+use strum_macros::{FromRepr, EnumIter, EnumCount as EnumCountMacro};
+use strum_macros::Display;
 
-#[derive(PartialEq, Copy, Clone, Debug, EnumCountMacro, EnumIter, FromRepr)]
+#[derive(PartialEq, Copy, Clone, Debug, EnumCountMacro, FromRepr, Display, EnumIter)]
 pub enum MainMenuSelection {
+    #[strum(serialize = "Play Game")]
     Play = 0,
+
+    #[strum(serialize = "Mode Select")]
     ModeSelect,
+
+    #[strum(serialize = "Quit")]
     Quit
 }
 
-// There must be a better way to implement len and from
 impl MainMenuSelection {
     pub fn modify(&self, dir: i32) -> Self {
+        let i = *self as usize;
+
         if dir == 0 {
             return *self;
-        }
-        return if dir > 0 {
-            self.inc()
+        }else if dir > 0 {
+            if i + 1 == Self::COUNT {
+                return Self::from_repr(0).unwrap();
+            } else {
+                return Self::from_repr(i + 1).unwrap();
+            }
         } else {
-            self.dec()
-        }
-    }
-
-    pub fn inc(&self) -> Self {
-        match *self {
-            MainMenuSelection::Play => MainMenuSelection::ModeSelect,
-            MainMenuSelection::ModeSelect => MainMenuSelection::Quit,
-            MainMenuSelection::Quit => MainMenuSelection::Play,
-        }
-    }
-
-    pub fn dec(&self) -> Self {
-        match *self {
-            MainMenuSelection::Play => MainMenuSelection::Quit,
-            MainMenuSelection::ModeSelect => MainMenuSelection::Play,
-            MainMenuSelection::Quit => MainMenuSelection::ModeSelect,
-        }
-    }
-
-    pub fn text(&self) -> &str {
-        match self {
-            MainMenuSelection::Play => "Play Game",
-            MainMenuSelection::ModeSelect => "Mode Select",
-            MainMenuSelection::Quit => "Quit",
+            if i == 0 {
+                return Self::from_repr(Self::COUNT - 1).unwrap();
+            } else {
+                return Self::from_repr(i - 1).unwrap();
+            }
         }
     }
 }
 
-#[derive(PartialEq, Copy, Clone, Debug, EnumCountMacro, EnumIter, FromRepr)]
+#[derive(PartialEq, Copy, Clone, Debug, EnumCountMacro, FromRepr, Display)]
 pub enum ModeSelectSelection {
+    #[strum(serialize = "Map Demo")]
     MapDemo,
+
+    #[strum(serialize = "Roguelike")]
     RL,
+
+    #[strum(serialize = "Village Sim")]
     VillageSim,
+
+    #[strum(serialize = "ORC ARENA")]
     OrcArena,
 }
 
 impl ModeSelectSelection {
     pub fn modify(&self, dir: i32) -> Self {
-        return if dir > 0 {
-            self.inc()
+        let i = *self as usize;
+
+        if dir == 0 {
+            return *self;
+        }else if dir > 0 {
+            if i + 1 == Self::COUNT {
+                return Self::from_repr(0).unwrap();
+            } else {
+                return Self::from_repr(i + 1).unwrap();
+            }
         } else {
-            self.dec()
-        }
-    }
-    
-    pub fn inc(&self) -> Self {
-        match *self {
-            ModeSelectSelection::MapDemo => ModeSelectSelection::RL,
-            ModeSelectSelection::RL => ModeSelectSelection::VillageSim,
-            ModeSelectSelection::VillageSim => ModeSelectSelection::OrcArena,
-            ModeSelectSelection::OrcArena => ModeSelectSelection::MapDemo,
-        }
-    }
-
-    pub fn dec(&self) -> Self {
-        match *self {
-            ModeSelectSelection::MapDemo => ModeSelectSelection::OrcArena,
-            ModeSelectSelection::RL => ModeSelectSelection::MapDemo,
-            ModeSelectSelection::VillageSim => ModeSelectSelection::RL,
-            ModeSelectSelection::OrcArena => ModeSelectSelection::VillageSim,
-        }
-    }
-
-    pub fn text(&self) -> &str {
-        match self {
-            ModeSelectSelection::MapDemo => "Map Demo",
-            ModeSelectSelection::RL => "RL",
-            ModeSelectSelection::VillageSim => "Village Simulator",
-            ModeSelectSelection::OrcArena => "Orc Arena",
+            if i == 0 {
+                return Self::from_repr(Self::COUNT - 1).unwrap();
+            } else {
+                return Self::from_repr(i - 1).unwrap();
+            }
         }
     }
 }
-
-// fn main() {
-//     use ModeSelectSelection::*;
-
-//     for i in &[North, South, East, West] {
-//         println!("{:?} -> {:?}", i, i.turn());
-//     }
-// }
