@@ -2,7 +2,7 @@ use rltk::{Algorithm2D, Point, BaseMap, NavigationPath};
 use serde::{Serialize, Deserialize};
 use shipyard::{EntityId, View, Get, Unique, World};
 
-use crate::{components::{Position, Renderable}, utils::Target, tiles::{TileType, TileRenderable}, game_modes::GameSettings, player, colors::{COLOR_BG, ColorUtils, COLOR_FIRE}};
+use crate::{components::{Position, Renderable}, utils::Target, tiles::{TileType, TileRenderable, GasType, MAX_GAS}, game_modes::GameSettings, player, colors::{COLOR_BG, ColorUtils, COLOR_FIRE, COLOR_WHITE}, DISABLE_FOV};
 
 pub type XY = (i32, i32);
 pub fn to_point(xy: XY) -> Point {
@@ -20,6 +20,7 @@ pub struct Map {
     #[serde(skip_deserializing)]
     pub tile_content: Vec<Vec<EntityId>>,
     pub vegetation: Vec<i32>,
+    pub gases: Vec<(Vec<GasType>, usize)>, // usize - last neighbor that flowed into this space
 
     pub history: Vec<Vec<TileType>>,
 }
@@ -35,6 +36,7 @@ impl Map {
             tile_content: vec![Vec::new(); count],
             history: Vec::new(),
             vegetation: vec![0; count],
+            gases: vec![(vec![GasType::Air; MAX_GAS], 0); count],
         }
     }
 
@@ -86,7 +88,7 @@ impl Map {
 
         let mut render = (' ', COLOR_BG, COLOR_BG);
 
-        if settings.use_player_los {
+        if settings.use_player_los && !DISABLE_FOV{
             if let Some(knowledge) = player::get_player_map_knowledge(world).get(&idx) {
                 render = knowledge.0.renderable();
                 for c in knowledge.1.iter() {
@@ -121,6 +123,17 @@ impl Map {
 
         if self.fire_turns[idx] > 0 {
             render = (render.0, render.1, COLOR_FIRE);
+        }
+
+        let mut steam_count = 0.0;
+        for gas in self.gases[idx].0.iter() {
+            if *gas == GasType::Steam {
+                steam_count += 1.0;
+            }
+        }
+
+        if steam_count > 0.0 {
+            render.2 = render.2.add(COLOR_WHITE.scale(steam_count / MAX_GAS as f32));
         }
 
         return render;
@@ -215,6 +228,12 @@ impl Map {
         let path = rltk::a_star_search(self.point_idx(from) as i32, self.point_idx(tp) as i32, self);
 
         return path;
+    }
+
+    pub fn gas_count(&self, idx: usize, gastype: GasType) -> usize {
+        let mut steamcount = 0;
+        self.gases[idx].0.iter().for_each(|gas| if *gas == GasType::Steam { steamcount += 1; });
+        return steamcount;
     }
 }
 

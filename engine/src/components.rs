@@ -8,7 +8,7 @@ use strum_macros::EnumIter; // 0.17.1
 
 use crate::{
     map::Map,
-    RenderOrder, tiles::TileType, colors::{COLOR_BG, Color}, ai::labors::AIBehaviors,
+    RenderOrder, tiles::{TileType, GasType}, colors::{COLOR_BG, Color}, ai::labors::AIBehaviors,
 };
 
 /// Unique components
@@ -237,6 +237,10 @@ pub struct WantsToUseItem {
 }
 
 /// Inventory components
+#[derive(Component, Clone, Debug, PartialEq)]
+pub struct AddsGas {
+    pub gas: GasType,
+}
 
 #[derive(Component, Clone, Debug, PartialEq)]
 pub struct Inventory {

@@ -14,6 +14,7 @@ pub mod system_pathfinding;
 pub mod system_visibility;
 pub mod system_inventory;
 pub mod system_item_use;
+pub mod system_gas;
 
 pub fn run_systems(world: &mut World, _player_turn: bool, ai_turn: bool) {
     // if player_turn {
@@ -40,6 +41,7 @@ pub fn run_systems(world: &mut World, _player_turn: bool, ai_turn: bool) {
     world.run(system_particle::spawn_particles);
 
     world.run(effects::run_effects_queue);
+    world.run(system_gas::run_gas_system);
     world.run(system_map_indexing::run_map_indexing_system);
     
     world.run(system_visibility::run_visibility_system);

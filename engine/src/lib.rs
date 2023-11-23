@@ -11,6 +11,7 @@ use shipyard::{
     EntitiesView, EntityId, Get, UniqueView, UniqueViewMut, View, ViewMut, World, AllStoragesViewMut,
 };
 use systems::system_particle;
+use utils::InvalidPoint;
 
 pub mod components;
 pub mod map;
@@ -36,6 +37,7 @@ pub const OFFSET_X: usize = 31;
 pub const OFFSET_Y: usize = 11;
 
 pub const DISABLE_AI: bool = false;
+pub const DISABLE_FOV: bool = true;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd)]
 pub enum RenderOrder {
@@ -120,7 +122,7 @@ impl Engine {
         ids_to_delete
     }
 
-    pub fn generate_map(&mut self, new_depth: usize) {
+    pub fn generate_map(&mut self, new_depth: usize) -> Point {
         // delete all entities
         let ids_to_delete = Self::entities_to_delete_on_level_change(&mut self.world);
         for id in ids_to_delete {
@@ -164,6 +166,8 @@ impl Engine {
                 }
             },
         );
+
+        return start_pos;
     }
 
     // pub fn next_level(world: &mut World) {
@@ -211,7 +215,7 @@ impl Engine {
         }
 
         // Generate new map
-        self.generate_map( 1);
+        let start_pos = self.generate_map( 1);
 
         // give the player some items
         let e = self.world.run(|mut store: AllStoragesViewMut| {
@@ -228,6 +232,11 @@ impl Engine {
             entity_factory::fireball_scroll(&mut store, (0, 0))
         });
         add_effect(Some(player_id), EffectType::PickUp { entity: e });
+
+        // add a gas vent 
+        self.world.run(|mut store: AllStoragesViewMut| {
+            entity_factory::gas_adder(&mut store, start_pos.to_xy())
+        });
 
         self.run_systems();
     }

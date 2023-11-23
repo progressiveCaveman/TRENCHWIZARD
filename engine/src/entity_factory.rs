@@ -7,13 +7,13 @@ use crate::components::{
     Actor, ActorType, AreaOfEffect, BlocksTile, ChiefHouse, PhysicalStats, Confusion, Consumable, DealsDamage,
     DijkstraMapToMe, EquipmentSlot, Equippable, Faction, FishCleaner, Flammable, Inventory, Item, ItemType,
     LocomotionType, Locomotive, LumberMill, MeleeDefenseBonus, MeleePowerBonus, Name, PlankHouse, Player, Position,
-    ProvidesHealing, Ranged, Renderable, SpatialKnowledge, Spawner, SpawnerType, Tree, Vision, RNG, CausesFire, Equipment,
+    ProvidesHealing, Ranged, Renderable, SpatialKnowledge, Spawner, SpawnerType, Tree, Vision, RNG, CausesFire, Equipment, AddsGas,
 };
 use crate::map::{Map, XY};
 // use crate::systems::system_fire::NEW_FIRE_TURNS;
 // use crate::weighted_table::WeightedTable;
 use crate::RenderOrder;
-use crate::tiles::TileType;
+use crate::tiles::{TileType, GasType};
 use crate::utils::rect::Rect;
 use crate::utils::weighted_table::WeightedTable;
 use rltk::{DijkstraMap, Point};
@@ -582,6 +582,25 @@ pub fn log(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
 }
 
 // structures
+
+pub fn gas_adder(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
+    store.add_entity((
+        Position {
+            ps: vec![Point::new( xy.0, xy.1 )],
+        },
+        Renderable {
+            glyph: '=',
+            fg: COLOR_WALL.scale(0.25),
+            bg: COLOR_BG,
+            order: RenderOrder::Items,
+            ..Default::default()
+        },
+        Name {
+            name: "Gas Vent".to_string(),
+        },
+        AddsGas { gas: GasType::Steam },
+    ))
+}
 
 pub fn spawner(
     store: &mut AllStoragesViewMut,

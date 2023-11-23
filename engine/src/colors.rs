@@ -7,6 +7,7 @@ pub type Color = [u8; 4];
 pub trait ColorUtils {
     fn scale(&self, scale: f32) -> Self;
     fn to_rgba(&self) -> RGBA;
+    fn add(&self, color: Color) -> Self;
 }
 
 impl ColorUtils for Color {
@@ -14,6 +15,14 @@ impl ColorUtils for Color {
         let mut c = self.clone();
         for i in 0..3 { // don't scale alpha
             c[i] = (c[i] as f32 * scale) as u8;
+        }
+        c
+    }
+
+    fn add(&self, color: Color) -> Self {
+        let mut c: [u8; 4] = self.clone();
+        for i in 0..3 { // don't scale alpha
+            c[i] = u8::min(c[i] + color[i], 255);
         }
         c
     }

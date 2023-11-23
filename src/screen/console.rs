@@ -397,11 +397,43 @@ impl Console {
         self.print_string(
             &game.assets,
             frame,
+            &format!("mouse pos: {:?}", mpos),
+            (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+            colors::COLOR_UI_2,
+            UI_GLYPH_SIZE
+        );
+
+        y += 1;
+        self.print_string(
+            &game.assets,
+            frame,
             &format!("Tile: {:?}", map.tiles[idx]),
             (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
             colors::COLOR_UI_2,
             UI_GLYPH_SIZE
         );
+
+        y += 1;
+        self.print_string(
+            &game.assets,
+            frame,
+            &format!("Gases:"),
+            (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+            colors::COLOR_UI_2,
+            UI_GLYPH_SIZE
+        );
+    
+        for e in map.gases[idx].0.iter() {
+            y += 1;
+            self.print_string(
+                &game.assets,
+                frame,
+                &format!(" {:?}", e),
+                (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                colors::COLOR_UI_2,
+                UI_GLYPH_SIZE
+            );
+        }
     
         y += 2;
         self.print_string(
