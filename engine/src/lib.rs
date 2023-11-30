@@ -11,7 +11,8 @@ use shipyard::{
     EntitiesView, EntityId, Get, UniqueView, UniqueViewMut, View, ViewMut, World, AllStoragesViewMut,
 };
 use systems::system_particle;
-use utils::InvalidPoint;
+
+use crate::systems::system_gas;
 
 pub mod components;
 pub mod map;
@@ -41,7 +42,7 @@ pub const DISABLE_FOV: bool = true;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd)]
 pub enum RenderOrder {
-    Items,
+    Items = 0,
     NPC,
     Player,
     Particle,
@@ -215,7 +216,7 @@ impl Engine {
         }
 
         // Generate new map
-        let start_pos = self.generate_map( 1);
+        self.generate_map( 1);
 
         // give the player some items
         let e = self.world.run(|mut store: AllStoragesViewMut| {
@@ -233,10 +234,10 @@ impl Engine {
         });
         add_effect(Some(player_id), EffectType::PickUp { entity: e });
 
-        // add a gas vent 
-        self.world.run(|mut store: AllStoragesViewMut| {
-            entity_factory::gas_adder(&mut store, start_pos.to_xy())
-        });
+        // run the gas system for a while to get the level nice and steamy
+        for _ in 0..3000 {
+            self.world.run(system_gas::run_gas_system);
+        }
 
         self.run_systems();
     }

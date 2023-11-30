@@ -243,6 +243,10 @@ pub struct AddsGas {
 }
 
 #[derive(Component, Clone, Debug, PartialEq)]
+pub struct RemovesGas {
+}
+
+#[derive(Component, Clone, Debug, PartialEq)]
 pub struct Inventory {
     pub capacity: i32,
     pub items: Vec<EntityId>,

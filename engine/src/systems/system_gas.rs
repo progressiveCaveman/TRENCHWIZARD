@@ -1,8 +1,7 @@
-use crate::components::{Position, AddsGas, RNG};
+use crate::components::{Position, AddsGas, RNG, RemovesGas};
 use crate::map::Map;
 use crate::tiles::{GasType, MAX_GAS};
 use crate::utils::{InvalidPoint, get_neighbors};
-use rltk::{self, BaseMap};
 use shipyard::{IntoIter, IntoWithId, View, ViewMut, UniqueViewMut};
 
 pub fn run_gas_system(
@@ -10,6 +9,7 @@ pub fn run_gas_system(
     mut rng: UniqueViewMut<RNG>,
     vpos: View<Position>,
     mut vaddsgas: ViewMut<AddsGas>,
+    mut vremovesgas: ViewMut<RemovesGas>,
 ) {
     // init map gases
     for idx in 0..map.tiles.len() {
@@ -26,7 +26,7 @@ pub fn run_gas_system(
     let mut new_gases = map.gases.clone();// todo clone slow
 
     // run gas dissipation
-    for (idx, (gases, lastflow)) in map.gases.iter().enumerate() {
+    for (idx, (_, lastflow)) in map.gases.iter().enumerate() {
         let point = map.idx_point(idx);
         let steamcount = map.gas_count(idx, GasType::Steam);
 
@@ -36,9 +36,16 @@ pub fn run_gas_system(
             for &n in get_neighbors(point).iter().filter(|p| map.in_bounds(p.to_xy())) {
                 let nidx = map.point_idx(n);
 
-                let dist = map.get_pathing_distance(*lastflow, nidx);
-                let air_amount = (MAX_GAS as f32 - map.gas_count(nidx, GasType::Air) as f32) / MAX_GAS as f32;
+                let dist = 1.0;//map.get_pathing_distance(*lastflow, nidx);
+                let air_amount = map.gas_count(nidx, GasType::Air) as f32 / MAX_GAS as f32;
                 
+                let none_amount = map.gas_count(nidx, GasType::None);
+                if none_amount > 0 {
+                    flow_target = nidx;
+                    // flow_best = 10000000000.0;
+                    break;
+                }
+
                 let score = air_amount * dist * rng.0.roll_dice(1, 5) as f32 / 10.0;
                 for gas in map.gases[nidx].0.iter() {
                     if *gas == GasType::Air {
@@ -89,6 +96,17 @@ pub fn run_gas_system(
         for gas in new_gases[idx].0.iter_mut() {
             if *gas == GasType::Air {
                 *gas = addsgas.gas;
+                break;
+            }
+        }
+    }
+
+    // Run removes gas components
+    for (_, (pos, _)) in (&vpos, &mut vremovesgas).iter().with_id() {
+        let idx = map.point_idx(pos.ps[0]);
+        for gas in new_gases[idx].0.iter_mut() {
+            if *gas != GasType::Air {
+                *gas = GasType::Air;
                 break;
             }
         }

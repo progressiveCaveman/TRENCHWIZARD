@@ -2,7 +2,7 @@ use rltk::{Algorithm2D, Point, BaseMap, NavigationPath};
 use serde::{Serialize, Deserialize};
 use shipyard::{EntityId, View, Get, Unique, World};
 
-use crate::{components::{Position, Renderable}, utils::Target, tiles::{TileType, TileRenderable, GasType, MAX_GAS}, game_modes::GameSettings, player, colors::{COLOR_BG, ColorUtils, COLOR_FIRE, COLOR_WHITE}, DISABLE_FOV};
+use crate::{components::{Position, Renderable}, utils::Target, tiles::{TileType, TileRenderable, GasType, MAX_GAS}, game_modes::GameSettings, player, colors::{COLOR_BG, ColorUtils, COLOR_FIRE, COLOR_WHITE}, DISABLE_FOV, RenderOrder};
 
 pub type XY = (i32, i32);
 pub fn to_point(xy: XY) -> Point {
@@ -77,9 +77,25 @@ impl Map {
         pos.0 < self.size.0 && pos.1 < self.size.1 && pos.0 >= 0 && pos.1 >= 0
     }
 
+    pub fn get_entity_renderable(&self, entities: &Vec<EntityId>, world: &World) -> Option<TileRenderable> {
+        let vrend = world.borrow::<View<Renderable>>().unwrap();
+        
+        let mut render = None;//(' ', COLOR_BG, COLOR_BG);
+        let mut current_order = RenderOrder::Items;
+
+        for id in entities {
+            if let Ok(rend) = vrend.get(*id) {
+                if rend.order >= current_order {
+                    render = Some((rend.glyph, rend.fg, rend.bg));
+                    current_order = rend.order;
+                }
+            }
+        }
+
+        return render;
+    }
 
     pub fn get_renderable(&self, pos: XY, settings: &GameSettings, world: &World, historyidx: Option<usize>) -> TileRenderable {
-        let vrend = world.borrow::<View<Renderable>>().unwrap();
         let idx: usize = self.xy_idx(pos);
 
         if let Some(hidx) = historyidx {
@@ -91,11 +107,11 @@ impl Map {
         if settings.use_player_los && !DISABLE_FOV{
             if let Some(knowledge) = player::get_player_map_knowledge(world).get(&idx) {
                 render = knowledge.0.renderable();
-                for c in knowledge.1.iter() {
-                    if let Ok(rend) = vrend.get(*c) {
-                        render = (rend.glyph, rend.fg, rend.bg);
-                    }
+
+                if let Some(renderable) = self.get_entity_renderable(&knowledge.1, world) {
+                    render = renderable;
                 }
+                
                 render.1 = render.1.scale(0.5);
             }
 
@@ -106,18 +122,15 @@ impl Map {
                     render = (render.0, render.1, COLOR_FIRE);
                 }
 
-                for c in self.tile_content[idx].iter() {
-                    if let Ok(rend) = vrend.get(*c) {
-                        render = (rend.glyph, rend.fg, render.2);
-                    }
-                }   
+                if let Some(renderable) = self.get_entity_renderable(&self.tile_content[idx], world) {
+                    render = renderable;
+                } 
             }
         } else {
             render = self.tiles[idx].renderable();
-            for c in self.tile_content[idx].iter() {
-                if let Ok(rend) = vrend.get(*c) {
-                    render = (rend.glyph, rend.fg, rend.bg);
-                }
+            
+            if let Some(renderable) = self.get_entity_renderable(&self.tile_content[idx], world) {
+                render = renderable;
             }
         }
 
@@ -133,7 +146,7 @@ impl Map {
         }
 
         if steam_count > 0.0 {
-            render.2 = render.2.add(COLOR_WHITE.scale(steam_count / MAX_GAS as f32));
+            render.2 = render.2.add(COLOR_WHITE.scale(0.5 * steam_count / MAX_GAS as f32));
         }
 
         return render;
@@ -232,7 +245,7 @@ impl Map {
 
     pub fn gas_count(&self, idx: usize, gastype: GasType) -> usize {
         let mut steamcount = 0;
-        self.gases[idx].0.iter().for_each(|gas| if *gas == GasType::Steam { steamcount += 1; });
+        self.gases[idx].0.iter().for_each(|gas| if *gas == gastype { steamcount += 1; });
         return steamcount;
     }
 }

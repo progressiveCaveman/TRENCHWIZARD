@@ -7,7 +7,7 @@ use crate::components::{
     Actor, ActorType, AreaOfEffect, BlocksTile, ChiefHouse, PhysicalStats, Confusion, Consumable, DealsDamage,
     DijkstraMapToMe, EquipmentSlot, Equippable, Faction, FishCleaner, Flammable, Inventory, Item, ItemType,
     LocomotionType, Locomotive, LumberMill, MeleeDefenseBonus, MeleePowerBonus, Name, PlankHouse, Player, Position,
-    ProvidesHealing, Ranged, Renderable, SpatialKnowledge, Spawner, SpawnerType, Tree, Vision, RNG, CausesFire, Equipment, AddsGas,
+    ProvidesHealing, Ranged, Renderable, SpatialKnowledge, Spawner, SpawnerType, Tree, Vision, RNG, CausesFire, Equipment, AddsGas, RemovesGas,
 };
 use crate::map::{Map, XY};
 // use crate::systems::system_fire::NEW_FIRE_TURNS;
@@ -583,7 +583,7 @@ pub fn log(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
 
 // structures
 
-pub fn gas_adder(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
+pub fn gas_adder(store: &mut AllStoragesViewMut, xy: XY, gastype: GasType) -> EntityId {
     store.add_entity((
         Position {
             ps: vec![Point::new( xy.0, xy.1 )],
@@ -598,7 +598,26 @@ pub fn gas_adder(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
         Name {
             name: "Gas Vent".to_string(),
         },
-        AddsGas { gas: GasType::Steam },
+        AddsGas { gas: gastype },
+    ))
+}
+
+pub fn gas_remover(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
+    store.add_entity((
+        Position {
+            ps: vec![Point::new( xy.0, xy.1 )],
+        },
+        Renderable {
+            glyph: '=',
+            fg: COLOR_WALL.scale(0.25),
+            bg: COLOR_BG,
+            order: RenderOrder::Items,
+            ..Default::default()
+        },
+        Name {
+            name: "Gas Intake".to_string(),
+        },
+        RemovesGas {},
     ))
 }
 

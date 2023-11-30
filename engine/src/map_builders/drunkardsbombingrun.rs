@@ -1,5 +1,5 @@
 use crate::map::XY;
-use crate::tiles::TileType;
+use crate::tiles::{TileType, GasType};
 use crate::utils::rect::Rect;
 use crate::{entity_factory, SHOW_MAPGEN_ANIMATION};
 use rltk::{Point, RandomNumberGenerator};
@@ -30,9 +30,27 @@ impl MapBuilder for DrunkardsBombingRunBuilder {
     }
 
     fn spawn_entities(&mut self, world: &mut World) {
+        let mut rng = RandomNumberGenerator::new();
+
         world.run(|mut store: AllStoragesViewMut| {
             for room in self.rooms.iter().skip(1) {
                 entity_factory::spawn_room(&mut store, &self.map, room, self.depth);
+            }
+
+            // pick 3 random spots each for gas adder and remover
+            let mut i = 0;
+            while i < 6 {
+                let x: i32 = rng.range(1, self.map.size.0 as i32);
+                let y: i32 = rng.range(1, self.map.size.1 as i32);
+                
+                if !self.map.is_wall(x, y) {
+                    if i < 3 {
+                        entity_factory::gas_adder(&mut store, (x, y), GasType::Steam);
+                    } else {{
+                        entity_factory::gas_remover(&mut store, (x, y));
+                    }}
+                    i += 1;
+                }
             }
         });
     }

@@ -48,4 +48,5 @@ pub enum GasType {
     Air,
     Blocked,
     Steam,
+    None,
 }
