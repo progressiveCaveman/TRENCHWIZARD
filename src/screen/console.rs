@@ -533,7 +533,7 @@ impl Console {
                     for item in inv.items.iter() {
                         if let Ok(name) = vname.get(*item) {
                             y += 1;
-                            if y > self.size.1 * self.gsize {
+                            if self.pos.1 + y * UI_GLYPH_SIZE >= self.size.1 {
                                 return;
                             }
                             self.print_string(

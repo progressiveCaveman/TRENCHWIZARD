@@ -27,21 +27,21 @@ pub fn run_ai_system(mut store: AllStoragesViewMut) {
          vdijkstra: View<DijkstraMapToMe>,
          mut vintent: ViewMut<Intent>,
          vspawner: ViewMut<Spawner>| {
-            for (id, (actor, pos, vision)) in (&vactor, &vpos, &vvision).iter().with_id() {
-                // if actor.atype != ActorType::Villager && actor.atype != ActorType::Orc {
-                //     continue;
-                // }
-
+            for (id, (actor, pos)) in (&vactor, &vpos).iter().with_id() {
                 let new_intent = match actor.atype {
                     ActorType::Player => continue,
                     ActorType::Fish => continue,
                     ActorType::Orc | ActorType::Wolf=> {
-                        if vision_contains(&store, vision.clone(), playerid.0) { //todo vision.clone bad
-                            Intent {
-                                name: "Attack player".to_string(),
-                                task: Task::Attack,
-                                target: vec![Target::ENTITY(playerid.0)],
-                                turn: *turn,
+                        if let Ok(vision) = vvision.get(id) {
+                            if vision_contains(&store, vision.clone(), playerid.0) { //todo vision.clone bad
+                                Intent {
+                                    name: "Attack player".to_string(),
+                                    task: Task::Attack,
+                                    target: vec![Target::ENTITY(playerid.0)],
+                                    turn: *turn,
+                                }
+                            } else {
+                                continue;
                             }
                         } else {
                             continue;
@@ -227,8 +227,6 @@ pub fn run_ai_system(mut store: AllStoragesViewMut) {
         store.run(|mut vactor: ViewMut<Actor>| {
             if let Ok(spawned_actor) = (&mut vactor).get(e) {
                 spawned_actor.faction = *faction;
-            } else {
-                dbg!("Error: Orc isn't an actor, this shouldn't happen");
             }
         });
     }
