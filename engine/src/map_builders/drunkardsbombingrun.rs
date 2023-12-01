@@ -42,8 +42,9 @@ impl MapBuilder for DrunkardsBombingRunBuilder {
             while i < 6 {
                 let x: i32 = rng.range(1, self.map.size.0 as i32);
                 let y: i32 = rng.range(1, self.map.size.1 as i32);
-                
-                if !self.map.is_wall(x, y) {
+                let idx = self.map.xy_idx((x, y));
+
+                if !self.map.is_wall(x, y) &&& self.map.tiles[idx] != &TileType::Water {
                     if i < 3 {
                         entity_factory::gas_adder(&mut store, (x, y), GasType::Steam);
                     } else {{

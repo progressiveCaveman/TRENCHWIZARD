@@ -41,7 +41,7 @@ impl Console {
             hidden: false,
             z: 1,
             mode: mode,
-            gsize: 16,
+            gsize: UI_GLYPH_SIZE,
             map_pos: (0, 0),
         }
     }

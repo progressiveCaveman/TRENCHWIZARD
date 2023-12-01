@@ -26,7 +26,7 @@ pub fn run_gas_system(
     let mut new_gases = map.gases.clone();// todo clone slow
 
     // run gas dissipation
-    for (idx, (_, lastflow)) in map.gases.iter().enumerate() {
+    for (idx, _) in map.gases.iter().enumerate() {
         let point = map.idx_point(idx);
         let steamcount = map.gas_count(idx, GasType::Steam);
 
@@ -38,15 +38,14 @@ pub fn run_gas_system(
 
                 let dist = 1.0;//map.get_pathing_distance(*lastflow, nidx);
                 let air_amount = map.gas_count(nidx, GasType::Air) as f32 / MAX_GAS as f32;
-                
                 let none_amount = map.gas_count(nidx, GasType::None);
+
+                let mut score = air_amount * dist * rng.0.roll_dice(1, 5) as f32 / 10.0;
+                
                 if none_amount > 0 {
-                    flow_target = nidx;
-                    // flow_best = 10000000000.0;
-                    break;
+                    score *= 10.0;
                 }
 
-                let score = air_amount * dist * rng.0.roll_dice(1, 5) as f32 / 10.0;
                 for gas in map.gases[nidx].0.iter() {
                     if *gas == GasType::Air {
                         if score > flow_best {
@@ -59,33 +58,20 @@ pub fn run_gas_system(
             }
     
             if flow_target != 0 && rng.0.roll_dice(1, steamcount as i32) as f32 / MAX_GAS as f32 > 0.3 {
-                let mut failed  = true;
                 for gas in new_gases[idx].0.iter_mut() {
                     if *gas == GasType::Steam {
-                        failed = false;
                         *gas = GasType::Air;
                         break;
                     }
                 }
-                
-                if failed {
-                    // dbg!("shit");
-                }
 
                 new_gases[flow_target].1 = idx; // set flow
-                failed = true;
                 for gas in new_gases[flow_target].0.iter_mut() {
                     if *gas == GasType::Air {
-                        failed = false;
                         *gas = GasType::Steam;
                         break;
                     }
                 }
-
-                if failed {
-                    // dbg!("shit");
-                }
-
             }
         }
     }
