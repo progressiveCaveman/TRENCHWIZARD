@@ -273,17 +273,17 @@ pub fn get_gather_wood_actions(store: &AllStorages, id: EntityId) -> Vec<Action>
                     //         b: 1.0,
                     //     },
                     // ),
-                    Consideration::new(
-                        "logs in iventory".to_string(),
-                        logs_in_inv as f32,
-                        ConsiderationParam {
-                            t: ResponseCurveType::Linear,
-                            m: 1. / 5.0,
-                            k: 1.0,
-                            c: 0.0,
-                            b: 0.0,
-                        },
-                    ),
+                    // Consideration::new(
+                    //     "logs in iventory".to_string(),
+                    //     logs_in_inv as f32,
+                    //     ConsiderationParam {
+                    //         t: ResponseCurveType::Linear,
+                    //         m: 1. / 5.0,
+                    //         k: 1.0,
+                    //         c: 0.0,
+                    //         b: 0.0,
+                    //     },
+                    // ),
                 ],
                 priority: 1.0,
             });
@@ -318,17 +318,17 @@ pub fn get_gather_wood_actions(store: &AllStorages, id: EntityId) -> Vec<Action>
                     //         b: 1.0,
                     //     },
                     // ),
-                    Consideration::new(
-                        "logs in iventory".to_string(),
-                        logs_in_inv as f32,
-                        ConsiderationParam {
-                            t: ResponseCurveType::Linear,
-                            m: 1. / 5.0,
-                            k: 1.0,
-                            c: 0.0,
-                            b: 0.0,
-                        },
-                    ),
+                    // Consideration::new(
+                    //     "logs in iventory".to_string(),
+                    //     logs_in_inv as f32,
+                    //     ConsiderationParam {
+                    //         t: ResponseCurveType::Linear,
+                    //         m: 1. / 5.0,
+                    //         k: 1.0,
+                    //         c: 0.0,
+                    //         b: 0.0,
+                    //     },
+                    // ),
                 ],
                 priority: 2.0,
             });
@@ -506,12 +506,12 @@ pub fn get_gather_fish_actions(store: &AllStorages, id: EntityId) -> Vec<Action>
     // if fish in inventory
     // for each fish cleaner
     for f in fisheries {
-        let finv = if let Ok(inv) = vinv.get(f) {
-            inv
-        } else {
-            continue;
-        };
-        let finv_count = finv.count_type(&vitem, ItemType::Fish) as f32;
+        // let finv = if let Ok(inv) = vinv.get(f) {
+        //     inv
+        // } else {
+        //     continue;
+        // };
+        // let finv_count = finv.count_type(&vitem, ItemType::Fish) as f32;
 
         if fish_in_inv > 0 {
             potential_actions.push(Action {
@@ -533,17 +533,17 @@ pub fn get_gather_fish_actions(store: &AllStorages, id: EntityId) -> Vec<Action>
                             b: 0.0,
                         },
                     ),
-                    Consideration::new(
-                        "fish in stockpile".to_string(),
-                        finv_count,
-                        ConsiderationParam {
-                            t: ResponseCurveType::Linear,
-                            m: -1. / 50.0,
-                            k: 1.0,
-                            c: 0.0,
-                            b: 1.0,
-                        },
-                    ),
+                    // Consideration::new(
+                    //     "fish in stockpile".to_string(),
+                    //     finv_count,
+                    //     ConsiderationParam {
+                    //         t: ResponseCurveType::Linear,
+                    //         m: -1. / 50.0,
+                    //         k: 1.0,
+                    //         c: 0.0,
+                    //         b: 1.0,
+                    //     },
+                    // ),
                     Consideration::new(
                         "fish in iventory".to_string(),
                         fish_in_inv as f32,
@@ -578,17 +578,17 @@ pub fn get_gather_fish_actions(store: &AllStorages, id: EntityId) -> Vec<Action>
                             b: 0.0,
                         },
                     ),
-                    Consideration::new(
-                        "fish in stockpile".to_string(),
-                        finv_count,
-                        ConsiderationParam {
-                            t: ResponseCurveType::Linear,
-                            m: -1. / 50.0,
-                            k: 1.0,
-                            c: 0.0,
-                            b: 1.0,
-                        },
-                    ),
+                    // Consideration::new(
+                    //     "fish in stockpile".to_string(),
+                    //     finv_count,
+                    //     ConsiderationParam {
+                    //         t: ResponseCurveType::Linear,
+                    //         m: -1. / 50.0,
+                    //         k: 1.0,
+                    //         c: 0.0,
+                    //         b: 1.0,
+                    //     },
+                    // ),
                     Consideration::new(
                         "fish in iventory".to_string(),
                         fish_in_inv as f32,

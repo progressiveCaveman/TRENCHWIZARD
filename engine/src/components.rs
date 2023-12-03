@@ -110,7 +110,8 @@ pub struct Player {}
 pub struct Actor {
     pub atype: ActorType,
     pub faction: Faction,
-    pub behaviors: Vec<AIBehaviors>, // TODO instead of specifying, make a selector. Then give add copy back to this comp
+    pub behaviors: Vec<AIBehaviors>,
+    pub score: i32, // actors score points for executing behaviors
 }
 
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -166,8 +167,6 @@ pub struct Spawner {
 #[derive(Component, Copy, Clone, Debug, PartialEq)]
 pub struct Tree {}
 
-/// Labors?
-
 /// Entity properties
 
 #[derive(Component, Copy, Clone, Debug, PartialEq)]
@@ -206,6 +205,11 @@ pub struct DijkstraMapToMe {
 
 #[derive(Component)]
 pub struct IsCamera {}
+
+#[derive(Component)]
+pub struct Aging {
+    pub turns: i32,
+}
 
 /// Entity intents
 

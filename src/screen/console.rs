@@ -1,6 +1,6 @@
 use std::iter::zip;
 
-use engine::{map::{Map, XY}, colors::{self, Color}, components::{PhysicalStats, PPoint, FrameTime, Name, Position, Inventory, Equippable, Consumable, PlayerID, Vision, OnFire, Equipment}, player::get_player_map_knowledge, ai::decisions::Intent, utils::InvalidPoint};
+use engine::{map::{Map, XY}, colors::{self, Color}, components::{PhysicalStats, PPoint, FrameTime, Name, Position, Inventory, Equippable, Consumable, PlayerID, Vision, OnFire, Equipment, Turn}, player::get_player_map_knowledge, ai::decisions::Intent, utils::InvalidPoint};
 use rltk::Point;
 use shipyard::{UniqueView, View, Get, World, IntoIter, IntoWithId};
 use strum::EnumCount;
@@ -305,6 +305,19 @@ impl Console {
         //     colors::COLOR_UI_2,
         //     UI_GLYPH_SIZE
         // );
+        if let Ok(turn) = game.engine.world.borrow::<UniqueView<Turn>>() {
+            // if let Ok(fire) = vonfire.get(player_id) {
+                self.print_string(
+                    &game.assets,
+                    frame,
+                    &format!("Turn: {}", turn.0),
+                    (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                    colors::COLOR_FIRE,
+                    UI_GLYPH_SIZE
+                );
+                // y += 1;
+            // }
+        }
 
         y += 1;
         if let Ok(vstats) = game.engine.world.borrow::<View<PhysicalStats>>() {
@@ -425,7 +438,7 @@ impl Console {
     
         for e in map.gases[idx].0.iter() {
             y += 1;
-            if self.pos.1 + y * UI_GLYPH_SIZE >= self.size.1 {
+            if (y + 1) * UI_GLYPH_SIZE >= self.size.1 {
                 return;
             }
             self.print_string(
@@ -536,13 +549,13 @@ impl Console {
                     for item in inv.items.iter() {
                         if let Ok(name) = vname.get(*item) {
                             y += 1;
-                            if self.pos.1 + y * UI_GLYPH_SIZE >= self.size.1 {
+                            if (y + 1) * UI_GLYPH_SIZE >= self.size.1 {
                                 return;
                             }
                             self.print_string(
                                 &game.assets,
                                 frame,
-                                &format!("  {:?}, {}", item, name.name),
+                                &format!("  {}", name.name),
                                 (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
                                 colors::COLOR_UI_2,
                                 UI_GLYPH_SIZE

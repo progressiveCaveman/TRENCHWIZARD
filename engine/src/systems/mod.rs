@@ -15,6 +15,7 @@ pub mod system_visibility;
 pub mod system_inventory;
 pub mod system_item_use;
 pub mod system_gas;
+pub mod system_time;
 
 pub fn run_systems(world: &mut World, _player_turn: bool, ai_turn: bool) {
     // if player_turn {
@@ -28,6 +29,7 @@ pub fn run_systems(world: &mut World, _player_turn: bool, ai_turn: bool) {
         world.run(system_pathfinding::run_pathfinding_system);
         world.run(system_ai_fish::run_fish_ai);
         world.run(system_ai::run_ai_system);
+        world.run(system_time::run_time_system);
     }
 
     world.run(effects::run_effects_queue);

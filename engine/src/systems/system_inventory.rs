@@ -1,14 +1,10 @@
 use shipyard::{IntoIter, IntoWithId, Remove, View, ViewMut, UniqueViewMut, EntityId, Get};
 
-use crate::ai::decisions::{Intent, Task};
 use crate::components::{Inventory, WantsToPickupItem, GameLog, Player, WantsToUnequipItem, Equipped, Name};
 use crate::effects::{add_effect, EffectType};
-use crate::utils::Target;
 use crate::components::WantsToDropItem;
 
-pub fn run_inventory_system(vinv: View<Inventory>, vwants: View<WantsToPickupItem>, mut vintent: ViewMut<Intent>) {
-    let to_remove_intent = vec![];
-
+pub fn run_inventory_system(vinv: View<Inventory>, vwants: View<WantsToPickupItem>) {
     for (id, (_, wants_pickup)) in (&vinv, &vwants).iter().with_id() {
         add_effect(
             Some(id),
@@ -16,27 +12,6 @@ pub fn run_inventory_system(vinv: View<Inventory>, vwants: View<WantsToPickupIte
                 entity: wants_pickup.item,
             },
         );
-    }
-
-    for (id, (_, intent)) in (&vinv, &vintent).iter().with_id() {
-        if intent.task == Task::PickUpItem {
-            if let Target::ENTITY(e) = intent.target[0] {
-                add_effect(Some(id), EffectType::PickUp { entity: e });
-            }
-        }
-        if intent.task == Task::DepositItemToInventory {
-            if let Target::ENTITY(item) = intent.target[0] {
-                if let Target::ENTITY(target) = intent.target[1] {
-                    // TODO this looks like a race condition
-                    add_effect(Some(id), EffectType::Drop { entity: item });
-                    add_effect(Some(target), EffectType::PickUp { entity: item });
-                }
-            }
-        }
-    }
-
-    for id in to_remove_intent {
-        vintent.remove(id);
     }
 }
 

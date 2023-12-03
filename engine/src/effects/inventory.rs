@@ -24,30 +24,15 @@ pub fn pick_up(store: &AllStoragesViewMut, effect: &EffectSpawner) {
             return;
         }
 
-        if let Ok(name) = vname.get(id) {
+        // if let Ok(name) = vname.get(id) {
             if let Ok(inv) = (&mut vinv).get(id) {
                 inv.items.push(*target);
-
-                let mut entities: Vec<EntityId> = vec![];
-                for e1 in inv.items.iter() {
-                    let mut dup = false;
-                    for e2 in entities.iter() {
-                        if e2 == e1 {
-                            dup = true;
-                            println!("ERROR: Duplicate item in {:?} inventory", &name.name);
-                            dbg!(42);
-                            // return;
-                        }
-                    }
-                    if !dup {
-                        entities.push(*e1);
-                    }
-                }
             } else {
                 dbg!("Entity has no inventory");
             }
-        }
+        // }
 
+        // remove pos from item
         vpos.remove(*target);
 
         let player_id = store.borrow::<UniqueView<PlayerID>>().unwrap().0;

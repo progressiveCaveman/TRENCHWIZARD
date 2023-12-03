@@ -1,6 +1,6 @@
 use crate::ai::decisions::{Intent, Task};
-use crate::ai::labors;
-use crate::components::{Actor, ActorType, DijkstraMapToMe, Faction, Position, Spawner, SpawnerType, Turn, PlayerID, Vision};
+use crate::ai::labors::{self, AIBehaviors};
+use crate::components::{Actor, ActorType, DijkstraMapToMe, Faction, Position, Spawner, SpawnerType, Turn, PlayerID, Vision, Item, ItemType};
 use crate::effects::{add_effect, EffectType};
 use crate::entity_factory;
 use crate::map::Map;
@@ -16,6 +16,7 @@ pub fn run_ai_system(mut store: AllStoragesViewMut) {
     let mut to_attack: Vec<(EntityId, Point)> = vec![];
     let mut to_spawn_fish: Vec<Point> = vec![];
     let mut to_spawn_orc: Vec<(Point, Faction)> = vec![];
+    let mut to_deposit_items: Vec<(EntityId, Intent)> = vec![];
 
     store.run(
         |map: UniqueView<Map>,
@@ -120,13 +121,19 @@ pub fn run_ai_system(mut store: AllStoragesViewMut) {
                         }
                     }
                     Task::Destroy => {}
-                    Task::PickUpItem => {}
+                    Task::PickUpItem => {            
+                        if let Target::ENTITY(e) = new_intent.target[0] {
+                            add_effect(Some(id), EffectType::PickUp { entity: e });
+                        }
+                    },
                     Task::DropItem => todo!(),
                     Task::UseItem => todo!(),
                     Task::EquipItem => todo!(),
                     Task::UnequipItem => todo!(),
                     Task::UseWorkshop => todo!(),
-                    Task::DepositItemToInventory => {}
+                    Task::DepositItemToInventory => {
+                        to_deposit_items.push((id, new_intent));
+                    }
                     Task::Attack => {
                         if let Target::ENTITY(target) = new_intent.target[0] {
                             if let Ok(target_pos) = vpos.get(target) {
@@ -227,6 +234,32 @@ pub fn run_ai_system(mut store: AllStoragesViewMut) {
         store.run(|mut vactor: ViewMut<Actor>| {
             if let Ok(spawned_actor) = (&mut vactor).get(e) {
                 spawned_actor.faction = *faction;
+            }
+        });
+    }
+
+    for (id, intent) in to_deposit_items.iter() {
+        store.run(|mut vactor: ViewMut<Actor>, vitem: ViewMut<Item>| {
+            if let Ok(actor) = (&mut vactor).get(*id) {
+                if let Target::ENTITY(item) = intent.target[0] {
+                    if let Target::ENTITY(target) = intent.target[1] {
+                        // TODO this looks like a race condition
+                        add_effect(Some(*id), EffectType::Drop { entity: item });
+                        add_effect(Some(target), EffectType::PickUp { entity: item });
+
+                        // can this be exploited by the ai? 
+                        for b in actor.behaviors.iter() {
+                            if let Ok(item) = vitem.get(item) {
+                                if *b == AIBehaviors::GatherFish && item.typ == ItemType::Fish {
+                                    actor.score += 10;
+                                }
+                                if *b == AIBehaviors::GatherWood && item.typ == ItemType::Log {
+                                    actor.score += 10;
+                                }
+                            }
+                        }
+                    }
+                }
             }
         });
     }

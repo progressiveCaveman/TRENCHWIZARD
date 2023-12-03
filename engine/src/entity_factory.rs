@@ -7,7 +7,7 @@ use crate::components::{
     Actor, ActorType, AreaOfEffect, BlocksTile, ChiefHouse, PhysicalStats, Confusion, Consumable, DealsDamage,
     DijkstraMapToMe, EquipmentSlot, Equippable, Faction, FishCleaner, Flammable, Inventory, Item, ItemType,
     LocomotionType, Locomotive, LumberMill, MeleeDefenseBonus, MeleePowerBonus, Name, PlankHouse, Player, Position,
-    ProvidesHealing, Ranged, Renderable, SpatialKnowledge, Spawner, SpawnerType, Tree, Vision, RNG, CausesFire, Equipment, AddsGas, RemovesGas,
+    ProvidesHealing, Ranged, Renderable, SpatialKnowledge, Spawner, SpawnerType, Tree, Vision, RNG, CausesFire, Equipment, AddsGas, RemovesGas, Aging,
 };
 use crate::map::{Map, XY};
 // use crate::systems::system_fire::NEW_FIRE_TURNS;
@@ -124,6 +124,7 @@ pub fn player(store: &mut AllStoragesViewMut, pos: XY, is_render: bool) -> Entit
             faction: Faction::Player,
             atype: ActorType::Player,
             behaviors: Vec::new(),
+            score: 0,
         },
         Locomotive {
             mtype: LocomotionType::Ground,
@@ -197,7 +198,11 @@ pub fn villager(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
             faction: Faction::Villager,
             atype: ActorType::Villager,
             behaviors: vec![AIBehaviors::GatherWood, AIBehaviors::GatherFish, AIBehaviors::Wander],
+            score: 0,
         },
+        Aging {
+            turns: 0,
+        }
     ))
 }
 
@@ -229,6 +234,7 @@ pub fn fish(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
             faction: Faction::Nature,
             atype: ActorType::Fish,
             behaviors: Vec::new(),
+            score: 0,
         },
         Item { typ: ItemType::Fish },
     ))
@@ -263,6 +269,7 @@ pub fn monster(store: &mut AllStoragesViewMut, xy: XY, glyph: char, name: String
             faction: Faction::Orcs,
             atype: ActorType::Orc,
             behaviors: vec![AIBehaviors::AttackEnemies],
+            score: 0,
         },
         Locomotive {
             mtype: LocomotionType::Ground,
@@ -305,6 +312,7 @@ pub fn wolf(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
             faction: Faction::Nature,
             atype: ActorType::Wolf,
             behaviors: vec![AIBehaviors::AttackEnemies],
+            score: 0,
         },
         Locomotive {
             mtype: LocomotionType::Ground,
@@ -351,6 +359,7 @@ pub fn big_monster(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
             faction: Faction::Orcs,
             atype: ActorType::Orc,
             behaviors: vec![AIBehaviors::AttackEnemies],
+            score: 0,
         },
         Locomotive {
             mtype: LocomotionType::Ground,
@@ -647,6 +656,7 @@ pub fn spawner(
             atype: ActorType::Spawner,
             faction,
             behaviors: Vec::new(),
+            score: 0,
         },
     ))
 }
