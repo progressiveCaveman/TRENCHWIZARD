@@ -2,7 +2,7 @@ use rltk::{Algorithm2D, Point, BaseMap, NavigationPath};
 use serde::{Serialize, Deserialize};
 use shipyard::{EntityId, View, Get, Unique, World};
 
-use crate::{components::{Position, Renderable}, utils::Target, tiles::{TileType, TileRenderable, GasType, MAX_GAS}, game_modes::GameSettings, player, colors::{COLOR_BG, ColorUtils, COLOR_FIRE, COLOR_WHITE}, DISABLE_FOV, RenderOrder};
+use crate::{components::{Position, Renderable}, utils::Target, tiles::{TileType, TileRenderable, GasType, STABLE_GAS_AMOUNT}, game_modes::GameSettings, player, colors::{COLOR_BG, ColorUtils, COLOR_FIRE, COLOR_WHITE, COLOR_RED}, DISABLE_FOV, RenderOrder};
 
 pub type XY = (i32, i32);
 pub fn to_point(xy: XY) -> Point {
@@ -36,7 +36,7 @@ impl Map {
             tile_content: vec![Vec::new(); count],
             history: Vec::new(),
             vegetation: vec![0; count],
-            gases: vec![(vec![GasType::Air; MAX_GAS], 0); count],
+            gases: vec![(vec![GasType::Air; 7], 0); count],
         }
     }
 
@@ -146,7 +146,13 @@ impl Map {
         }
 
         if steam_count > 0.0 {
-            render.2 = render.2.add(COLOR_WHITE.scale(0.5 * steam_count / MAX_GAS as f32));
+            render.2 = render.2.add(COLOR_WHITE.scale(f32::min(0.5 * steam_count / STABLE_GAS_AMOUNT as f32, 1.0)));
+        } 
+        
+        // show areas with no air, maybe make this cause damage in future
+        let xy = self.idx_xy(idx);
+        if !self.is_wall(xy.0, xy.1) && self.gases[idx].0.len() < 3 {
+            render.2 = render.2.add(COLOR_RED.scale(0.5));
         }
 
         return render;

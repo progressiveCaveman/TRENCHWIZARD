@@ -425,6 +425,9 @@ impl Console {
     
         for e in map.gases[idx].0.iter() {
             y += 1;
+            if self.pos.1 + y * UI_GLYPH_SIZE >= self.size.1 {
+                return;
+            }
             self.print_string(
                 &game.assets,
                 frame,

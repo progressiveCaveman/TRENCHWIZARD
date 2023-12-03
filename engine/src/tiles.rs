@@ -41,12 +41,12 @@ impl TileType {
     }
 }
 
-pub const MAX_GAS: usize = 7;
+pub const STABLE_GAS_AMOUNT: usize = 7;
 
 #[derive(PartialEq, Copy, Clone, Debug, Serialize, Deserialize)]
 pub enum GasType {
     Air,
-    Blocked,
+    // Blocked,
     Steam,
     None,
 }
