@@ -18,10 +18,11 @@ mod inventory;
 pub use inventory::pick_up;
 
 mod movement;
+mod spawn;
 
 use shipyard::{AllStoragesViewMut, EntityId, Get, UniqueView, View};
 
-use crate::{components::Position, map::Map};
+use crate::{components::Position, map::Map, entity_factory::EntitySpawnTypes};
 
 lazy_static! {
     pub static ref EFFECT_QUEUE: Mutex<VecDeque<EffectSpawner>> = Mutex::new(VecDeque::new());
@@ -40,6 +41,7 @@ pub enum EffectType {
     MoveOrAttack { tile_idx: usize },
     Wait {},
     Delete { entity: EntityId },
+    Spawn { etype: EntitySpawnTypes, target: Targets },
 }
 
 #[derive(Clone)]
@@ -79,6 +81,7 @@ pub fn run_effects_queue(mut store: AllStoragesViewMut) {
                 EffectType::Wait {} => movement::skip_turn(&store, effect),
                 EffectType::Delete { .. } => delete::delete(&mut store, effect),
                 EffectType::MoveOrAttack { .. } => movement::try_move_or_attack(&store, effect, true),
+                EffectType::Spawn { .. } => spawn::spawn(&mut store, effect),
             }
         } else {
             // this happens when the queue is empty

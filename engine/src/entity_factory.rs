@@ -107,6 +107,19 @@ fn spawn_entity(store: &mut AllStoragesViewMut, spawn: &(&usize, &String)) {
     };
 }
 
+#[derive(Debug, Clone, Copy)]
+pub enum EntitySpawnTypes {
+    Villager
+}
+
+pub fn spawn_entity_type(store: &mut AllStoragesViewMut, etype: EntitySpawnTypes, pos: XY) {
+    match etype {
+        EntitySpawnTypes::Villager => {
+            villager(store, pos);
+        },
+    }
+}
+
 pub fn player(store: &mut AllStoragesViewMut, pos: XY, is_render: bool) -> EntityId {
     let e = store.add_entity((
         Position {
