@@ -243,8 +243,9 @@ impl Map {
         !self.blocked[idx]
     }
 
-    pub fn get_path(&self, from: Point, tp: Point) -> NavigationPath {
-        let path = rltk::a_star_search(self.point_idx(from) as i32, self.point_idx(tp) as i32, self);
+    pub fn get_path(&self, from: Point, to: Point) -> NavigationPath {
+        dbg!("Doing pathfinding, very slow");
+        let path = rltk::a_star_search(self.point_idx(from) as i32, self.point_idx(to) as i32, self);
 
         return path;
     }
