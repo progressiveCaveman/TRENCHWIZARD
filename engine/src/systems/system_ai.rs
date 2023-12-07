@@ -1,4 +1,4 @@
-use crate::ai::decisions::{Intent, Task};
+use crate::ai::decisions::{Intent, Task, InputTargets};
 use crate::ai::labors::{self, AIBehaviors};
 use crate::components::{Actor, ActorType, DijkstraMapToMe, Faction, Position, Spawner, SpawnerType, Turn, PlayerID, Vision, Item, ItemType};
 use crate::effects::{add_effect, EffectType};
@@ -37,7 +37,8 @@ pub fn run_ai_system(mut store: AllStoragesViewMut) {
                             if vision_contains(&store, vision.clone(), playerid.0) { //todo vision.clone bad
                                 Intent {
                                     name: "Attack player".to_string(),
-                                    task: Task::Attack,
+                                    owner: id,
+                                    task: Task::Attack(InputTargets::Player),
                                     target: vec![Target::ENTITY(playerid.0)],
                                     turn: *turn,
                                 }
@@ -48,13 +49,17 @@ pub fn run_ai_system(mut store: AllStoragesViewMut) {
                             continue;
                         }
                     },
-                    ActorType::Villager => labors::get_action(&store, id).intent,
+                    ActorType::Villager => labors::get_intent(&store, id),
                     ActorType::Spawner => {
                         if let Ok(spawner) = vspawner.get(id) {
                             if turn.0 % spawner.rate == 0 {
                                 Intent {
                                     name: "spawn".to_string(),
-                                    task: Task::Spawn,
+                                    owner: id,
+                                    task: Task::Spawn(match spawner.typ {
+                                        SpawnerType::Orc => InputTargets::Orc,
+                                        SpawnerType::Fish => InputTargets::Fish,
+                                    }),
                                     target: Vec::new(),
                                     turn: *turn,
                                 }
@@ -69,6 +74,7 @@ pub fn run_ai_system(mut store: AllStoragesViewMut) {
                             } else {
                                 Intent {
                                     name: "none".to_string(),
+                                    owner: id,
                                     task: Task::Idle,
                                     target: Vec::new(),
                                     turn: *turn,
@@ -77,6 +83,7 @@ pub fn run_ai_system(mut store: AllStoragesViewMut) {
                         } else {
                             Intent {
                                 name: "none".to_string(),
+                                owner: id,
                                 task: Task::Idle,
                                 target: Vec::new(),
                                 turn: *turn,
@@ -95,7 +102,7 @@ pub fn run_ai_system(mut store: AllStoragesViewMut) {
                     }
                     Task::Explore => add_effect(Some(id), EffectType::Explore {}),
                     Task::ExchangeInfo => todo!(),
-                    Task::MoveTo => {
+                    Task::MoveTo(_) => {
                         if let Target::ENTITY(target) = new_intent.target[0] {
                             if let Ok(target_pos) = vpos.get(target) {
                                 //world.get::<Position>(target) {
@@ -120,8 +127,10 @@ pub fn run_ai_system(mut store: AllStoragesViewMut) {
                             to_move_from_to.push((id, pos.ps[0], loc));
                         }
                     }
-                    Task::Destroy => {}
-                    Task::PickUpItem => {            
+                    Task::Destroy(_) => {
+                        // todo!() this should happen here and not in disassemble
+                    }
+                    Task::PickUpItem(_) => {            
                         if let Target::ENTITY(e) = new_intent.target[0] {
                             add_effect(Some(id), EffectType::PickUp { entity: e });
                         }
@@ -131,30 +140,33 @@ pub fn run_ai_system(mut store: AllStoragesViewMut) {
                     Task::EquipItem => todo!(),
                     Task::UnequipItem => todo!(),
                     Task::UseWorkshop => todo!(),
-                    Task::DepositItemToInventory => {
+                    Task::DepositItemToInventory(..) => {
                         to_deposit_items.push((id, new_intent));
                     }
-                    Task::Attack => {
-                        if let Target::ENTITY(target) = new_intent.target[0] {
-                            if let Ok(target_pos) = vpos.get(target) {
-                                to_attack.push((id, target_pos.ps[0]));
-                            }
-                        } else if let Target::LOCATION(loc) = new_intent.target[0] {
-                            to_attack.push((id, loc));
+                    Task::Attack(_) => {
+                        match new_intent.target[0] {
+                            Target::LOCATION(loc) => {
+                                to_attack.push((id, loc));
+                                
+                            },
+                            Target::ENTITY(target) => {
+                                if let Ok(target_pos) = vpos.get(target) {
+                                    to_attack.push((id, target_pos.ps[0]));
+                                }
+                            },
                         }
                     }
                     Task::Idle => {}
-                    Task::Spawn => {
-                        if let Ok(spawner) = vspawner.get(id) {
-                            match spawner.typ {
-                                SpawnerType::Orc => {
-                                    to_spawn_orc.push((pos.ps[0], actor.faction));
-                                }
-                                SpawnerType::Fish => {
-                                    to_spawn_fish.push(pos.ps[0]);
-                                    // entity_factory::fish(&mut store, pos.ps[0].x, pos.ps[0].y);
-                                }
+                    Task::Spawn(target) => {
+                        match target {
+                            InputTargets::Orc => {
+                                to_spawn_orc.push((pos.ps[0], actor.faction));
                             }
+                            InputTargets::Fish => {
+                                to_spawn_fish.push(pos.ps[0]);
+                                // entity_factory::fish(&mut store, pos.ps[0].x, pos.ps[0].y);
+                            }
+                            _ => {}
                         }
                     }
                 }
@@ -239,8 +251,8 @@ pub fn run_ai_system(mut store: AllStoragesViewMut) {
     }
 
     for (id, intent) in to_deposit_items.iter() {
-        store.run(|mut vactor: ViewMut<Actor>, vitem: ViewMut<Item>| {
-            if let Ok(actor) = (&mut vactor).get(*id) {
+        store.run(|mut vactor: ViewMut<Actor>, mut vintent: ViewMut<Intent>, vitem: ViewMut<Item>| {
+            if let Ok((actor, intent)) = (&mut vactor, &vintent).get(*id) {
                 if let Target::ENTITY(item) = intent.target[0] {
                     if let Target::ENTITY(target) = intent.target[1] {
                         // TODO this looks like a race condition

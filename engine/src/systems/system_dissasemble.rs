@@ -15,7 +15,7 @@ pub fn run_dissasemble_system(mut all_storages: AllStoragesViewMut) {
         let vtree = all_storages.borrow::<View<Tree>>().unwrap();
 
         for (_, (pos, intent)) in (&vpos, &vintent).iter().with_id() {
-            if intent.task == Task::Destroy {
+            if let Task::Destroy(_) = intent.task {
                 let target = intent.target[0].get_point(&vpos);
 
                 if target == Point::invalid_point() {

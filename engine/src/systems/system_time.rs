@@ -29,7 +29,7 @@ pub fn run_time_system(
         }
     }
 
-    if num_villagers < 20 {
+    if num_villagers > 0 && num_villagers < 20 {
         let mut houses = vec![];
         for (_, (_, pos)) in (&vhouse, &vpos).iter().with_id() {
             let mut point = pos.ps[0];

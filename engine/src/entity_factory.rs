@@ -7,7 +7,7 @@ use crate::components::{
     Actor, ActorType, AreaOfEffect, BlocksTile, ChiefHouse, PhysicalStats, Confusion, Consumable, DealsDamage,
     DijkstraMapToMe, EquipmentSlot, Equippable, Faction, FishCleaner, Flammable, Inventory, Item, ItemType,
     LocomotionType, Locomotive, LumberMill, MeleeDefenseBonus, MeleePowerBonus, Name, PlankHouse, Player, Position,
-    ProvidesHealing, Ranged, Renderable, SpatialKnowledge, Spawner, SpawnerType, Tree, Vision, RNG, CausesFire, Equipment, AddsGas, RemovesGas, Aging,
+    ProvidesHealing, Ranged, Renderable, SpatialKnowledge, Spawner, SpawnerType, Tree, Vision, RNG, CausesFire, Equipment, AddsGas, RemovesGas, Aging, Fish, Orc,
 };
 use crate::map::{Map, XY};
 // use crate::systems::system_fire::NEW_FIRE_TURNS;
@@ -221,6 +221,7 @@ pub fn villager(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
 
 pub fn fish(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
     store.add_entity((
+        Fish {},
         Position {
             ps: vec![Point::new( xy.0, xy.1 )],
         },
@@ -254,7 +255,13 @@ pub fn fish(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
 }
 
 pub fn orc(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
-    monster(store, xy, 'o', "Orc".to_string())
+    let e = monster(store, xy, 'o', "Orc".to_string());
+
+    store.add_component(e, (
+        Orc {},
+    ));
+
+    e
 }
 
 pub fn goblin(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {

@@ -2,13 +2,13 @@ use std::collections::HashMap;
 
 use rltk::{self, DijkstraMap, Point};
 use serde::{Deserialize, Serialize};
-use shipyard::{Component, EntityId, IntoIter, View, Unique};
+use shipyard::{Component, EntityId, IntoIter, View, Unique, AllStorages, Get, UniqueView, IntoWithId};
 use strum::IntoEnumIterator; // 0.17.1
 use strum_macros::EnumIter; // 0.17.1
 
 use crate::{
     map::Map,
-    RenderOrder, tiles::{TileType, GasType}, colors::{COLOR_BG, Color}, ai::labors::AIBehaviors,
+    RenderOrder, tiles::{TileType, GasType}, colors::{COLOR_BG, Color}, ai::{labors::AIBehaviors, decisions::InputTargets}, utils::Target,
 };
 
 /// Unique components
@@ -106,6 +106,12 @@ pub struct Name {
 #[derive(Component, Copy, Clone, Debug, PartialEq)]
 pub struct Player {}
 
+#[derive(Component, Copy, Clone, Debug, PartialEq)]
+pub struct Orc {}
+
+#[derive(Component, Copy, Clone, Debug, PartialEq)]
+pub struct Fish {}
+
 #[derive(Component, Clone, Debug, PartialEq)]
 pub struct Actor {
     pub atype: ActorType,
@@ -198,6 +204,67 @@ pub struct SpatialKnowledge {
     pub tiles: HashMap<usize, (TileType, Vec<EntityId>)>,
 }
 
+impl SpatialKnowledge {
+    pub fn get_targets(&self, store: &AllStorages, target: InputTargets) -> Vec<Target> {
+        let map = store.borrow::<UniqueView<Map>>().unwrap();
+
+        let mut targets = vec![];
+
+        for (idx, (tile, entities)) in self.tiles.iter() {
+            for id in entities {
+                match target {
+                    InputTargets::Tree => {
+                        if let Ok(_) = store.borrow::<View<Tree>>().unwrap().get(*id){
+                            targets.push(Target::from(*id));
+                        }
+                    },
+                    InputTargets::Log => {
+                        if let Ok(item) = store.borrow::<View<Item>>().unwrap().get(*id){
+                            if item.typ == ItemType::Log {
+                                targets.push(Target::from(*id));
+                            }
+                        }
+                    },
+                    InputTargets::LumberMill => {
+                        if let Ok(_) = store.borrow::<View<LumberMill>>().unwrap().get(*id){
+                            targets.push(Target::from(*id));
+                        }
+                    },
+                    InputTargets::Water => {
+                        if *tile == TileType::Water {
+                            targets.push(Target::from(map.idx_point(*idx)));
+                        }
+                    },
+                    InputTargets::Fishery => {
+                        if let Ok(_) = store.borrow::<View<FishCleaner>>().unwrap().get(*id){
+                            targets.push(Target::from(*id));
+                        }
+                    },
+                    InputTargets::Enemy => todo!(),
+                    InputTargets::Fish => {
+                        if let Ok(_) = store.borrow::<View<Fish>>().unwrap().get(*id){
+                            targets.push(Target::from(*id));
+                        }
+                    },
+                    InputTargets::Player => {
+                        if let Ok(_) = store.borrow::<View<Tree>>().unwrap().get(*id){
+                            targets.push(Target::from(*id));
+                        }
+                    },
+                    InputTargets::None => { },
+                    InputTargets::Orc => {
+                        if let Ok(_) = store.borrow::<View<Fish>>().unwrap().get(*id){
+                            targets.push(Target::from(*id));
+                        }
+                    },
+                }
+            }
+        }
+
+        targets
+    }
+}
+
 #[derive(Component)]
 pub struct DijkstraMapToMe {
     pub map: DijkstraMap,
@@ -259,8 +326,8 @@ pub struct Inventory {
 impl Inventory {
     pub fn count_type(&self, vitems: &View<Item>, item_type: ItemType) -> i32 {
         let mut count = 0;
-        for item in vitems.iter() {
-            if item.typ == item_type {
+        for (id, item) in vitems.iter().with_id() {
+            if item.typ == item_type && self.items.contains(&id){
                 count += 1;
             }
         }
