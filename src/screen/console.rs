@@ -215,8 +215,8 @@ impl Console {
                         let render = map.get_renderable((xmap, ymap), &game.engine.settings, &game.engine.world, hidx);
 
                         // calculate whether we're on a border for glyph fg render
-                        let xmod = self.map_pos.0 + (xscreen - self.pos.0) % self.gsize;
-                        let ymod = self.map_pos.1 + (yscreen - self.pos.1) % self.gsize;
+                        let xmod = (xscreen - self.pos.0) % self.gsize;
+                        let ymod = (yscreen - self.pos.1) % self.gsize;
                         let border = xmod < self.gsize / 4 || xmod >= self.gsize * 3 / 4 || 
                             ymod < self.gsize / 4 || ymod >= self.gsize * 3 / 4;
 
