@@ -1,8 +1,4 @@
-use shipyard::{AllStorages, EntityId, Get, View};
-
-use crate::components::Actor;
-
-use super::decisions::{Action, Consideration, ConsiderationParam, Intent, ResponseCurveType, Task, AI, InputType, InputTargets, IntentArchetype};
+use super::decisions::{Action, Consideration, ConsiderationParam, ResponseCurveType, Task, InputType, InputTargets, IntentArchetype};
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum AIBehaviors {
@@ -13,8 +9,7 @@ pub enum AIBehaviors {
     Wander,
 }
 
-pub fn get_intent(store: &AllStorages, id: EntityId) -> Intent {
-    let vactor = store.borrow::<View<Actor>>().unwrap();
+pub fn get_actions(behaviors: &Vec<AIBehaviors>) -> Vec<Action> {
 
     let mut potential_actions: Vec<Action> = vec![];
 
@@ -31,18 +26,17 @@ pub fn get_intent(store: &AllStorages, id: EntityId) -> Intent {
         priority: 1.0,
     });
 
-    if let Ok(actor) = vactor.get(id) {
-        for b in actor.behaviors.iter() {
-            match b {
-                AIBehaviors::GatherWood => potential_actions.append(&mut get_gather_wood_actions()),
-                AIBehaviors::GatherFish => potential_actions.append(&mut get_gather_fish_actions()),
-                AIBehaviors::AttackEnemies => potential_actions.append(&mut get_attack_actions()),
-                _ => {} // AIBehaviors::Wander => ,
-            }
+    for b in behaviors.iter() {
+        match b {
+            AIBehaviors::GatherWood => potential_actions.append(&mut get_gather_wood_actions()),
+            AIBehaviors::GatherFish => potential_actions.append(&mut get_gather_fish_actions()),
+            AIBehaviors::AttackEnemies => potential_actions.append(&mut get_attack_actions()),
+            _ => {} // AIBehaviors::Wander => ,
         }
     }
 
-    return AI::choose_intent(potential_actions, store, id);
+    potential_actions
+    // return AI::choose_intent(potential_actions, store, id);
 }
 
 pub fn get_gather_wood_actions() -> Vec<Action> {
@@ -159,7 +153,7 @@ pub fn get_gather_wood_actions() -> Vec<Action> {
                 // map.distance(&vpos, Target::from(pos), Target::from(lm)),
                 ConsiderationParam {
                     t: ResponseCurveType::Linear,
-                    m: 1. - 1. / 20.,
+                    m: -1. / 20.,
                     k: 1.0,
                     c: 1.0,
                     b: 0.0,
@@ -176,17 +170,17 @@ pub fn get_gather_wood_actions() -> Vec<Action> {
             //         b: 1.0,
             //     },
             // ),
-            // Consideration::new(
-            //     "logs in iventory".to_string(),
-            //     logs_in_inv as f32,
-            //     ConsiderationParam {
-            //         t: ResponseCurveType::Linear,
-            //         m: 1. / 5.0,
-            //         k: 1.0,
-            //         c: 0.0,
-            //         b: 0.0,
-            //     },
-            // ),
+            Consideration::new(
+                "logs in iventory".to_string(),
+                InputType::Inventory(InputTargets::Log),
+                ConsiderationParam {
+                    t: ResponseCurveType::Linear,
+                    m: 1. / 5.0,
+                    k: 1.0,
+                    c: 0.0,
+                    b: 0.0,
+                },
+            ),
         ],
         priority: 1.0,
     });
@@ -203,8 +197,8 @@ pub fn get_gather_wood_actions() -> Vec<Action> {
                 // map.distance(&vpos, Target::from(pos), Target::from(lm)),
                 ConsiderationParam {
                     t: ResponseCurveType::LessThan,
-                    m: 2.,
-                    k: 2.0,
+                    m: 2.1,
+                    k: 1.0,
                     c: 1.0,
                     b: 0.0,
                 },
@@ -220,17 +214,17 @@ pub fn get_gather_wood_actions() -> Vec<Action> {
             //         b: 1.0,
             //     },
             // ),
-            // Consideration::new(
-            //     "logs in iventory".to_string(),
-            //     logs_in_inv as f32,
-            //     ConsiderationParam {
-            //         t: ResponseCurveType::Linear,
-            //         m: 1. / 5.0,
-            //         k: 1.0,
-            //         c: 0.0,
-            //         b: 0.0,
-            //     },
-            // ),
+            Consideration::new(
+                "logs in iventory".to_string(),
+                InputType::Inventory(InputTargets::Log),
+                ConsiderationParam {
+                    t: ResponseCurveType::Linear,
+                    m: 1. / 5.0,
+                    k: 1.0,
+                    c: 0.0,
+                    b: 0.0,
+                },
+            ),
         ],
         priority: 2.0,
     });
@@ -267,9 +261,9 @@ pub fn get_gather_fish_actions() -> Vec<Action> {
                 // map.distance(&vpos, Target::from(pos), Target::from(wp)),
                 ConsiderationParam {
                     t: ResponseCurveType::Linear,
-                    m: 1.0 / 100.0,
+                    m: -1.0 / 100.0,
                     k: 1.0,
-                    c: 2.0,
+                    c: 1.0,
                     b: 1.0,
                 },
             ),

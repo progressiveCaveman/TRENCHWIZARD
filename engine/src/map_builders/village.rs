@@ -3,7 +3,7 @@ use shipyard::{AllStoragesViewMut, World};
 
 use crate::{
     components::{Faction, SpawnerType},
-    entity_factory, SHOW_MAPGEN_ANIMATION, tiles::TileType, map::XY,
+    entity_factory, SHOW_MAPGEN_ANIMATION, tiles::TileType, map::XY, ai::labors::{get_actions, AIBehaviors},
 };
 
 use super::{Map, MapBuilder, Position};
@@ -54,7 +54,7 @@ impl MapBuilder for VillageBuilder {
             entity_factory::fish_cleaner(&mut store, (10, self.map.size.1 - 17), 5, 5);
 
             for i in 0..20 {
-                entity_factory::villager(&mut store, (15, self.map.size.1 - 25 - i));
+                entity_factory::villager(&mut store, (15, self.map.size.1 - 25 - i), get_actions(&vec![AIBehaviors::GatherWood, AIBehaviors::GatherFish]));
             }
         });
     }

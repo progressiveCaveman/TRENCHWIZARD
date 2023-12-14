@@ -1,7 +1,7 @@
 use rltk::{Point, RandomNumberGenerator};
 use shipyard::{AllStoragesViewMut, World};
 
-use crate::{entity_factory, SHOW_MAPGEN_ANIMATION, tiles::TileType, map::XY};
+use crate::{entity_factory, SHOW_MAPGEN_ANIMATION, tiles::TileType, map::XY, ai::labors::{AIBehaviors, get_actions}};
 
 use super::{Map, MapBuilder, Position};
 
@@ -34,7 +34,7 @@ impl MapBuilder for VillageWorldBuilder {
             if !self.map.is_wall(x, y) && self.map.tiles[idx] != TileType::Water && !used_idx.contains(&idx) {
                 used_idx.push(idx);
                 world.run(|mut store: AllStoragesViewMut| {
-                    entity_factory::villager(&mut store, (x, y));
+                    entity_factory::villager(&mut store, (x, y), get_actions(&vec![AIBehaviors::GatherWood, AIBehaviors::GatherFish]));
                 });
             }
         }

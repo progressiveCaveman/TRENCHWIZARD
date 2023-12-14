@@ -28,7 +28,7 @@ impl AI {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Action {
     pub cons: Vec<Consideration>,
     pub priority: f32,
@@ -43,6 +43,7 @@ impl Action {
 
         let map = store.borrow::<UniqueView<Map>>().unwrap();
 
+        // select targets for each intent
         let intents = self.expand_intent_archetype(store, id);
 
         if intents.len() == 0 {
@@ -62,7 +63,15 @@ impl Action {
                     InputType::Const => 1.0,
                     InputType::DistanceTo(_) => {
                         let pos = vpos.get(intent.owner).unwrap();
-                        map.distance(&vpos, Target::from(pos.ps[0]), Target::from(intent.target[0]))
+                        let mut dist = 1000000000.0;
+                        for ps in pos.ps.iter() {
+                            let newdist = map.distance(&vpos, Target::from(*ps), Target::from(intent.target[0]));
+                            if newdist < dist {
+                                dist = newdist;
+                            }
+                        }
+
+                        dist
                     },
                     InputType::Inventory(target) => {
                         let inv = vinv.get(intent.owner).unwrap();
@@ -131,7 +140,7 @@ impl Action {
                                     target: vec![Target::from(point)],
                                     turn: *turn,
                                 });
-                            }                            
+                            }
                         },
                         Target::ENTITY(_) => todo!(),
                     }
@@ -179,10 +188,9 @@ impl Action {
                                 turn: *turn,
                             });
                         }
+                        break;
                     }
                 }
-
-
             },
             Task::Idle => { 
                 intents.push(Intent {
@@ -209,7 +217,7 @@ impl Action {
     }
 }
 
-#[derive(Clone, Debug, Copy)]
+#[derive(Clone, Debug, Copy, PartialEq)]
 pub enum Task {
     Fish,    // not an effect yet but maybe could be?
     Explore, //
@@ -250,13 +258,13 @@ impl Intent {
 }
 
 // Actions are stored using archetype, and specific intents are generated on the fly
-#[derive(Component, Clone, Debug)]
+#[derive(Component, Clone, Debug, PartialEq)]
 pub struct IntentArchetype {
     pub name: String,
     pub task: Task,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct Consideration {
     pub name: String,
     pub input_type: InputType,
@@ -368,7 +376,8 @@ pub fn average(numbers: &[f32]) -> f32 {
 pub enum InputType {
     Const, // used as a baseline for things
     DistanceTo(InputTargets),
-    Inventory(InputTargets),
+    Inventory(InputTargets), // intent owner's inventory
+    // TargetInventory(InputTargets), // target's inventory
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
@@ -389,7 +398,7 @@ impl InputTargets {
     pub fn matches(&self, item: ItemType) -> bool {
         match self {
             InputTargets::Log => item == ItemType::Log,
-            InputTargets::Fish => item == ItemType::Log,
+            InputTargets::Fish => item == ItemType::Fish,
             _ => false,
         }
     }

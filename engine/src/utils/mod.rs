@@ -6,7 +6,7 @@ pub mod rect;
 pub mod weighted_table;
 pub mod vision;
 
-#[derive(Clone, Debug, Copy)]
+#[derive(Clone, Debug, Copy, PartialEq)]
 pub enum Target {
     LOCATION(Point),
     ENTITY(EntityId),

@@ -1,5 +1,5 @@
-use crate::ai::decisions::{Intent, Task, InputTargets};
-use crate::ai::labors::{self, AIBehaviors};
+use crate::ai::decisions::{Intent, Task, InputTargets, AI};
+use crate::ai::labors::AIBehaviors;
 use crate::components::{Actor, ActorType, DijkstraMapToMe, Faction, Position, Spawner, SpawnerType, Turn, PlayerID, Vision, Item, ItemType};
 use crate::effects::{add_effect, EffectType};
 use crate::entity_factory;
@@ -49,7 +49,7 @@ pub fn run_ai_system(mut store: AllStoragesViewMut) {
                             continue;
                         }
                     },
-                    ActorType::Villager => labors::get_intent(&store, id),
+                    ActorType::Villager => AI::choose_intent(actor.actions.clone(), &store, id), //todo clone here is messy
                     ActorType::Spawner => {
                         if let Ok(spawner) = vspawner.get(id) {
                             if turn.0 % spawner.rate == 0 {
@@ -250,8 +250,8 @@ pub fn run_ai_system(mut store: AllStoragesViewMut) {
         });
     }
 
-    for (id, intent) in to_deposit_items.iter() {
-        store.run(|mut vactor: ViewMut<Actor>, mut vintent: ViewMut<Intent>, vitem: ViewMut<Item>| {
+    for (id, _) in to_deposit_items.iter() {
+        store.run(|mut vactor: ViewMut<Actor>, vintent: View<Intent>, vitem: ViewMut<Item>| {
             if let Ok((actor, intent)) = (&mut vactor, &vintent).get(*id) {
                 if let Target::ENTITY(item) = intent.target[0] {
                     if let Target::ENTITY(target) = intent.target[1] {

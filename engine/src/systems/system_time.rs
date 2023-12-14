@@ -21,7 +21,7 @@ pub fn run_time_system(
         aging.turns += 1;
 
         if actor.atype == ActorType::Villager {
-            if aging.turns > 50 && rng.0.roll_dice(1, 3) < 2{
+            if aging.turns > 250 && rng.0.roll_dice(1, 3) < 2{
                 add_effect(None, EffectType::Delete { entity: id });
             } else {
                 num_villagers += 1;

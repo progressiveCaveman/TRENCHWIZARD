@@ -25,6 +25,7 @@ pub enum InputCommand {
     UseStairs,
     Pause,
     Apply, 
+    Drop,
 
     //debug
     Reset,
@@ -100,6 +101,27 @@ impl InputCommand {
 
                 GameState::PlayerActed
             }
+            InputCommand::Drop => {
+                let item = match game.state {
+                    GameState::ShowInventory { selection } => {
+                        if let Ok(inv) = world.borrow::<View<Inventory>>().unwrap().get(player_id) {
+                            Some(inv.items[selection])
+                        } else {
+                            None
+                        }
+                    },
+                    GameState::ShowItemActions { item } => {
+                        Some(item)
+                    },
+                    _ => None
+                };
+
+                if let Some(item) = item {
+                    add_effect(creator, EffectType::Drop { entity: item });
+                }
+
+                GameState::PlayerActed
+            },
             InputCommand::Explore => {
                 add_effect(creator, EffectType::Explore {});
 
@@ -307,6 +329,7 @@ pub fn map_keys(event: WindowEvent, game: &Game) -> InputCommand {
                             VirtualKeyCode::R => InputCommand::RevealMap,
                             VirtualKeyCode::I => InputCommand::ShowInventory,
                             VirtualKeyCode::A => InputCommand::Apply,
+                            VirtualKeyCode::D => InputCommand::Drop,
                             VirtualKeyCode::Escape => InputCommand::Escape,
                             _ => InputCommand::None,
                         },

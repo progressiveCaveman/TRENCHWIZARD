@@ -8,7 +8,7 @@ use strum_macros::EnumIter; // 0.17.1
 
 use crate::{
     map::Map,
-    RenderOrder, tiles::{TileType, GasType}, colors::{COLOR_BG, Color}, ai::{labors::AIBehaviors, decisions::InputTargets}, utils::Target,
+    RenderOrder, tiles::{TileType, GasType}, colors::{COLOR_BG, Color}, ai::{labors::AIBehaviors, decisions::{InputTargets, Action}}, utils::Target,
 };
 
 /// Unique components
@@ -113,10 +113,11 @@ pub struct Orc {}
 pub struct Fish {}
 
 #[derive(Component, Clone, Debug, PartialEq)]
-pub struct Actor {
+pub struct Actor { 
     pub atype: ActorType,
     pub faction: Faction,
-    pub behaviors: Vec<AIBehaviors>,
+    pub behaviors: Vec<AIBehaviors>, //todo remove this
+    pub actions: Vec<Action>,
     pub score: i32, // actors score points for executing behaviors
 }
 
@@ -215,19 +216,28 @@ impl SpatialKnowledge {
                 match target {
                     InputTargets::Tree => {
                         if let Ok(_) = store.borrow::<View<Tree>>().unwrap().get(*id){
-                            targets.push(Target::from(*id));
+                            let t = Target::from(*id);
+                            if !targets.contains(&t) {
+                                targets.push(t);
+                            }
                         }
                     },
                     InputTargets::Log => {
                         if let Ok(item) = store.borrow::<View<Item>>().unwrap().get(*id){
                             if item.typ == ItemType::Log {
-                                targets.push(Target::from(*id));
+                                let t = Target::from(*id);
+                                if !targets.contains(&t) {
+                                    targets.push(t);
+                                }
                             }
                         }
                     },
                     InputTargets::LumberMill => {
                         if let Ok(_) = store.borrow::<View<LumberMill>>().unwrap().get(*id){
-                            targets.push(Target::from(*id));
+                            let t = Target::from(*id);
+                            if !targets.contains(&t) {
+                                targets.push(t);
+                            }
                         }
                     },
                     InputTargets::Water => {
@@ -237,24 +247,36 @@ impl SpatialKnowledge {
                     },
                     InputTargets::Fishery => {
                         if let Ok(_) = store.borrow::<View<FishCleaner>>().unwrap().get(*id){
-                            targets.push(Target::from(*id));
+                            let t = Target::from(*id);
+                            if !targets.contains(&t) {
+                                targets.push(t);
+                            }
                         }
                     },
                     InputTargets::Enemy => todo!(),
                     InputTargets::Fish => {
                         if let Ok(_) = store.borrow::<View<Fish>>().unwrap().get(*id){
-                            targets.push(Target::from(*id));
+                            let t = Target::from(*id);
+                            if !targets.contains(&t) {
+                                targets.push(t);
+                            }
                         }
                     },
                     InputTargets::Player => {
                         if let Ok(_) = store.borrow::<View<Tree>>().unwrap().get(*id){
-                            targets.push(Target::from(*id));
+                            let t = Target::from(*id);
+                            if !targets.contains(&t) {
+                                targets.push(t);
+                            }
                         }
                     },
                     InputTargets::None => { },
                     InputTargets::Orc => {
                         if let Ok(_) = store.borrow::<View<Fish>>().unwrap().get(*id){
-                            targets.push(Target::from(*id));
+                            let t = Target::from(*id);
+                            if !targets.contains(&t) {
+                                targets.push(t);
+                            }
                         }
                     },
                 }

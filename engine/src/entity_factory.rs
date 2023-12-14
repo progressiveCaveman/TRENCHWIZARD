@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use crate::ai::decisions::Action;
 use crate::ai::labors::AIBehaviors;
 use crate::colors::{*};
 // use crate::ai::labors::AIBehaviors;
@@ -112,10 +113,14 @@ pub enum EntitySpawnTypes {
     Villager
 }
 
-pub fn spawn_entity_type(store: &mut AllStoragesViewMut, etype: EntitySpawnTypes, pos: XY) {
+pub fn spawn_entity_type(store: &mut AllStoragesViewMut, etype: EntitySpawnTypes, pos: XY, actions: Option<Vec<Action>>) {
     match etype {
         EntitySpawnTypes::Villager => {
-            villager(store, pos);
+            let actions = match actions {
+                Some(a) => a,
+                None => vec![],
+            };
+            villager(store, pos, actions);
         },
     }
 }
@@ -137,6 +142,7 @@ pub fn player(store: &mut AllStoragesViewMut, pos: XY, is_render: bool) -> Entit
             faction: Faction::Player,
             atype: ActorType::Player,
             behaviors: Vec::new(),
+            actions: vec![],
             score: 0,
         },
         Locomotive {
@@ -177,7 +183,7 @@ pub fn player(store: &mut AllStoragesViewMut, pos: XY, is_render: bool) -> Entit
 
 /// Monsters
 
-pub fn villager(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
+pub fn villager(store: &mut AllStoragesViewMut, xy: XY, actions: Vec<Action>) -> EntityId {
     store.add_entity((
         Position {
             ps: vec![Point::new( xy.0, xy.1 )],
@@ -211,6 +217,7 @@ pub fn villager(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
             faction: Faction::Villager,
             atype: ActorType::Villager,
             behaviors: vec![AIBehaviors::GatherWood, AIBehaviors::GatherFish, AIBehaviors::Wander],
+            actions: actions,
             score: 0,
         },
         Aging {
@@ -248,6 +255,7 @@ pub fn fish(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
             faction: Faction::Nature,
             atype: ActorType::Fish,
             behaviors: Vec::new(),
+            actions: vec![],
             score: 0,
         },
         Item { typ: ItemType::Fish },
@@ -289,6 +297,7 @@ pub fn monster(store: &mut AllStoragesViewMut, xy: XY, glyph: char, name: String
             faction: Faction::Orcs,
             atype: ActorType::Orc,
             behaviors: vec![AIBehaviors::AttackEnemies],
+            actions: vec![],
             score: 0,
         },
         Locomotive {
@@ -332,6 +341,7 @@ pub fn wolf(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
             faction: Faction::Nature,
             atype: ActorType::Wolf,
             behaviors: vec![AIBehaviors::AttackEnemies],
+            actions: vec![],
             score: 0,
         },
         Locomotive {
@@ -379,6 +389,7 @@ pub fn big_monster(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
             faction: Faction::Orcs,
             atype: ActorType::Orc,
             behaviors: vec![AIBehaviors::AttackEnemies],
+            actions: vec![],
             score: 0,
         },
         Locomotive {
@@ -676,6 +687,7 @@ pub fn spawner(
             atype: ActorType::Spawner,
             faction,
             behaviors: Vec::new(),
+            actions: vec![],
             score: 0,
         },
     ))
