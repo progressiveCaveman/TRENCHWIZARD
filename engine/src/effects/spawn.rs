@@ -16,7 +16,7 @@ pub fn spawn(store: &mut AllStoragesViewMut, effect: &EffectSpawner) {
             // }
         }
         for t in spawn_targets.iter() {
-            spawn_entity_type(store, *etype, *t);
+            spawn_entity_type(store, *etype, *t, None);
         }
     }
 
