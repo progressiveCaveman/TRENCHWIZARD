@@ -82,7 +82,7 @@ fn main() -> Result<(), Error> {
 
             // query the change in mouse this update
             if input.mouse_diff() != (0.0, 0.0) {
-                game.screen.mouse_pos = (input.mouse().unwrap().0 as i32 / 2, input.mouse().unwrap().1 as i32 / 2);
+                game.screen.mouse_pos = (input.mouse().unwrap().0 as i32, input.mouse().unwrap().1 as i32);
             }
 
             // Resize the window

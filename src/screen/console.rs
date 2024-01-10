@@ -7,7 +7,7 @@ use strum::EnumCount;
 
 use crate::{WIDTH, assets::{cp437_converter::{to_cp437, string_to_cp437}, Assets, sprites::Drawable}, game::{Game, GameState}, HEIGHT, screen::RangedTargetResult};
 
-use super::{Glyph, UI_GLYPH_SIZE, menu_config::{MainMenuSelection, ModeSelectSelection}, MAX_ZOOM};
+use super::{Glyph, menu_config::{MainMenuSelection, ModeSelectSelection}, MAX_ZOOM};
 
 #[derive(Debug, PartialEq)]
 pub enum ConsoleMode {
@@ -33,7 +33,7 @@ pub struct Console {
 }
 
 impl Console {
-    pub fn new(size: XY, pos: XY, mode: ConsoleMode) -> Console {
+    pub fn new(size: XY, pos: XY, mode: ConsoleMode, gsize: i32) -> Console {
         Self {
             size: size,
             pos: pos,
@@ -41,7 +41,7 @@ impl Console {
             hidden: false,
             z: 1,
             mode: mode,
-            gsize: UI_GLYPH_SIZE,
+            gsize,
             map_pos: (0, 0),
         }
     }
@@ -107,12 +107,12 @@ impl Console {
                 self.size,
                 colors::COLOR_UI_1,
                 colors::COLOR_BG,
-                UI_GLYPH_SIZE,
+                self.gsize,
                 "".to_string()
             );
 
-            let x = self.pos.0 + 3 * UI_GLYPH_SIZE;
-            let mut y = self.pos.1 + 2 * UI_GLYPH_SIZE;
+            let x = self.pos.0 + 3 * self.gsize;
+            let mut y = self.pos.1 + 2 * self.gsize;
 
             self.print_string(
                 &game.assets,
@@ -120,10 +120,10 @@ impl Console {
                 "Main Menu",
                 (x, y),
                 colors::COLOR_UI_2,
-                UI_GLYPH_SIZE
+                self.gsize
             );
 
-            y += 2 * UI_GLYPH_SIZE;
+            y += 2 * self.gsize;
 
             for i in 0..=MainMenuSelection::COUNT {
                 if let Some(opt) = MainMenuSelection::from_repr(i) {
@@ -133,10 +133,10 @@ impl Console {
                         &opt.to_string(),
                         (x, y),
                         if selection as usize == i { colors::COLOR_UI_3 } else { colors::COLOR_UI_2 },
-                        UI_GLYPH_SIZE
+                        self.gsize
                     );
         
-                    y += UI_GLYPH_SIZE;
+                    y += self.gsize;
                 }
             }
         }
@@ -151,12 +151,12 @@ impl Console {
                 self.size,
                 colors::COLOR_UI_1,
                 colors::COLOR_BG, // todo transparancy doesn't work
-                UI_GLYPH_SIZE,
+                self.gsize,
                 "".to_string()
             );
 
-            let x = self.pos.0 + 3 * UI_GLYPH_SIZE;
-            let mut y = self.pos.1 + 2 * UI_GLYPH_SIZE;
+            let x = self.pos.0 + 3 * self.gsize;
+            let mut y = self.pos.1 + 2 * self.gsize;
 
             self.print_string(
                 &game.assets,
@@ -164,10 +164,10 @@ impl Console {
                 "Select Game Mode",
                 (x, y),
                 colors::COLOR_UI_2,
-                UI_GLYPH_SIZE
+                self.gsize
             );
 
-            y += 2 * UI_GLYPH_SIZE;
+            y += 2 * self.gsize;
 
             for i in 0..=ModeSelectSelection::COUNT {
                 if let Some(opt) = ModeSelectSelection::from_repr(i) {
@@ -177,10 +177,10 @@ impl Console {
                         &opt.to_string(),
                         (x, y),
                         if selection as usize == i { colors::COLOR_UI_3 } else { colors::COLOR_UI_2 },
-                        UI_GLYPH_SIZE
+                        self.gsize
                     );
         
-                    y += UI_GLYPH_SIZE;
+                    y += self.gsize;
                 }
             }
         }
@@ -261,22 +261,22 @@ impl Console {
             self.size,
             colors::COLOR_UI_1,
             colors::COLOR_BG,
-            UI_GLYPH_SIZE,
+            self.gsize,
             "Log".to_string()
         );
         
         let mut y = 1;
         for m in game.engine.get_log().messages.iter().rev() {
-            for ms in m.chars().collect::<Vec<_>>().chunks((self.size.0 / UI_GLYPH_SIZE) as usize - 2) {
-                if y * UI_GLYPH_SIZE < self.size.1 - UI_GLYPH_SIZE {
+            for ms in m.chars().collect::<Vec<_>>().chunks((self.size.0 / self.gsize) as usize - 2) {
+                if y * self.gsize < self.size.1 - self.gsize {
                     let s: String = ms.into_iter().collect();
                     self.print_string(
                         &game.assets,
                         frame,
                         &s,
-                        (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                        (self.pos.0 + self.gsize, self.pos.1 + y * self.gsize),
                         colors::COLOR_UI_2,
-                        UI_GLYPH_SIZE
+                        self.gsize
                     );
                     y += 1;
                 } else {
@@ -296,7 +296,7 @@ impl Console {
             (self.size.0, self.size.1),
             colors::COLOR_UI_1,
             colors::COLOR_BG,
-            UI_GLYPH_SIZE,
+            self.gsize,
             "Stats".to_string()
         );
 
@@ -305,9 +305,9 @@ impl Console {
         //     &game.assets,
         //     frame,
         //     "calendar",
-        //     (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+        //     (self.pos.0 + self.gsize, self.pos.1 + y * self.gsize),
         //     colors::COLOR_UI_2,
-        //     UI_GLYPH_SIZE
+        //     self.gsize
         // );
         if let Ok(turn) = game.engine.world.borrow::<UniqueView<Turn>>() {
             // if let Ok(fire) = vonfire.get(player_id) {
@@ -315,9 +315,9 @@ impl Console {
                     &game.assets,
                     frame,
                     &format!("Turn: {}", turn.0),
-                    (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                    (self.pos.0 + self.gsize, self.pos.1 + y * self.gsize),
                     colors::COLOR_FIRE,
-                    UI_GLYPH_SIZE
+                    self.gsize
                 );
                 // y += 1;
             // }
@@ -330,9 +330,9 @@ impl Console {
                     &game.assets,
                     frame,
                     &format!("HP: {}/{}", stat.hp, stat.max_hp),
-                    (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                    (self.pos.0 + self.gsize, self.pos.1 + y * self.gsize),
                     colors::COLOR_UI_2,
-                    UI_GLYPH_SIZE
+                    self.gsize
                 );
                 y += 1;
             }
@@ -344,9 +344,9 @@ impl Console {
                     &game.assets,
                     frame,
                     &format!("FIRE {}", fire.turns),
-                    (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                    (self.pos.0 + self.gsize, self.pos.1 + y * self.gsize),
                     colors::COLOR_FIRE,
-                    UI_GLYPH_SIZE
+                    self.gsize
                 );
                 // y += 1;
             }
@@ -366,7 +366,7 @@ impl Console {
             self.size,
             colors::COLOR_UI_1,
             colors::COLOR_BG,
-            UI_GLYPH_SIZE,
+            self.gsize,
             "debug info".to_string()
         );
 
@@ -395,9 +395,9 @@ impl Console {
             &game.assets,
             frame,
             &format!("PPOS: {:?}", player_pos),
-            (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+            (self.pos.0 + self.gsize, self.pos.1 + y * self.gsize),
             colors::COLOR_UI_2,
-            UI_GLYPH_SIZE
+            self.gsize
         );
     
         y += 1;
@@ -405,9 +405,9 @@ impl Console {
             &game.assets,
             frame,
             &format!("Frametime: {:?}", frametime),
-            (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+            (self.pos.0 + self.gsize, self.pos.1 + y * self.gsize),
             colors::COLOR_UI_2,
-            UI_GLYPH_SIZE
+            self.gsize
         );
     
         /* Normal stuff */
@@ -416,9 +416,9 @@ impl Console {
             &game.assets,
             frame,
             &format!("mouse pos: {:?}", mpos),
-            (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+            (self.pos.0 + self.gsize, self.pos.1 + y * self.gsize),
             colors::COLOR_UI_2,
-            UI_GLYPH_SIZE
+            self.gsize
         );
 
         y += 1;
@@ -426,9 +426,9 @@ impl Console {
             &game.assets,
             frame,
             &format!("Tile: {:?}", map.tiles[idx]),
-            (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+            (self.pos.0 + self.gsize, self.pos.1 + y * self.gsize),
             colors::COLOR_UI_2,
-            UI_GLYPH_SIZE
+            self.gsize
         );
 
         y += 1;
@@ -436,23 +436,23 @@ impl Console {
             &game.assets,
             frame,
             &format!("Gases:"),
-            (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+            (self.pos.0 + self.gsize, self.pos.1 + y * self.gsize),
             colors::COLOR_UI_2,
-            UI_GLYPH_SIZE
+            self.gsize
         );
     
         for e in map.gases[idx].0.iter() {
             y += 1;
-            if (y + 1) * UI_GLYPH_SIZE >= self.size.1 {
+            if (y + 1) * self.gsize >= self.size.1 {
                 return;
             }
             self.print_string(
                 &game.assets,
                 frame,
                 &format!(" {:?}", e),
-                (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                (self.pos.0 + self.gsize, self.pos.1 + y * self.gsize),
                 colors::COLOR_UI_2,
-                UI_GLYPH_SIZE
+                self.gsize
             );
         }
     
@@ -461,9 +461,9 @@ impl Console {
             &game.assets,
             frame,
             &format!("Entities:"),
-            (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+            (self.pos.0 + self.gsize, self.pos.1 + y * self.gsize),
             colors::COLOR_UI_2,
-            UI_GLYPH_SIZE
+            self.gsize
         );
     
         for e in map.tile_content[idx].iter() {
@@ -473,9 +473,9 @@ impl Console {
                     &game.assets,
                     frame,
                     &format!(" {:?} {}", e, name.name),
-                    (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                    (self.pos.0 + self.gsize, self.pos.1 + y * self.gsize),
                     colors::COLOR_UI_2,
-                    UI_GLYPH_SIZE
+                    self.gsize
                 );
             }
     
@@ -485,9 +485,9 @@ impl Console {
                     &game.assets,
                     frame,
                     &format!(" {:?}", pos.ps[0]),
-                    (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                    (self.pos.0 + self.gsize, self.pos.1 + y * self.gsize),
                     colors::COLOR_UI_2,
-                    UI_GLYPH_SIZE
+                    self.gsize
                 );
             }
     
@@ -497,9 +497,9 @@ impl Console {
                     &game.assets,
                     frame,
                     &format!(" HP: {}/{}", stats.hp, stats.max_hp),
-                    (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                    (self.pos.0 + self.gsize, self.pos.1 + y * self.gsize),
                     colors::COLOR_UI_2,
-                    UI_GLYPH_SIZE
+                    self.gsize
                 );
             }
 
@@ -509,9 +509,9 @@ impl Console {
                     &game.assets,
                     frame,
                     &format!("FIRE {}", fire.turns),
-                    (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                    (self.pos.0 + self.gsize, self.pos.1 + y * self.gsize),
                     colors::COLOR_FIRE,
-                    UI_GLYPH_SIZE
+                    self.gsize
                 );
             }
     
@@ -521,9 +521,9 @@ impl Console {
                     &game.assets,
                     frame,
                     &format!(" Intent: {}", intent.name),
-                    (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                    (self.pos.0 + self.gsize, self.pos.1 + y * self.gsize),
                     colors::COLOR_UI_2,
-                    UI_GLYPH_SIZE
+                    self.gsize
                 );
     
                 if intent.target.len() > 0 {
@@ -532,9 +532,9 @@ impl Console {
                         &game.assets,
                         frame,
                         &format!(" Target: {:?}", intent.target[0].get_point(&vpos)),
-                        (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                        (self.pos.0 + self.gsize, self.pos.1 + y * self.gsize),
                         colors::COLOR_UI_2,
-                        UI_GLYPH_SIZE
+                        self.gsize
                     );
                 }
             }
@@ -546,24 +546,24 @@ impl Console {
                         &game.assets,
                         frame,
                         &format!(" Inventory:"),
-                        (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                        (self.pos.0 + self.gsize, self.pos.1 + y * self.gsize),
                         colors::COLOR_UI_2,
-                        UI_GLYPH_SIZE
+                        self.gsize
                     );
     
                     for item in inv.items.iter() {
                         if let Ok(name) = vname.get(*item) {
                             y += 1;
-                            if (y + 1) * UI_GLYPH_SIZE >= self.size.1 {
+                            if (y + 1) * self.gsize >= self.size.1 {
                                 return;
                             }
                             self.print_string(
                                 &game.assets,
                                 frame,
                                 &format!("  {}", name.name),
-                                (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                                (self.pos.0 + self.gsize, self.pos.1 + y * self.gsize),
                                 colors::COLOR_UI_2,
-                                UI_GLYPH_SIZE
+                                self.gsize
                             );
                         }
                     }
@@ -596,9 +596,9 @@ impl Console {
                         &game.assets,
                         frame,
                         &format!("{:?} - {}", eslot, name),
-                        (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                        (self.pos.0 + self.gsize, self.pos.1 + y * self.gsize),
                         colors::COLOR_UI_2,
-                        UI_GLYPH_SIZE
+                        self.gsize
                     );
                     y += 1;
                 }
@@ -610,10 +610,10 @@ impl Console {
                 &game.assets,
                 frame,
                 (self.pos.0, self.pos.1),
-                (self.size.0, y * UI_GLYPH_SIZE),
+                (self.size.0, y * self.gsize),
                 colors::COLOR_UI_1,
                 colors::COLOR_BG,
-                UI_GLYPH_SIZE,
+                self.gsize,
                 "Equipment".to_string()
             );
             let invstart = y;
@@ -625,9 +625,9 @@ impl Console {
             //     &game.assets,
             //     frame,
             //     "Inventory",
-            //     (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+            //     (self.pos.0 + self.gsize, self.pos.1 + y * self.gsize),
             //     colors::COLOR_UI_2,
-            //     UI_GLYPH_SIZE,
+            //     self.gsize,
             // );
     
             // y += 1;
@@ -640,9 +640,9 @@ impl Console {
                             &game.assets,
                             frame,
                             &format!("- {}", name.name),
-                            (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                            (self.pos.0 + self.gsize, self.pos.1 + y * self.gsize),
                             if selection == invnum { colors::COLOR_UI_3 } else { colors::COLOR_UI_2 },
-                            UI_GLYPH_SIZE
+                            self.gsize
                         );
                         invnum += 1;
                     }
@@ -653,11 +653,11 @@ impl Console {
             self.draw_box(
                 &game.assets,
                 frame,
-                (self.pos.0, self.pos.1 + invstart * UI_GLYPH_SIZE),
-                (self.size.0, (y - invstart + 1) * UI_GLYPH_SIZE),
+                (self.pos.0, self.pos.1 + invstart * self.gsize),
+                (self.size.0, (y - invstart + 1) * self.gsize),
                 colors::COLOR_UI_1,
                 colors::COLOR_BG,
-                UI_GLYPH_SIZE,
+                self.gsize,
                 "Inventory".to_string()
             );
         }
@@ -677,7 +677,7 @@ impl Console {
                     (self.size.0, self.size.1),
                     colors::COLOR_UI_1,
                     colors::COLOR_BG,
-                    UI_GLYPH_SIZE,
+                    self.gsize,
                     "Item Info".to_string()
                 );
         
@@ -686,9 +686,9 @@ impl Console {
                     &game.assets,
                     frame,
                     &format!("{}", name.name),
-                    (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                    (self.pos.0 + self.gsize, self.pos.1 + y * self.gsize),
                     colors::COLOR_UI_2,
-                    UI_GLYPH_SIZE
+                    self.gsize
                 );
         
                 y += 2;
@@ -697,9 +697,9 @@ impl Console {
                         &game.assets,
                         frame,
                         &format!("(a) - Apply"), 
-                        (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                        (self.pos.0 + self.gsize, self.pos.1 + y * self.gsize),
                         colors::COLOR_UI_2,
-                        UI_GLYPH_SIZE
+                        self.gsize
                     );
                     y += 1;
                 }
@@ -709,9 +709,9 @@ impl Console {
                         &game.assets,
                         frame,
                         &format!("(e) - Equip"), 
-                        (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+                        (self.pos.0 + self.gsize, self.pos.1 + y * self.gsize),
                         colors::COLOR_UI_2,
-                        UI_GLYPH_SIZE
+                        self.gsize
                     );
                     // y += 1;
                 }
@@ -919,8 +919,8 @@ impl Console {
         let player_pos = world.borrow::<UniqueView<PPoint>>().unwrap().0;
         let vvs = world.borrow::<View<Vision>>().unwrap();
 
-        self.draw_box(assets, frame, self.pos, (20 * UI_GLYPH_SIZE, 3 * UI_GLYPH_SIZE), colors::COLOR_UI_2, colors::COLOR_BG, UI_GLYPH_SIZE, "".to_string());
-        self.print_string(assets, frame, "Select a target", (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + UI_GLYPH_SIZE), colors::COLOR_UI_1, UI_GLYPH_SIZE);
+        self.draw_box(assets, frame, self.pos, (20 * self.gsize, 3 * self.gsize), colors::COLOR_UI_2, colors::COLOR_BG, self.gsize, "".to_string());
+        self.print_string(assets, frame, "Select a target", (self.pos.0 + self.gsize, self.pos.1 + self.gsize), colors::COLOR_UI_1, self.gsize);
 
         // calculate valid cells
         let mut valid_cells: Vec<Point> = Vec::new();

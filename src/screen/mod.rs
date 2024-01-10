@@ -14,7 +14,7 @@ pub mod console;
 pub mod menu_config;
 
 pub const MAX_ZOOM: i32 = 16;
-const UI_GLYPH_SIZE: i32 = 12;
+const DEFAULT_UI_GLYPH_SIZE: i32 = 12;
 const DEBUG_OUTLINES: bool = false;
 
 pub struct Screen { // todo include frame here, set in window loop, prop to consoles?, remove from functions
@@ -52,54 +52,56 @@ impl Screen {
     }
 
     pub fn setup_consoles(&mut self) {
+        let gsize = DEFAULT_UI_GLYPH_SIZE;
+
         // info console
         let xinfo = 0;
         let yinfo = 0;
-        let winfo = 30 * UI_GLYPH_SIZE - 4; //todo this has to be 4. Gonna cause issues down the line but idk
-        let hinfo = 10 * UI_GLYPH_SIZE;
-        self.consoles.push(Console::new((winfo, hinfo), (xinfo, yinfo), ConsoleMode::Info));
+        let winfo = 30 * gsize - 4; //todo this has to be 4. Gonna cause issues down the line but idk
+        let hinfo = 10 * gsize;
+        self.consoles.push(Console::new((winfo, hinfo), (xinfo, yinfo), ConsoleMode::Info, gsize));
 
         // context console
         let xcontext = 0;
         let ycontext = hinfo + 1;
         let wcontext = winfo;
-        let hcontext = self.size.1 - ycontext - UI_GLYPH_SIZE;
-        self.consoles.push(Console::new((wcontext, hcontext), (xcontext, ycontext), ConsoleMode::Context));
+        let hcontext = self.size.1 - ycontext - gsize;
+        self.consoles.push(Console::new((wcontext, hcontext), (xcontext, ycontext), ConsoleMode::Context, gsize));
 
         // log console
         let xlog = winfo + 1;
         let ylog = 0;
-        let wlog = self.size.0 - xlog - UI_GLYPH_SIZE;
+        let wlog = self.size.0 - xlog - gsize;
         let hlog = hinfo;
-        self.consoles.push(Console::new((wlog, hlog), (xlog, ylog), ConsoleMode::Log));
+        self.consoles.push(Console::new((wlog, hlog), (xlog, ylog), ConsoleMode::Log, gsize));
 
         // world console
         let xworld = winfo + 1;
         let yworld = hinfo + 1;
         let wworld = self.size.0 - xworld;
         let hworld = self.size.1 - yworld;
-        self.consoles.push(Console::new((wworld, hworld), (xworld, yworld), ConsoleMode::WorldMap));
+        self.consoles.push(Console::new((wworld, hworld), (xworld, yworld), ConsoleMode::WorldMap, gsize));
 
         // menu console
-        let wmenu = UI_GLYPH_SIZE * 30;
-        let hmenu = UI_GLYPH_SIZE * 20;
+        let wmenu = gsize * 30;
+        let hmenu = gsize * 20;
         let xmenu = self.size.0/2 - wmenu/2;
         let ymenu = self.size.1/2 - hmenu/2;
-        self.consoles.push(Console::new((wmenu, hmenu), (xmenu, ymenu), ConsoleMode::MainMenu));
+        self.consoles.push(Console::new((wmenu, hmenu), (xmenu, ymenu), ConsoleMode::MainMenu, gsize));
 
         // inventory console
-        let wmenu = UI_GLYPH_SIZE * 30;
-        let hmenu = UI_GLYPH_SIZE * 40;
-        let xmenu = self.size.0 - wmenu - UI_GLYPH_SIZE;
+        let wmenu = gsize * 30;
+        let hmenu = gsize * 40;
+        let xmenu = self.size.0 - wmenu - gsize;
         let ymenu = hinfo;
-        self.consoles.push(Console::new((wmenu, hmenu), (xmenu, ymenu), ConsoleMode::Inventory));
+        self.consoles.push(Console::new((wmenu, hmenu), (xmenu, ymenu), ConsoleMode::Inventory, gsize));
 
         // item info console
-        let wmenu = UI_GLYPH_SIZE * 30;
-        let hmenu = UI_GLYPH_SIZE * 10;
+        let wmenu = gsize * 30;
+        let hmenu = gsize * 10;
         let xmenu = self.size.0/2 - wmenu/2;
         let ymenu = hinfo;
-        self.consoles.push(Console::new((wmenu, hmenu), (xmenu, ymenu), ConsoleMode::ItemInfo));
+        self.consoles.push(Console::new((wmenu, hmenu), (xmenu, ymenu), ConsoleMode::ItemInfo, gsize));
     }
 
     pub fn reset(&mut self) {
