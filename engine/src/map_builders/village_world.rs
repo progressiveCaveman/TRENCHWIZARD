@@ -34,7 +34,7 @@ impl MapBuilder for VillageWorldBuilder {
             if !self.map.is_wall(x, y) && self.map.tiles[idx] != TileType::Water && !used_idx.contains(&idx) {
                 used_idx.push(idx);
                 world.run(|mut store: AllStoragesViewMut| {
-                    entity_factory::villager(&mut store, (x, y), get_actions(&vec![AIBehaviors::GatherWood, AIBehaviors::GatherFish]));
+                    entity_factory::villager(&mut store, (x, y), &get_actions(&vec![AIBehaviors::GatherWood, AIBehaviors::GatherFish]));
                 });
             }
         }

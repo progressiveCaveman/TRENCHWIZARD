@@ -3,7 +3,6 @@ use std::collections::HashMap;
 use crate::ai::decisions::Action;
 use crate::ai::labors::AIBehaviors;
 use crate::colors::{*};
-// use crate::ai::labors::AIBehaviors;
 use crate::components::{
     Actor, ActorType, AreaOfEffect, BlocksTile, ChiefHouse, PhysicalStats, Confusion, Consumable, DealsDamage,
     DijkstraMapToMe, EquipmentSlot, Equippable, Faction, FishCleaner, Flammable, Inventory, Item, ItemType,
@@ -11,8 +10,6 @@ use crate::components::{
     ProvidesHealing, Ranged, Renderable, SpatialKnowledge, Spawner, SpawnerType, Tree, Vision, RNG, CausesFire, Equipment, AddsGas, RemovesGas, Aging, Fish, Orc,
 };
 use crate::map::{Map, XY};
-// use crate::systems::system_fire::NEW_FIRE_TURNS;
-// use crate::weighted_table::WeightedTable;
 use crate::RenderOrder;
 use crate::tiles::{TileType, GasType};
 use crate::utils::rect::Rect;
@@ -113,14 +110,14 @@ pub enum EntitySpawnTypes {
     Villager
 }
 
-pub fn spawn_entity_type(store: &mut AllStoragesViewMut, etype: EntitySpawnTypes, pos: XY, actions: Option<Vec<Action>>) {
+pub fn spawn_entity_type(store: &mut AllStoragesViewMut, etype: EntitySpawnTypes, pos: XY, actions: &Option<Vec<Action>>) {
     match etype {
         EntitySpawnTypes::Villager => {
             let actions = match actions {
-                Some(a) => a,
+                Some(a) => a.to_vec(),
                 None => vec![],
             };
-            villager(store, pos, actions);
+            villager(store, pos, &actions);
         },
     }
 }
@@ -183,7 +180,7 @@ pub fn player(store: &mut AllStoragesViewMut, pos: XY, is_render: bool) -> Entit
 
 /// Monsters
 
-pub fn villager(store: &mut AllStoragesViewMut, xy: XY, actions: Vec<Action>) -> EntityId {
+pub fn villager(store: &mut AllStoragesViewMut, xy: XY, actions: &Vec<Action>) -> EntityId {
     store.add_entity((
         Position {
             ps: vec![Point::new( xy.0, xy.1 )],
@@ -217,7 +214,7 @@ pub fn villager(store: &mut AllStoragesViewMut, xy: XY, actions: Vec<Action>) ->
             faction: Faction::Villager,
             atype: ActorType::Villager,
             behaviors: vec![AIBehaviors::GatherWood, AIBehaviors::GatherFish, AIBehaviors::Wander],
-            actions: actions,
+            actions: actions.to_vec(),
             score: 0,
         },
         Aging {
