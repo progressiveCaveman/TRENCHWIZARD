@@ -11,9 +11,10 @@ pub struct GameSettings {
 
 #[derive(Copy, Clone, PartialEq)]
 pub enum GameMode {
-    RL, // trad roguelike, basically bracketlib tutorial in caves
+    TestMode,
+    RL,
     VillageSim,
-    OrcHalls, // Orcs spawn in groups, for testing group tactics
+    OrcHalls, 
     MapDemo,
     OrcArena,
 }
@@ -54,6 +55,13 @@ pub fn get_settings(mode: GameMode) -> GameSettings {
             follow_player: false,
             use_player_los: false,
             show_player: false,
+        },
+        GameMode::TestMode => GameSettings {
+            mode,
+            mapsize: (160, 80),
+            follow_player: false,
+            use_player_los: false,
+            show_player: true,
         },
     }
 }
