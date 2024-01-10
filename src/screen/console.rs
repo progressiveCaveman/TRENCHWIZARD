@@ -107,7 +107,8 @@ impl Console {
                 self.size,
                 colors::COLOR_UI_1,
                 colors::COLOR_BG,
-                UI_GLYPH_SIZE
+                UI_GLYPH_SIZE,
+                "".to_string()
             );
 
             let x = self.pos.0 + 3 * UI_GLYPH_SIZE;
@@ -150,7 +151,8 @@ impl Console {
                 self.size,
                 colors::COLOR_UI_1,
                 colors::COLOR_BG, // todo transparancy doesn't work
-                UI_GLYPH_SIZE
+                UI_GLYPH_SIZE,
+                "".to_string()
             );
 
             let x = self.pos.0 + 3 * UI_GLYPH_SIZE;
@@ -259,7 +261,8 @@ impl Console {
             self.size,
             colors::COLOR_UI_1,
             colors::COLOR_BG,
-            UI_GLYPH_SIZE
+            UI_GLYPH_SIZE,
+            "Log".to_string()
         );
         
         let mut y = 1;
@@ -293,7 +296,8 @@ impl Console {
             (self.size.0, self.size.1),
             colors::COLOR_UI_1,
             colors::COLOR_BG,
-            UI_GLYPH_SIZE
+            UI_GLYPH_SIZE,
+            "Stats".to_string()
         );
 
         let mut y = 1;
@@ -362,7 +366,8 @@ impl Console {
             self.size,
             colors::COLOR_UI_1,
             colors::COLOR_BG,
-            UI_GLYPH_SIZE
+            UI_GLYPH_SIZE,
+            "debug info".to_string()
         );
 
         let mpos = screen.get_mouse_game_pos();
@@ -576,28 +581,8 @@ impl Console {
         let vequipment = game.engine.world.borrow::<View<Equipment>>().unwrap();
         let vname = game.engine.world.borrow::<View<Name>>().unwrap();
 
-        if let GameState::ShowInventory { selection } = game.state { 
-            self.draw_box(
-                &game.assets,
-                frame,
-                (self.pos.0, self.pos.1),
-                (self.size.0, self.size.1),
-                colors::COLOR_UI_1,
-                colors::COLOR_BG,
-                UI_GLYPH_SIZE
-            );
-    
+        if let GameState::ShowInventory { selection } = game.state {    
             let mut y = 1;
-            self.print_string(
-                &game.assets,
-                frame,
-                "Equipment",
-                (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
-                colors::COLOR_UI_2,
-                UI_GLYPH_SIZE,
-            );
-
-            y += 2;
             for (_id, equipment) in (&vequipment).iter().with_id() {
                 for (eslot, item) in equipment.items.iter() {
                     let mut name = "";
@@ -618,29 +603,34 @@ impl Console {
                     y += 1;
                 }
             }
-
+            
+            // draw box once we know how much we're printing
             y += 1;
             self.draw_box(
                 &game.assets,
                 frame,
-                (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
-                (self.size.0 - 2 * UI_GLYPH_SIZE, 2 * UI_GLYPH_SIZE),
+                (self.pos.0, self.pos.1),
+                (self.size.0, y * UI_GLYPH_SIZE),
                 colors::COLOR_UI_1,
                 colors::COLOR_BG,
-                UI_GLYPH_SIZE
-            );
-
-            y += 3;
-            self.print_string(
-                &game.assets,
-                frame,
-                "Inventory",
-                (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
-                colors::COLOR_UI_2,
                 UI_GLYPH_SIZE,
+                "Equipment".to_string()
             );
+            let invstart = y;
+
+            // y += 2;
+
+            // y += 3;
+            // self.print_string(
+            //     &game.assets,
+            //     frame,
+            //     "Inventory",
+            //     (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + y * UI_GLYPH_SIZE),
+            //     colors::COLOR_UI_2,
+            //     UI_GLYPH_SIZE,
+            // );
     
-            y += 1;
+            // y += 1;
             let mut invnum = 0;
             if let Ok(inv) = vinv.get(player_id) {
                 for item in inv.items.iter() {
@@ -658,6 +648,18 @@ impl Console {
                     }
                 }
             }
+
+            y += 1;
+            self.draw_box(
+                &game.assets,
+                frame,
+                (self.pos.0, self.pos.1 + invstart * UI_GLYPH_SIZE),
+                (self.size.0, (y - invstart + 1) * UI_GLYPH_SIZE),
+                colors::COLOR_UI_1,
+                colors::COLOR_BG,
+                UI_GLYPH_SIZE,
+                "Inventory".to_string()
+            );
         }
     }
 
@@ -675,7 +677,8 @@ impl Console {
                     (self.size.0, self.size.1),
                     colors::COLOR_UI_1,
                     colors::COLOR_BG,
-                    UI_GLYPH_SIZE
+                    UI_GLYPH_SIZE,
+                    "Item Info".to_string()
                 );
         
                 let mut y = 1;
@@ -750,6 +753,11 @@ impl Console {
 
         let sprite = &spritesheet.1[glyph.ch as usize];
 
+        if dest.0 + sprite.width() as i32 > WIDTH || dest.1 + sprite.height() as i32 > HEIGHT {
+            // dbg!("ERROR: Print off screen");
+            return;
+        }
+
         assert!(dest.0 + sprite.width() as i32 <= WIDTH);
         assert!(dest.1 + sprite.height() as i32 <= HEIGHT);
 
@@ -811,13 +819,15 @@ impl Console {
         }
     }
 
-    pub fn draw_box(&self, assets: &Assets, frame: &mut [u8], pos: XY, size: XY, fg: Color, bg: Color, gsize: i32) {
+    pub fn draw_box(&self, assets: &Assets, frame: &mut [u8], pos: XY, size: XY, fg: Color, bg: Color, gsize: i32, title: String) {
         let vertwall = 186;
         let horizwall = 205;
         let nwcorner = 201;
         let necorner = 187;
         let secorner = 188;
         let swcorner = 200;
+
+        let title = string_to_cp437(title);
 
         for x in (pos.0 .. pos.0 + size.0).step_by(gsize as usize) {
             for y in (pos.1 .. pos.1 + size.1).step_by(gsize as usize) {
@@ -826,7 +836,7 @@ impl Console {
                 let firstrow = y < pos.1 + gsize;
                 let lastrow = y >= pos.1 + size.1 - gsize;
 
-                let ch = if firstrow && firstcolumn {
+                let mut ch = if firstrow && firstcolumn {
                     nwcorner
                 } else if firstrow && lastcolumn {
                     necorner
@@ -841,6 +851,13 @@ impl Console {
                 } else {
                     0
                 };
+
+                if y == pos.1 && x > pos.0  && x <= pos.0 + gsize * title.len() as i32 {
+                    let idx = ((x - pos.0) / gsize - 1) as usize;
+                    if idx < title.len() {
+                        ch = title[idx];
+                    }
+                }
 
                 self.print_cp437(assets, frame, Glyph { pos: (x, y), ch, fg, bg, gsize });
             }
@@ -902,7 +919,7 @@ impl Console {
         let player_pos = world.borrow::<UniqueView<PPoint>>().unwrap().0;
         let vvs = world.borrow::<View<Vision>>().unwrap();
 
-        self.draw_box(assets, frame, self.pos, (20 * UI_GLYPH_SIZE, 3 * UI_GLYPH_SIZE), colors::COLOR_UI_2, colors::COLOR_BG, UI_GLYPH_SIZE);
+        self.draw_box(assets, frame, self.pos, (20 * UI_GLYPH_SIZE, 3 * UI_GLYPH_SIZE), colors::COLOR_UI_2, colors::COLOR_BG, UI_GLYPH_SIZE, "".to_string());
         self.print_string(assets, frame, "Select a target", (self.pos.0 + UI_GLYPH_SIZE, self.pos.1 + UI_GLYPH_SIZE), colors::COLOR_UI_1, UI_GLYPH_SIZE);
 
         // calculate valid cells
