@@ -28,7 +28,7 @@ impl AI {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct Action {
     pub cons: Vec<Consideration>,
     pub priority: f32,
@@ -217,7 +217,7 @@ impl Action {
     }
 }
 
-#[derive(Clone, Debug, Copy, PartialEq)]
+#[derive(Clone, Debug, Copy, PartialEq, Serialize)]
 pub enum Task {
     Fish,    // not an effect yet but maybe could be?
     Explore, //
@@ -258,7 +258,7 @@ impl Intent {
 }
 
 // Actions are stored using archetype, and specific intents are generated on the fly
-#[derive(Component, Clone, Debug, PartialEq)]
+#[derive(Component, Clone, Debug, PartialEq, Serialize)]
 pub struct IntentArchetype {
     pub name: String,
     pub task: Task,

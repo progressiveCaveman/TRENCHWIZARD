@@ -1,5 +1,5 @@
 use engine::{
-    components::{Item, PlayerID, Inventory, PPoint, WantsToUseItem, Ranged, PhysicalStats, Position},
+    components::{Item, PlayerID, Inventory, PPoint, WantsToUseItem, Ranged, PhysicalStats, Position, Actor},
     effects::{add_effect, EffectType},
     map::{Map, to_point},
     utils::{dir_to_point, InvalidPoint, dir_to_offset}, game_modes::{GameMode, get_settings}, player, entity_factory,
@@ -29,6 +29,7 @@ pub enum InputCommand {
 
     //debug
     Reset,
+    PrintAIParams,
 
     //ui
     ZoomIn,
@@ -282,6 +283,17 @@ impl InputCommand {
                     _ => game.state
                 }
             },
+            InputCommand::PrintAIParams => {
+                let vactor = game.engine.world.borrow::<ViewMut<Actor>>().unwrap();
+                println!("=======================================");
+                println!("Printing villager params: ");
+                for (id, (actor)) in (&vactor).iter().with_id() {
+                    let serialized = serde_json::to_string(&actor.actions).unwrap();
+                    // println!("{:?}", serialized);
+                    println!("serialized = {}", serialized);
+                }
+                GameState::None
+            },
         };
     }
 }
@@ -309,6 +321,7 @@ pub fn map_keys(event: WindowEvent, game: &Game) -> InputCommand {
                     VirtualKeyCode::F => InputCommand::Fireball,
                     VirtualKeyCode::W => InputCommand::Wait,
                     VirtualKeyCode::R => InputCommand::Reset,
+                    VirtualKeyCode::P => InputCommand::PrintAIParams,
                     VirtualKeyCode::Return => InputCommand::Enter,
                     VirtualKeyCode::NumpadEnter => InputCommand::Enter,
                     VirtualKeyCode::Escape => InputCommand::Escape,
