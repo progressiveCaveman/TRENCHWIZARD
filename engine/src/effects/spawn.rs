@@ -4,7 +4,7 @@ use super::*;
 use crate::entity_factory::spawn_entity_type;
 
 pub fn spawn(store: &mut AllStoragesViewMut, effect: &EffectSpawner) {
-    if let EffectType::Spawn { etype, target } = &effect.effect_type {
+    if let EffectType::Spawn { etype, target, actions } = &effect.effect_type {
         let mut spawn_targets = vec![];
         for tile_idx in get_effected_tiles(&store, &target) {
             let map = store.borrow::<UniqueViewMut<Map>>().unwrap();
@@ -16,7 +16,7 @@ pub fn spawn(store: &mut AllStoragesViewMut, effect: &EffectSpawner) {
             // }
         }
         for t in spawn_targets.iter() {
-            spawn_entity_type(store, *etype, *t, None);
+            spawn_entity_type(store, *etype, *t, actions);
         }
     }
 

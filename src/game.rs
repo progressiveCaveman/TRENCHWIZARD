@@ -125,7 +125,7 @@ impl Game {
             },
             GameState::GameOver => {
                 self.reset(None);
-            }
+            },
             _ => {},
         }
     }

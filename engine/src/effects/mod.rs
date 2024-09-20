@@ -22,7 +22,7 @@ mod spawn;
 
 use shipyard::{AllStoragesViewMut, EntityId, Get, UniqueView, View};
 
-use crate::{components::Position, map::Map, entity_factory::EntitySpawnTypes};
+use crate::{components::Position, map::Map, entity_factory::EntitySpawnTypes, ai::decisions::Action};
 
 lazy_static! {
     pub static ref EFFECT_QUEUE: Mutex<VecDeque<EffectSpawner>> = Mutex::new(VecDeque::new());
@@ -41,7 +41,7 @@ pub enum EffectType {
     MoveOrAttack { tile_idx: usize },
     Wait {},
     Delete { entity: EntityId },
-    Spawn { etype: EntitySpawnTypes, target: Targets },
+    Spawn { etype: EntitySpawnTypes, target: Targets, actions: Option<Vec<Action>> },
 }
 
 #[derive(Clone)]

@@ -171,6 +171,17 @@ pub fn get_gather_wood_actions() -> Vec<Action> {
             //     },
             // ),
             Consideration::new(
+                "logs in inv".to_string(),
+                InputType::Inventory(InputTargets::Log),
+                ConsiderationParam {
+                    t: ResponseCurveType::GreaterThan,
+                    m: 5.0,
+                    k: 1.0,
+                    c: 0.0,
+                    b: 0.0,
+                },
+            ),
+            Consideration::new(
                 "logs in iventory".to_string(),
                 InputType::Inventory(InputTargets::Log),
                 ConsiderationParam {
@@ -182,7 +193,7 @@ pub fn get_gather_wood_actions() -> Vec<Action> {
                 },
             ),
         ],
-        priority: 1.0,
+        priority: 2.0,
     });
 
     potential_actions.push(Action {
@@ -226,7 +237,7 @@ pub fn get_gather_wood_actions() -> Vec<Action> {
                 },
             ),
         ],
-        priority: 2.0,
+        priority: 3.0,
     });
 
     // wander action

@@ -234,7 +234,7 @@ impl DrunkardsBombingRunBuilder {
 
             let idx = candidates[random_offset];
             let tx = self.map.idx_xy(idx as usize).0;
-            let ty = self.map.idx_xy(idx as usize).1;
+            let ty: i32 = self.map.idx_xy(idx as usize).1;
             let use_borders = true;
 
             // we will use bombs of radius 1 mostly with smaller chance (1/20)

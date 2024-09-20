@@ -220,12 +220,12 @@ impl Action {
 #[derive(Clone, Debug, Copy, PartialEq, Serialize)]
 pub enum Task {
     Fish,    // not an effect yet but maybe could be?
-    Explore, //
+    Explore,
     ExchangeInfo,
     MoveTo(InputTargets),
     Destroy(InputTargets),
-    PickUpItem(InputTargets), //
-    DropItem,   //
+    PickUpItem(InputTargets),
+    DropItem,
     UseItem,
     EquipItem,
     UnequipItem,
@@ -240,7 +240,7 @@ pub enum Task {
 pub struct Intent {
     pub name: String,
     pub owner: EntityId,
-    pub task: Task,
+    pub task: Task,          // Tasks include input targets, which are types of things tasks care about. This is different from target below, which is intent-specific
     pub target: Vec<Target>, // most tasks have one target, more targets are specified in name, ie `DepositItemToInventory` expects [item, inventory]
     pub turn: Turn,          // turn this intent originated
 }

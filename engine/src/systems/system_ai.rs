@@ -141,6 +141,7 @@ pub fn run_ai_system(mut store: AllStoragesViewMut) {
                     Task::UnequipItem => todo!(),
                     Task::UseWorkshop => todo!(),
                     Task::DepositItemToInventory(..) => {
+                        dbg!("asdasd");
                         to_deposit_items.push((id, new_intent));
                     }
                     Task::Attack(_) => {
@@ -186,6 +187,21 @@ pub fn run_ai_system(mut store: AllStoragesViewMut) {
             );
             continue;
         }
+
+        // let mut pathing_grid: PathingGrid = PathingGrid::new(map.size.0, map.size.1, false);
+
+        // pathing_grid.set(1, 1, true);
+        // pathing_grid.generate_components();
+        // println!("{}", pathing_grid);
+        // let start = Point::new(0, 0);
+        // let end = Point::new(2, 2);
+        // let path = pathing_grid
+        //     .get_path_single_goal(start, end, false)
+        //     .unwrap();
+        // println!("Path:");
+        // for p in path {
+        //     println!("{:?}", p);
+        // }
 
         let path = map.get_path(from, to);
 
@@ -255,6 +271,8 @@ pub fn run_ai_system(mut store: AllStoragesViewMut) {
             if let Ok((actor, intent)) = (&mut vactor, &vintent).get(*id) {
                 if let Target::ENTITY(item) = intent.target[0] {
                     if let Target::ENTITY(target) = intent.target[1] {
+
+                        dbg!("deposit items");
                         // TODO this looks like a race condition
                         add_effect(Some(*id), EffectType::Drop { entity: item });
                         add_effect(Some(target), EffectType::PickUp { entity: item });

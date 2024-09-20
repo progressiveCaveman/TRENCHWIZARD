@@ -236,9 +236,9 @@ impl Engine {
         add_effect(Some(player_id), EffectType::PickUp { entity: e });
 
         // run the gas system for a while to get the level nice and steamy
-        for _ in 0..3000 {
-            self.world.run(system_gas::run_gas_system);
-        }
+        // for _ in 0..3000 {
+        //     self.world.run(system_gas::run_gas_system);
+        // }
 
         self.run_systems();
     }

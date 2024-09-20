@@ -35,7 +35,7 @@ fn main() -> Result<(), Error> {
     let window = {
         let size = LogicalSize::new(WIDTH as f64, HEIGHT as f64);
         WindowBuilder::new()
-            .with_title("Hello Pixels")
+            .with_title("TRENCHES")
             .with_inner_size(size)
             .with_min_inner_size(size)
             .build(&event_loop)
@@ -50,7 +50,7 @@ fn main() -> Result<(), Error> {
     };
 
     let mut game = Game::new();
-    game.engine.reset_engine(get_settings(GameMode::RL));
+    game.engine.reset_engine(get_settings(GameMode::VillageSim));
     // game.engine.get_log_mut().messages.push("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.".to_string());
     game.screen.setup_consoles();
     game.set_state(GameState::PreTurn);
