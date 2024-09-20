@@ -347,7 +347,7 @@ pub fn map_keys(event: WindowEvent, game: &Game) -> InputCommand {
                             _ => InputCommand::None,
                         },
                     },
-                    GameMode::VillageSim => match input.virtual_keycode {
+                    GameMode::VillageSim | GameMode::OrcArena => match input.virtual_keycode {
                         None => InputCommand::None,
                         Some(key) => match key {
                             VirtualKeyCode::Space => InputCommand::Pause,

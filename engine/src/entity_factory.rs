@@ -92,7 +92,7 @@ fn spawn_entity(store: &mut AllStoragesViewMut, spawn: &(&usize, &String)) {
     match spawn.1.as_ref() {
         "Wolf" => wolf(store, xy),
         "Goblin" => goblin(store, xy),
-        "Orc" => orc(store, xy),
+        "Orc" => orc(store, xy, &vec![]),
         "Health Potion" => health_potion(store, xy),
         "Fireball Scroll" => fireball_scroll(store, xy),
         "Confusion Scroll" => confusion_scroll(store, xy),
@@ -107,7 +107,7 @@ fn spawn_entity(store: &mut AllStoragesViewMut, spawn: &(&usize, &String)) {
 
 #[derive(Debug, Clone, Copy)]
 pub enum EntitySpawnTypes {
-    Villager
+    Villager,
 }
 
 pub fn spawn_entity_type(store: &mut AllStoragesViewMut, etype: EntitySpawnTypes, pos: XY, actions: &Option<Vec<Action>>) {
@@ -259,14 +259,49 @@ pub fn fish(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
     ))
 }
 
-pub fn orc(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {
-    let e = monster(store, xy, 'o', "Orc".to_string());
-
-    store.add_component(e, (
+pub fn orc(store: &mut AllStoragesViewMut, xy: XY, actions: &Vec<Action>) -> EntityId {
+    store.add_entity((
+        Position {
+            ps: vec![Point::new( xy.0, xy.1 )],
+        },
+        Renderable {
+            glyph: 'o',
+            fg: COLOR_BROWN,
+            bg: COLOR_BG,
+            order: RenderOrder::NPC,
+            ..Default::default()
+        },
+        Vision {
+            visible_tiles: Vec::new(),
+            range: 8,
+            dirty: true,
+        },
+        Actor {
+            faction: Faction::Orcs,
+            atype: ActorType::Orc,
+            behaviors: vec![AIBehaviors::AttackEnemies],
+            actions: actions.to_vec(),
+            score: 0,
+        },
+        Locomotive {
+            mtype: LocomotionType::Ground,
+            speed: 1,
+        },
+        Name { name: "Orc".to_string() },
+        BlocksTile {},
+        PhysicalStats {
+            max_hp: 8,
+            hp: 8,
+            defense: 1,
+            power: 4,
+            regen_rate: 0,
+        },
+        Inventory {
+            capacity: 5,
+            items: Vec::new(),
+        },
         Orc {},
-    ));
-
-    e
+    ))
 }
 
 pub fn goblin(store: &mut AllStoragesViewMut, xy: XY) -> EntityId {

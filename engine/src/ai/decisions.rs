@@ -156,16 +156,32 @@ impl Action {
                 });
             },
             Task::Attack(target) | Task::MoveTo(target) | Task::Destroy(target) | Task::PickUpItem(target) => {
-                let space = vspace.get(id).unwrap();
-                for target in space.get_targets(store, target) {
-                    intents.push(Intent {
-                        name: self.intent.name.clone(),
-                        owner: id,
-                        task: self.intent.task,
-                        target: vec![target],
-                        turn: *turn,
-                    });
+                dbg!("Looking for targets");
+                if let Ok(space) = vspace.get(id) {
+                    for target in space.get_targets(store, target) {
+                        dbg!("Found a target");
+                        intents.push(Intent {
+                            name: self.intent.name.clone(),
+                            owner: id,
+                            task: self.intent.task,
+                            target: vec![target],
+                            turn: *turn,
+                        });
+                    }
+                } else {
+                    // asd
                 }
+                // let space = vspace.get(id).unwrap();
+                // for target in space.get_targets(store, target) {
+                //     dbg!("Found a target");
+                //     intents.push(Intent {
+                //         name: self.intent.name.clone(),
+                //         owner: id,
+                //         task: self.intent.task,
+                //         target: vec![target],
+                //         turn: *turn,
+                //     });
+                // }
             },
             Task::ExchangeInfo => todo!(),
             Task::DropItem => todo!(),

@@ -420,6 +420,7 @@ pub fn get_gather_fish_actions() -> Vec<Action> {
 }
 
 pub fn get_attack_actions() -> Vec<Action> {
+    dbg!("Making some attack actions");
     let mut potential_actions: Vec<Action> = vec![];
     potential_actions.push(Action {
         intent: IntentArchetype {

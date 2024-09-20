@@ -21,10 +21,16 @@ pub fn run_visibility_system(
             .retain(|p| p.x >= 0 && p.x < map.size.0 && p.y >= 0 && p.y < map.size.1);
 
         if let Ok(space) = (&mut vspace).get(id) {
-            for vis in vs.visible_tiles.iter() {
-                let idx = map.xy_idx(vis.to_xy());
-                space.tiles.insert(idx, (map.tiles[idx], map.tile_content[idx].clone()));
+
+            // TODO temp change for orc arena
+            for (idx, content) in map.tile_content.iter().enumerate() {
+                space.tiles.insert(idx, (map.tiles[idx], content.to_vec()));
             }
+
+            // for vis in vs.visible_tiles.iter() {
+            //     let idx = map.xy_idx(vis.to_xy());
+            //     space.tiles.insert(idx, (map.tiles[idx], map.tile_content[idx].clone()));
+            // }
         }
         // }
     }

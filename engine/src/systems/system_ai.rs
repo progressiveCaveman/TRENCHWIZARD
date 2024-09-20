@@ -1,8 +1,8 @@
 use crate::ai::decisions::{Intent, Task, InputTargets, AI};
-use crate::ai::labors::AIBehaviors;
+use crate::ai::labors::{get_actions, AIBehaviors};
 use crate::components::{Actor, ActorType, DijkstraMapToMe, Faction, Position, Spawner, SpawnerType, Turn, PlayerID, Vision, Item, ItemType};
 use crate::effects::{add_effect, EffectType};
-use crate::entity_factory;
+use crate::entity_factory::{self, EntitySpawnTypes};
 use crate::map::Map;
 use crate::tiles::TileType;
 use crate::utils::vision::vision_contains;
@@ -33,24 +33,37 @@ pub fn run_ai_system(mut store: AllStoragesViewMut) {
                     ActorType::Player => continue,
                     ActorType::Fish => continue,
                     ActorType::Orc | ActorType::Wolf=> {
-                        if let Ok(vision) = vvision.get(id) {
-                            if vision_contains(&store, vision.clone(), playerid.0) { //todo vision.clone bad
-                                Intent {
-                                    name: "Attack player".to_string(),
-                                    owner: id,
-                                    task: Task::Attack(InputTargets::Player),
-                                    target: vec![Target::ENTITY(playerid.0)],
-                                    turn: *turn,
-                                }
-                            } else {
-                                continue;
-                            }
-                        } else {
-                            continue;
-                        }
+
+                        dbg!(&actor.actions);
+                        //TODO temp change for orc arena
+                        AI::choose_intent(actor.actions.clone(), &store, id) //todo clone here is messy
+
+                        // if let Ok(vision) = vvision.get(id) {
+                        //     if vision_contains(&store, vision.clone(), playerid.0) { //todo vision.clone bad
+                        //         Intent {
+                        //             name: "Attack player".to_string(),
+                        //             owner: id,
+                        //             task: Task::Attack(InputTargets::Player),
+                        //             target: vec![Target::ENTITY(playerid.0)],
+                        //             turn: *turn,
+                        //         }
+                        //     } else {
+                        //         continue;
+                        //     }
+                        // } else {
+                        //     continue;
+                        // }
                     },
                     ActorType::Villager => AI::choose_intent(actor.actions.clone(), &store, id), //todo clone here is messy
                     ActorType::Spawner => {
+
+
+                        // add_effect(None, EffectType::Spawn { 
+                        //     etype: EntitySpawnTypes::Villager, 
+                        //     target: Targets::Tile { tile_idx: houses[idx] }, 
+                        //     actions: Some(randomize_actions(&mut actions, &mut rng)) 
+                        // });
+
                         if let Ok(spawner) = vspawner.get(id) {
                             if turn.0 % spawner.rate == 0 {
                                 Intent {
@@ -258,7 +271,7 @@ pub fn run_ai_system(mut store: AllStoragesViewMut) {
     }
 
     for (pos, faction) in to_spawn_orc.iter() {
-        let e = entity_factory::orc(&mut store, pos.to_xy());
+        let e = entity_factory::orc(&mut store, pos.to_xy(), &get_actions(&vec![AIBehaviors::AttackEnemies]));
         store.run(|mut vactor: ViewMut<Actor>| {
             if let Ok(spawned_actor) = (&mut vactor).get(e) {
                 spawned_actor.faction = *faction;
@@ -278,16 +291,16 @@ pub fn run_ai_system(mut store: AllStoragesViewMut) {
                         add_effect(Some(target), EffectType::PickUp { entity: item });
 
                         // can this be exploited by the ai? 
-                        for b in actor.behaviors.iter() {
-                            if let Ok(item) = vitem.get(item) {
-                                if *b == AIBehaviors::GatherFish && item.typ == ItemType::Fish {
-                                    actor.score += 10;
-                                }
-                                if *b == AIBehaviors::GatherWood && item.typ == ItemType::Log {
-                                    actor.score += 10;
-                                }
-                            }
-                        }
+                        // for b in actor.behaviors.iter() {
+                        //     if let Ok(item) = vitem.get(item) {
+                        //         if *b == AIBehaviors::GatherFish && item.typ == ItemType::Fish {
+                        //             actor.score += 10;
+                        //         }
+                        //         if *b == AIBehaviors::GatherWood && item.typ == ItemType::Log {
+                        //             actor.score += 10;
+                        //         }
+                        //     }
+                        // }
                     }
                 }
             }
