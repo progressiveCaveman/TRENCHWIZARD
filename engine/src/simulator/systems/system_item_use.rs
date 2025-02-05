@@ -5,7 +5,7 @@ use crate::simulator::components::{
 };
 use crate::simulator::effects::add_effect;
 use crate::simulator::effects::{EffectType, Targets};
-use crate::map::Map;
+use crate::simulator::map::Map;
 use crate::{simulator::components::Position, simulator::systems::system_particle::ParticleBuilder};
 use shipyard::{
     AddComponent, AllStoragesViewMut, EntityId, Get, IntoIter, IntoWithId, Remove, UniqueView, UniqueViewMut, View,

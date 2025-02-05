@@ -7,7 +7,7 @@ use strum::IntoEnumIterator; // 0.17.1
 use strum_macros::EnumIter; // 0.17.1
 
 use crate::{
-    map::Map,
+    simulator::map::Map,
     RenderOrder, tiles::{TileType, GasType}, ui::colors::{COLOR_BG, Color}, ai::{labors::AIBehaviors, decisions::{InputTargets, Action}}, utils::Target,
 };
 

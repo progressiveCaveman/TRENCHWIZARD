@@ -2,7 +2,7 @@ use crate::simulator::components::{Equipped, Player, Position, Vision, PlayerID,
 use crate::simulator::effects::{add_effect, EffectType};
 use crate::game_modes::{GameSettings, GameMode};
 use crate::generators::map_builders;
-use crate::map::Map;
+use crate::simulator::map::Map;
 use crate::simulator::systems;
 use crate::simulator::systems::system_particle;
 use crate::simulator::systems::system_gas;

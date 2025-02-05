@@ -9,7 +9,7 @@ use crate::simulator::components::{
     LocomotionType, Locomotive, LumberMill, MeleeDefenseBonus, MeleePowerBonus, Name, PlankHouse, Player, Position,
     ProvidesHealing, Ranged, Renderable, SpatialKnowledge, Spawner, SpawnerType, Tree, Vision, RNG, CausesFire, Equipment, AddsGas, RemovesGas, Aging, Fish, Orc,
 };
-use crate::map::{Map, XY};
+use crate::simulator::map::{Map, XY};
 use crate::RenderOrder;
 use crate::tiles::{TileType, GasType};
 use crate::utils::rect::Rect;

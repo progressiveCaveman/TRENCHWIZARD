@@ -1,6 +1,6 @@
 use std::cmp;
 
-use crate::{ui::colors::{Color, self}, map::{XY, Map}};
+use crate::{ui::colors::{Color, self}, simulator::map::{XY, Map}};
 use rltk::Point;
 use shipyard::World;
 

@@ -3,7 +3,7 @@ use shipyard::{AllStoragesViewMut, World};
 
 use crate::{
     simulator::components::{Faction, SpawnerType},
-    entity_factory, SHOW_MAPGEN_ANIMATION, tiles::TileType, map::XY,
+    entity_factory, SHOW_MAPGEN_ANIMATION, tiles::TileType, simulator::map::XY,
 };
 
 use super::{Map, MapBuilder, Position};

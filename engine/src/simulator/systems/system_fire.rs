@@ -1,6 +1,6 @@
 use crate::simulator::components::{PhysicalStats, Position, OnFire};
 use crate::simulator::effects::{add_effect, EffectType, Targets};
-use crate::map::Map;
+use crate::simulator::map::Map;
 use crate::tiles::TileType;
 use crate::utils::InvalidPoint;
 use rltk::RandomNumberGenerator;

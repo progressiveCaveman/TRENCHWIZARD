@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use shipyard::{EntityId, Get, UniqueView, UniqueViewMut, ViewMut, World};
 
 use crate::simulator::components::{SpatialKnowledge, Vision, PlayerID, PPoint, GameLog};
-use crate::map::Map;
+use crate::simulator::map::Map;
 use crate::tiles::TileType;
 use crate::utils::InvalidPoint;
 

@@ -1,5 +1,5 @@
 use crate::simulator::components::{DijkstraMapToMe, Position};
-use crate::map::Map;
+use crate::simulator::map::Map;
 use shipyard::{IntoIter, IntoWithId, UniqueView, View, ViewMut};
 
 pub fn run_pathfinding_system(map: UniqueView<Map>, vpos: View<Position>, mut vmaps: ViewMut<DijkstraMapToMe>) {

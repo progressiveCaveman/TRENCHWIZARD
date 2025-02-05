@@ -30,7 +30,7 @@ use common::*;
 use shipyard::World;
 
 use crate::simulator::components::Position;
-use crate::map::{Map, XY};
+use crate::simulator::map::{Map, XY};
 
 pub trait MapBuilder {
     fn build_map(&mut self);

@@ -1,4 +1,4 @@
-use crate::map::XY;
+use crate::simulator::map::XY;
 use crate::tiles::{TileType, GasType};
 use crate::utils::rect::Rect;
 use crate::{entity_factory, SHOW_MAPGEN_ANIMATION};

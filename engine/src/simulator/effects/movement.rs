@@ -5,7 +5,7 @@ use super::*;
 use crate::{
     simulator::components::{
         BlocksTile, IsCamera, LocomotionType, Locomotive, OnFire, PPoint, PhysicalStats, Player, Position, SpatialKnowledge, Vision, WantsToAttack
-    }, map::Map, tiles::TileType, utils::{dijkstra_backtrace, normalize, point_plus}
+    }, simulator::map::Map, tiles::TileType, utils::{dijkstra_backtrace, normalize, point_plus}
 };
 
 pub fn try_move_or_attack(store: &AllStoragesViewMut, effect: &EffectSpawner, attack: bool) {

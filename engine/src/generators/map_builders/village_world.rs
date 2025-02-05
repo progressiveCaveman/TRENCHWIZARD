@@ -1,7 +1,7 @@
 use rltk::{Point, RandomNumberGenerator};
 use shipyard::{AllStoragesViewMut, World};
 
-use crate::{entity_factory, SHOW_MAPGEN_ANIMATION, tiles::TileType, map::XY, ai::labors::{AIBehaviors, get_actions}};
+use crate::{entity_factory, SHOW_MAPGEN_ANIMATION, tiles::TileType, simulator::map::XY, ai::labors::{AIBehaviors, get_actions}};
 
 use super::{Map, MapBuilder, Position};
 

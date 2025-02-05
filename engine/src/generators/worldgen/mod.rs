@@ -1,7 +1,7 @@
 
 use rand::Rng;
 
-use crate::{map::{Map, XY}, tiles::TileType};
+use crate::{simulator::map::{Map, XY}, tiles::TileType};
 
 pub fn basic_fill(map: &mut Map) {
     let size = map.size;

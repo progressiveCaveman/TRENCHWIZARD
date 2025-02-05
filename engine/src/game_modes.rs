@@ -1,4 +1,4 @@
-use crate::map::XY;
+use crate::simulator::map::XY;
 
 #[derive(Copy, Clone, PartialEq)]
 pub struct GameSettings {

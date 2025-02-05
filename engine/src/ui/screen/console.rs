@@ -1,6 +1,6 @@
 use std::iter::zip;
 
-use crate::{map::{Map, XY}, ui::colors::{self, Color}, simulator::components::{PhysicalStats, PPoint, FrameTime, Name, Position, Inventory, Equippable, Consumable, PlayerID, Vision, OnFire, Equipment, Turn}, player::get_player_map_knowledge, ai::decisions::Intent, utils::InvalidPoint};
+use crate::{simulator::map::{Map, XY}, ui::colors::{self, Color}, simulator::components::{PhysicalStats, PPoint, FrameTime, Name, Position, Inventory, Equippable, Consumable, PlayerID, Vision, OnFire, Equipment, Turn}, player::get_player_map_knowledge, ai::decisions::Intent, utils::InvalidPoint};
 use rltk::Point;
 use shipyard::{UniqueView, View, Get, World, IntoIter, IntoWithId};
 use strum::EnumCount;
