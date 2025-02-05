@@ -4,12 +4,8 @@ use shipyard::{AddComponent, Get, UniqueViewMut, View, ViewMut};
 use super::*;
 use crate::{
     components::{
-        BlocksTile, PhysicalStats, IsCamera, LocomotionType, Locomotive, Player, Position, SpatialKnowledge,
-        Vision, WantsToAttack, OnFire,
-    },
-    map::Map,
-    PPoint,
-    utils::{dijkstra_backtrace, normalize, point_plus}, tiles::TileType,
+        BlocksTile, IsCamera, LocomotionType, Locomotive, OnFire, PPoint, PhysicalStats, Player, Position, SpatialKnowledge, Vision, WantsToAttack
+    }, map::Map, tiles::TileType, utils::{dijkstra_backtrace, normalize, point_plus}
 };
 
 pub fn try_move_or_attack(store: &AllStoragesViewMut, effect: &EffectSpawner, attack: bool) {

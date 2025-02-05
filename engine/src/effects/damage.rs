@@ -1,7 +1,8 @@
 use shipyard::{AddComponent, Get, UniqueViewMut, ViewMut};
 
 use super::*;
-use crate::{components::PhysicalStats, GameLog};
+use crate::components::PhysicalStats;
+use crate::components::GameLog;
 
 pub fn inflict_damage(store: &mut AllStoragesViewMut, damage: &EffectSpawner) {
     let mut log = store.borrow::<UniqueViewMut<GameLog>>().unwrap();
