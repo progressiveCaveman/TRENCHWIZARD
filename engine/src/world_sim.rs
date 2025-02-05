@@ -2,22 +2,21 @@ use crate::components::{Equipped, Player, Position, Vision, PlayerID, GameLog, F
 use crate::effects::{add_effect, EffectType};
 use crate::game_modes::{GameSettings, GameMode};
 use crate::map::Map;
+use crate::systems::system_particle;
+use crate::systems::system_gas;
 
 use rltk::Point;
 use shipyard::{
     EntitiesView, EntityId, Get, UniqueView, UniqueViewMut, View, ViewMut, World, AllStoragesViewMut,
 };
-use crate::systems::system_particle;
 
-use crate::systems::system_gas;
-
-pub struct Engine {
+pub struct WorldSim {
     pub world: World,
     pub settings: GameSettings,
     pub first_run: bool,
 }
 
-impl Engine {
+impl WorldSim {
     pub fn new(settings: GameSettings) -> Self {
         Self {
             world: World::new(),

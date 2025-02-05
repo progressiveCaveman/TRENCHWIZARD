@@ -40,7 +40,7 @@ pub enum InputCommand {
 
 impl InputCommand {
     fn execute(&self, game: &mut Game, creator: Option<EntityId>) -> GameState {
-        let world = &game.engine.world;
+        let world = &game.world_sim.world;
 
         let player_id = world.borrow::<UniqueView<PlayerID>>().unwrap().0;
         let player_pos = world.borrow::<UniqueView<PPoint>>().unwrap().0;
@@ -49,7 +49,7 @@ impl InputCommand {
         return match self {
             InputCommand::None => GameState::None,
             InputCommand::Move { dir } => {
-                if game.engine.settings.mode == GameMode::MapDemo {
+                if game.world_sim.settings.mode == GameMode::MapDemo {
                     game.screen.pan_map(dir_to_offset(*dir).to_xy());
                 }
 
@@ -59,7 +59,7 @@ impl InputCommand {
                     GameState::ModeSelect { selection } => return GameState::ModeSelect { selection: selection.modify(updown) },
                     GameState::ShowInventory { selection } => {
                         let newselection = selection as i32 + updown;
-                        if let Ok(inv) = game.engine.world.borrow::<View<Inventory>>().unwrap().get(player_id) {
+                        if let Ok(inv) = game.world_sim.world.borrow::<View<Inventory>>().unwrap().get(player_id) {
                             if newselection < 0 {
                                 return GameState::ShowInventory { selection: inv.items.len() }
                             } else if newselection as usize >= inv.items.len() {
@@ -72,7 +72,7 @@ impl InputCommand {
                     _ => {},
                 };
 
-                let tile_idx = game.engine.get_map().point_idx(dir_to_point(player_pos, *dir, 1));
+                let tile_idx = game.world_sim.get_map().point_idx(dir_to_point(player_pos, *dir, 1));
 
                 add_effect(creator, EffectType::MoveOrAttack {tile_idx});
 
@@ -134,7 +134,7 @@ impl InputCommand {
                 GameState::PlayerActed
             }
             InputCommand::Fireball => {
-                let fireball = entity_factory::tmp_fireball(&mut game.engine.world.borrow::<AllStoragesViewMut>().unwrap());
+                let fireball = entity_factory::tmp_fireball(&mut game.world_sim.world.borrow::<AllStoragesViewMut>().unwrap());
 
                 return GameState::ShowTargeting {
                     range: 6,
@@ -193,7 +193,7 @@ impl InputCommand {
                     GameState::ShowTargeting { range, item, target } => {
                         // if target is valid use item
                         if DistanceAlg::Pythagoras.distance2d(to_point(target), player_pos) < range as f32 {
-                            game.engine.world.add_component(player_id, WantsToUseItem { item, target: Some(to_point(target)) });
+                            game.world_sim.world.add_component(player_id, WantsToUseItem { item, target: Some(to_point(target)) });
                             return GameState::PlayerActed;
                         }
 
@@ -224,7 +224,7 @@ impl InputCommand {
                 if let Some(item) = item {
                     let mut to_add_wants_use_item: Vec<EntityId> = Vec::new();
                     {
-                        let vranged: ViewMut<'_, Ranged, shipyard::track::Untracked> = game.engine.world.borrow::<ViewMut<Ranged>>().unwrap();
+                        let vranged: ViewMut<'_, Ranged, shipyard::track::Untracked> = game.world_sim.world.borrow::<ViewMut<Ranged>>().unwrap();
                         match vranged.get(item) {
                             Ok(is_item_ranged) => {
                                 return GameState::ShowTargeting {
@@ -240,7 +240,7 @@ impl InputCommand {
                     }
     
                     for id in to_add_wants_use_item.iter() {
-                        game.engine.world.add_component(*id, WantsToUseItem { item, target: None });
+                        game.world_sim.world.add_component(*id, WantsToUseItem { item, target: None });
 
                         return GameState::PlayerActed;
                     }
@@ -252,8 +252,8 @@ impl InputCommand {
                 match game.state {
                     GameState::ShowTargeting { range, item, target } => {
                         // get nearby units with stats, index through them, when target is found select the next one. Kind of a hack but maybe it works
-                        let vstats = game.engine.world.borrow::<ViewMut<PhysicalStats>>().unwrap();
-                        let vpos = game.engine.world.borrow::<ViewMut<Position>>().unwrap();
+                        let vstats = game.world_sim.world.borrow::<ViewMut<PhysicalStats>>().unwrap();
+                        let vpos = game.world_sim.world.borrow::<ViewMut<Position>>().unwrap();
 
                         let mut targetfound = false;
                         let mut firsttarget = (0, 0);
@@ -284,7 +284,7 @@ impl InputCommand {
                 }
             },
             InputCommand::PrintAIParams => {
-                let vactor = game.engine.world.borrow::<ViewMut<Actor>>().unwrap();
+                let vactor = game.world_sim.world.borrow::<ViewMut<Actor>>().unwrap();
                 println!("=======================================");
                 println!("Printing villager params: ");
                 for (id, (actor)) in (&vactor).iter().with_id() {
@@ -333,7 +333,7 @@ pub fn map_keys(event: WindowEvent, game: &Game) -> InputCommand {
             };
     
             if cmd == InputCommand::None {
-                cmd = match game.engine.settings.mode {
+                cmd = match game.world_sim.settings.mode {
                     GameMode::RL | GameMode::OrcHalls => match input.virtual_keycode {
                         None => InputCommand::None,
                         Some(key) => match key {
@@ -366,7 +366,7 @@ pub fn map_keys(event: WindowEvent, game: &Game) -> InputCommand {
 }
 
 pub fn handle_input(event: WindowEvent, game: &mut Game) -> GameState {
-    let player_id = game.engine.world.borrow::<UniqueViewMut<PlayerID>>().unwrap().0;
+    let player_id = game.world_sim.world.borrow::<UniqueViewMut<PlayerID>>().unwrap().0;
 
     let command = map_keys(event, game);
 

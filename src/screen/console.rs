@@ -187,7 +187,7 @@ impl Console {
     }
 
     pub fn render_map(&self, frame: &mut [u8], game: &Game) {
-        let map = game.engine.world.borrow::<UniqueView<Map>>().unwrap();
+        let map = game.world_sim.world.borrow::<UniqueView<Map>>().unwrap();
         let hidx = if game.state == GameState::ShowMapHistory {
             Some(game.history_step)
         } else {
@@ -214,7 +214,7 @@ impl Console {
                         //         render = (rend.glyph, rend.fg, rend.bg);
                         //     }
                         // }
-                        let render = map.get_renderable((xmap, ymap), &game.engine.settings, &game.engine.world, hidx);
+                        let render = map.get_renderable((xmap, ymap), &game.world_sim.settings, &game.world_sim.world, hidx);
 
                         // calculate whether we're on a border for glyph fg render
                         let xmod = (xscreen - self.pos.0) % self.gsize;
@@ -235,7 +235,7 @@ impl Console {
                 for y in 0 .. heightchars {
                     let pos = (x + self.map_pos.0, y + self.map_pos.1);
                     if x < self.pos.0 + self.size.0 + self.gsize && y < self.pos.1 + self.size.1 + self.gsize && map.in_bounds(pos){
-                        let render = map.get_renderable(pos, &game.engine.settings, &game.engine.world, hidx);
+                        let render = map.get_renderable(pos, &game.world_sim.settings, &game.world_sim.world, hidx);
                         self.print_cp437(
                             &game.assets,
                             frame,
@@ -266,7 +266,7 @@ impl Console {
         );
         
         let mut y = 1;
-        for m in game.engine.get_log().messages.iter().rev() {
+        for m in game.world_sim.get_log().messages.iter().rev() {
             for ms in m.chars().collect::<Vec<_>>().chunks((self.size.0 / self.gsize) as usize - 2) {
                 if y * self.gsize < self.size.1 - self.gsize {
                     let s: String = ms.into_iter().collect();
@@ -287,7 +287,7 @@ impl Console {
     }
 
     pub fn render_info(&self, frame: &mut [u8], game: &Game) {
-        let player_id = game.engine.get_player_id().0;
+        let player_id = game.world_sim.get_player_id().0;
 
         self.draw_box(
             &game.assets,
@@ -309,7 +309,7 @@ impl Console {
         //     colors::COLOR_UI_2,
         //     self.gsize
         // );
-        if let Ok(turn) = game.engine.world.borrow::<UniqueView<Turn>>() {
+        if let Ok(turn) = game.world_sim.world.borrow::<UniqueView<Turn>>() {
             // if let Ok(fire) = vonfire.get(player_id) {
                 self.print_string(
                     &game.assets,
@@ -324,7 +324,7 @@ impl Console {
         }
 
         y += 1;
-        if let Ok(vstats) = game.engine.world.borrow::<View<PhysicalStats>>() {
+        if let Ok(vstats) = game.world_sim.world.borrow::<View<PhysicalStats>>() {
             if let Ok(stat) = vstats.get(player_id) {
                 self.print_string(
                     &game.assets,
@@ -338,7 +338,7 @@ impl Console {
             }
         }
 
-        if let Ok(vonfire) = game.engine.world.borrow::<View<OnFire>>() {
+        if let Ok(vonfire) = game.world_sim.world.borrow::<View<OnFire>>() {
             if let Ok(fire) = vonfire.get(player_id) {
                 self.print_string(
                     &game.assets,
@@ -355,9 +355,9 @@ impl Console {
 
     pub fn render_context(&self, frame: &mut [u8], game: &Game) {
         let screen = &game.screen;
-        let world = &game.engine.world;
+        let world = &game.world_sim.world;
         let map = world.borrow::<UniqueView<Map>>().unwrap();
-        let settings = game.engine.settings;
+        let settings = game.world_sim.settings;
 
         self.draw_box(
             &game.assets,
@@ -576,10 +576,10 @@ impl Console {
     }
 
     pub fn render_inventory(&self, frame: &mut [u8], game: &Game) {
-        let player_id = game.engine.get_player_id().0;
-        let vinv = game.engine.world.borrow::<View<Inventory>>().unwrap();
-        let vequipment = game.engine.world.borrow::<View<Equipment>>().unwrap();
-        let vname = game.engine.world.borrow::<View<Name>>().unwrap();
+        let player_id = game.world_sim.get_player_id().0;
+        let vinv = game.world_sim.world.borrow::<View<Inventory>>().unwrap();
+        let vequipment = game.world_sim.world.borrow::<View<Equipment>>().unwrap();
+        let vname = game.world_sim.world.borrow::<View<Name>>().unwrap();
 
         if let GameState::ShowInventory { selection } = game.state {    
             let mut y = 1;
@@ -664,9 +664,9 @@ impl Console {
     }
 
     pub fn render_item_info(&self, frame: &mut [u8], game: &Game) {
-        let vname = game.engine.world.borrow::<View<Name>>().unwrap();
-        let vequip = game.engine.world.borrow::<View<Equippable>>().unwrap();
-        let vconsumable = game.engine.world.borrow::<View<Consumable>>().unwrap();
+        let vname = game.world_sim.world.borrow::<View<Name>>().unwrap();
+        let vequip = game.world_sim.world.borrow::<View<Equippable>>().unwrap();
+        let vconsumable = game.world_sim.world.borrow::<View<Consumable>>().unwrap();
 
         if let GameState::ShowItemActions { item } = game.state {
             if let Ok(name) = vname.get(item) {

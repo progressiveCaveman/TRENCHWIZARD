@@ -1,10 +1,10 @@
-use engine::{components::{FrameTime, PhysicalStats, WantsToUseItem}, effects, game_modes::{get_settings, GameMode, GameSettings}, map::XY, systems::system_particle, utils::InvalidPoint, world_sim::Engine};
+use engine::{components::{FrameTime, PhysicalStats, WantsToUseItem}, effects, game_modes::{get_settings, GameMode, GameSettings}, map::XY, systems::system_particle, utils::InvalidPoint, world_sim::WorldSim};
 use shipyard::{EntityId, Get, UniqueViewMut, View};
 
 use crate::{screen::{Screen, menu_config::{MainMenuSelection, ModeSelectSelection}, console::ConsoleMode, RangedTargetResult}, assets::Assets, WIDTH, HEIGHT, DISABLE_MAPGEN_ANIMATION};
 
 pub struct Game {
-    pub engine: Engine,
+    pub world_sim: WorldSim,
     pub screen: Screen,
     pub assets: Assets,
     pub tick: usize,
@@ -44,7 +44,7 @@ pub enum GameState {
 impl Game {
     pub fn new() -> Self {
         Self {
-            engine: Engine::new(get_settings(GameMode::RL)),
+            world_sim: WorldSim::new(get_settings(GameMode::RL)),
             screen: Screen::new((WIDTH, HEIGHT)),
             assets: Assets::new(),
             tick: 0,
@@ -61,19 +61,19 @@ impl Game {
         self.tick += 1;
 
         // automatically zoom in on small maps
-        self.screen.autozoom_world_map(&self.engine.get_map());
+        self.screen.autozoom_world_map(&self.world_sim.get_map());
 
         // update frame time for particle engine
-        self.engine.world.borrow::<UniqueViewMut<FrameTime>>().unwrap().0 = self.frame_time as f32;
+        self.world_sim.world.borrow::<UniqueViewMut<FrameTime>>().unwrap().0 = self.frame_time as f32;
         
-        self.engine.world.run(system_particle::update_particles);
-        self.engine.world.run(effects::run_effects_queue);
+        self.world_sim.world.run(system_particle::update_particles);
+        self.world_sim.world.run(effects::run_effects_queue);
 
         // update map console to follow player if applicable
-        if self.engine.settings.follow_player {
+        if self.world_sim.settings.follow_player {
             for c in self.screen.consoles.iter_mut() {
                 if c.mode == ConsoleMode::WorldMap {
-                    let ppos = self.engine.get_player_pos().0.to_xy();
+                    let ppos = self.world_sim.get_player_pos().0.to_xy();
 
                     let mp = (ppos.0 - c.size.0 / (2 * c.gsize), ppos.1 - c.size.1 / (2 * c.gsize));
                     c.map_pos = (i32::max(0, mp.0), i32::max(0, mp.1))
@@ -87,10 +87,10 @@ impl Game {
         match self.state {
             GameState::PreTurn => {
                 // check if player is dead
-                let player_id = self.engine.get_player_id().0;
+                let player_id = self.world_sim.get_player_id().0;
                 let mut gameover = false;
                 {
-                    let vstats = self.engine.world.borrow::<View<PhysicalStats>>().unwrap();
+                    let vstats = self.world_sim.world.borrow::<View<PhysicalStats>>().unwrap();
                     if let Ok(stats) = vstats.get(player_id) {
                         if stats.hp <=0 {
                             gameover = true;
@@ -109,7 +109,7 @@ impl Game {
             },
             GameState::PlayerActed => {
                 self.set_state(GameState::PostTurn);
-                self.engine.run_systems();
+                self.world_sim.run_systems();
             },
             GameState::PostTurn => {
                 self.set_state(GameState::PreTurn);
@@ -117,9 +117,9 @@ impl Game {
             GameState::ShowMapHistory => {
                 self.history_timer += 1;
                 self.history_step = self.history_timer / 5;
-                let map = self.engine.get_map();
+                let map = self.world_sim.get_map();
 
-                if self.history_step > map.history.len() + 20 || (DISABLE_MAPGEN_ANIMATION && self.engine.settings.mode != GameMode::MapDemo) {
+                if self.history_step > map.history.len() + 20 || (DISABLE_MAPGEN_ANIMATION && self.world_sim.settings.mode != GameMode::MapDemo) {
                     self.state = GameState::PreTurn;
                 }
             },
@@ -138,12 +138,12 @@ impl Game {
         match self.state {
             GameState::ShowTargeting { range, item, target } => {
                 // self.screen.ranged_target(frame, assets, game, range, clicked)
-                let (result, target) = self.screen.ranged_target(frame, &self.assets, &mut self.engine.world, range, mouseclick, target);
+                let (result, target) = self.screen.ranged_target(frame, &self.assets, &mut self.world_sim.world, range, mouseclick, target);
                 match result {
                     RangedTargetResult::Cancel => self.state = GameState::PreTurn,
                     RangedTargetResult::NoResponse => {} ,
                     RangedTargetResult::Selected => {
-                        self.engine.world.add_component(item, WantsToUseItem { item, target: target });
+                        self.world_sim.world.add_component(item, WantsToUseItem { item, target: target });
                         self.state = GameState::PlayerActed;    
                     },
                     RangedTargetResult::NewTarget { target } => self.state = GameState::ShowTargeting { range, item, target },
@@ -169,8 +169,8 @@ impl Game {
     pub fn reset(&mut self, settings: Option<GameSettings>) {
         self.state = GameState::ShowMapHistory;
         match settings {
-            Some(s) => self.engine.reset_engine(s),
-            None => self.engine.reset_engine(self.engine.settings),
+            Some(s) => self.world_sim.reset_engine(s),
+            None => self.world_sim.reset_engine(self.world_sim.settings),
         }
     }
 }
