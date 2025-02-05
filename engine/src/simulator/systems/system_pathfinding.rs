@@ -1,4 +1,4 @@
-use crate::components::{DijkstraMapToMe, Position};
+use crate::simulator::components::{DijkstraMapToMe, Position};
 use crate::map::Map;
 use shipyard::{IntoIter, IntoWithId, UniqueView, View, ViewMut};
 

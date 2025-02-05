@@ -1,4 +1,4 @@
-use crate::components::{Position, SpatialKnowledge, Vision};
+use crate::simulator::components::{Position, SpatialKnowledge, Vision};
 use crate::map::Map;
 use crate::utils::InvalidPoint;
 use rltk;

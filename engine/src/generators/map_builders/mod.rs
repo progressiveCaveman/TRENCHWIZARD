@@ -29,7 +29,7 @@ mod common;
 use common::*;
 use shipyard::World;
 
-use crate::components::Position;
+use crate::simulator::components::Position;
 use crate::map::{Map, XY};
 
 pub trait MapBuilder {

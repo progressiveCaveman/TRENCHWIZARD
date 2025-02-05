@@ -1,4 +1,4 @@
-use crate::components::{Aging, Actor, ActorType, Turn, RNG, PlankHouse, Position};
+use crate::simulator::components::{Aging, Actor, ActorType, Turn, RNG, PlankHouse, Position};
 use crate::simulator::effects::{add_effect, EffectType, Targets};
 use crate::entity_factory::EntitySpawnTypes;
 use crate::map::Map;

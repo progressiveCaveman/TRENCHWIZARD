@@ -22,7 +22,7 @@ mod spawn;
 
 use shipyard::{AllStoragesViewMut, EntityId, Get, UniqueView, View};
 
-use crate::{components::Position, map::Map, entity_factory::EntitySpawnTypes};
+use crate::{simulator::components::Position, map::Map, entity_factory::EntitySpawnTypes};
 
 lazy_static! {
     pub static ref EFFECT_QUEUE: Mutex<VecDeque<EffectSpawner>> = Mutex::new(VecDeque::new());

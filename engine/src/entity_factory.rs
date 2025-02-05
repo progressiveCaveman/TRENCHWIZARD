@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::ai::decisions::Action;
 use crate::ai::labors::AIBehaviors;
 use crate::ui::colors::{*};
-use crate::components::{
+use crate::simulator::components::{
     Actor, ActorType, AreaOfEffect, BlocksTile, ChiefHouse, PhysicalStats, Confusion, Consumable, DealsDamage,
     DijkstraMapToMe, EquipmentSlot, Equippable, Faction, FishCleaner, Flammable, Inventory, Item, ItemType,
     LocomotionType, Locomotive, LumberMill, MeleeDefenseBonus, MeleePowerBonus, Name, PlankHouse, Player, Position,

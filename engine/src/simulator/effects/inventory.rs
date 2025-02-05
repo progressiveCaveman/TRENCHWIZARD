@@ -1,7 +1,7 @@
 use shipyard::{AddComponent, Get, Remove, UniqueView, UniqueViewMut, View, ViewMut};
 
 use super::*;
-use crate::components::{Equipped, GameLog, Inventory, Name, PlayerID, Position, WantsToPickupItem};
+use crate::simulator::components::{Equipped, GameLog, Inventory, Name, PlayerID, Position, WantsToPickupItem};
 
 pub fn pick_up(store: &AllStoragesViewMut, effect: &EffectSpawner) {
     let mut vpos = store.borrow::<ViewMut<Position>>().unwrap();

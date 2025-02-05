@@ -1,7 +1,7 @@
 use serde::{Serialize, Deserialize};
 use shipyard::{Component, AllStorages, UniqueView, View, EntityId, Get, IntoIter, IntoWithId};
 
-use crate::{components::{Turn, self, Position, Inventory, Item, ItemType, SpatialKnowledge}, utils::Target, map::Map, tiles::TileType};
+use crate::{simulator::components::{Turn, self, Position, Inventory, Item, ItemType, SpatialKnowledge}, utils::Target, map::Map, tiles::TileType};
 
 pub struct AI {}
 

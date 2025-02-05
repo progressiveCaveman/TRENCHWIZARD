@@ -1,8 +1,8 @@
 use crate::ui::colors::{COLOR_BG, COLOR_UI_4};
-use crate::components::GameLog;
+use crate::simulator::components::GameLog;
 use crate::simulator::effects::{EffectType, Targets};
 use crate::{
-    components::{PhysicalStats, Equipped, MeleeDefenseBonus, MeleePowerBonus, Name, Position, WantsToAttack},
+    simulator::components::{PhysicalStats, Equipped, MeleeDefenseBonus, MeleePowerBonus, Name, Position, WantsToAttack},
     simulator::effects::add_effect,
     simulator::systems::system_particle::ParticleBuilder,
 };

@@ -1,4 +1,4 @@
-use crate::components::{Position, AddsGas, RNG, RemovesGas};
+use crate::simulator::components::{Position, AddsGas, RNG, RemovesGas};
 use crate::map::Map;
 use crate::tiles::STABLE_GAS_AMOUNT;
 use crate::utils::{InvalidPoint, get_neighbors};

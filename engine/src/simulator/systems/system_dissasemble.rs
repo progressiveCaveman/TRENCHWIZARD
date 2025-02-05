@@ -1,5 +1,5 @@
 use crate::ai::decisions::{Intent, Task};
-use crate::components::{Position, Tree};
+use crate::simulator::components::{Position, Tree};
 use crate::entity_factory;
 use crate::utils::{InvalidPoint, Target};
 use rltk::Point;

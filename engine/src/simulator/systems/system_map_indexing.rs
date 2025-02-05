@@ -1,4 +1,4 @@
-use crate::components::{BlocksTile, Position};
+use crate::simulator::components::{BlocksTile, Position};
 use crate::map::Map;
 use shipyard::{Get, IntoIter, IntoWithId, UniqueViewMut, View, ViewMut};
 

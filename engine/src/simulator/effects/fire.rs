@@ -3,7 +3,7 @@ use std::cmp;
 use shipyard::{UniqueViewMut, ViewMut, EntitiesViewMut};
 
 use super::*;
-use crate::{map::Map, components::OnFire};
+use crate::{map::Map, simulator::components::OnFire};
 
 pub fn inflict_fire(store: &mut AllStoragesViewMut, effect: &EffectSpawner) {
     if let EffectType::Fire { turns, target } = &effect.effect_type {

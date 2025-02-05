@@ -1,5 +1,5 @@
 use crate::{
-    components::{Item, PlayerID, Inventory, PPoint, WantsToUseItem, Ranged, PhysicalStats, Position, Actor},
+    simulator::components::{Item, PlayerID, Inventory, PPoint, WantsToUseItem, Ranged, PhysicalStats, Position, Actor},
     simulator::effects::{add_effect, EffectType},
     map::{Map, to_point},
     utils::{dir_to_point, InvalidPoint, dir_to_offset}, game_modes::{GameMode, get_settings}, player, entity_factory,

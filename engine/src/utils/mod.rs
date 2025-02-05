@@ -1,6 +1,6 @@
 use rltk::{BaseMap, DijkstraMap, Point, RGBA};
 use shipyard::{EntityId, View, Get};
-use crate::{map::{Map, XY}, components::Position};
+use crate::{map::{Map, XY}, simulator::components::Position};
 
 pub mod rect;
 pub mod weighted_table;

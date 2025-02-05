@@ -1,4 +1,4 @@
-use crate::components::{Actor, ActorType, Position};
+use crate::simulator::components::{Actor, ActorType, Position};
 use crate::simulator::effects::{add_effect, EffectType};
 use crate::map::Map;
 use crate::tiles::TileType;

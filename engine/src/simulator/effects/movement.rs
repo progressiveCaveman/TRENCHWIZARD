@@ -3,7 +3,7 @@ use shipyard::{AddComponent, Get, UniqueViewMut, View, ViewMut};
 
 use super::*;
 use crate::{
-    components::{
+    simulator::components::{
         BlocksTile, IsCamera, LocomotionType, Locomotive, OnFire, PPoint, PhysicalStats, Player, Position, SpatialKnowledge, Vision, WantsToAttack
     }, map::Map, tiles::TileType, utils::{dijkstra_backtrace, normalize, point_plus}
 };

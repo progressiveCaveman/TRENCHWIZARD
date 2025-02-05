@@ -1,12 +1,12 @@
 use crate::ui::colors::{COLOR_UI_3, COLOR_BG};
-use crate::components::{
+use crate::simulator::components::{
     AreaOfEffect, PhysicalStats, Confusion, Consumable, DealsDamage, Equippable, Equipped, Inventory,
     Name, ProvidesHealing, WantsToUseItem, GameLog, PlayerID, CausesFire, Equipment,
 };
 use crate::simulator::effects::add_effect;
 use crate::simulator::effects::{EffectType, Targets};
 use crate::map::Map;
-use crate::{components::Position, simulator::systems::system_particle::ParticleBuilder};
+use crate::{simulator::components::Position, simulator::systems::system_particle::ParticleBuilder};
 use shipyard::{
     AddComponent, AllStoragesViewMut, EntityId, Get, IntoIter, IntoWithId, Remove, UniqueView, UniqueViewMut, View,
     ViewMut,

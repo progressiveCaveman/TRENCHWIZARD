@@ -12,7 +12,6 @@ use winit_input_helper::WinitInputHelper;
 #[macro_use]
 extern crate lazy_static;
 
-pub mod components;
 pub mod map;
 pub mod utils;
 pub mod entity_factory;

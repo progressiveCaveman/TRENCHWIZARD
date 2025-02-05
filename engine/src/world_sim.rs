@@ -1,4 +1,4 @@
-use crate::components::{Equipped, Player, Position, Vision, PlayerID, GameLog, FrameTime, PPoint, Turn, RNG, Inventory};
+use crate::simulator::components::{Equipped, Player, Position, Vision, PlayerID, GameLog, FrameTime, PPoint, Turn, RNG, Inventory};
 use crate::simulator::effects::{add_effect, EffectType};
 use crate::game_modes::{GameSettings, GameMode};
 use crate::generators::map_builders;
