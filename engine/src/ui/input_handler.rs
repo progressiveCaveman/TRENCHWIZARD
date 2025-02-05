@@ -287,7 +287,7 @@ impl InputCommand {
                 let vactor = game.world_sim.world.borrow::<ViewMut<Actor>>().unwrap();
                 println!("=======================================");
                 println!("Printing villager params: ");
-                for (id, (actor)) in (&vactor).iter().with_id() {
+                for (_id, actor) in (&vactor).iter().with_id() {
                     let serialized = serde_json::to_string(&actor.actions).unwrap();
                     // println!("{:?}", serialized);
                     println!("serialized = {}", serialized);

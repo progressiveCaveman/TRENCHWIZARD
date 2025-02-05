@@ -1,4 +1,3 @@
-use std::time::Instant;
 use error_iter::ErrorIter as _;
 
 use game::{Game, GameState};
