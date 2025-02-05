@@ -16,9 +16,7 @@ extern crate lazy_static;
 pub mod components;
 pub mod map;
 pub mod utils;
-pub mod map_builders;
 pub mod entity_factory;
-pub mod worldgen;
 pub mod game_modes;
 pub mod tiles;
 pub mod systems;
@@ -28,6 +26,7 @@ pub mod player;
 pub mod world_sim;
 pub mod game;
 pub mod ui;
+pub mod generators;
 
 
 pub const SHOW_MAPGEN_ANIMATION: bool = true;

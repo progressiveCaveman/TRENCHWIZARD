@@ -1,6 +1,7 @@
 use crate::components::{Equipped, Player, Position, Vision, PlayerID, GameLog, FrameTime, PPoint, Turn, RNG, Inventory};
 use crate::effects::{add_effect, EffectType};
 use crate::game_modes::{GameSettings, GameMode};
+use crate::generators::map_builders;
 use crate::map::Map;
 use crate::systems::system_particle;
 use crate::systems::system_gas;
@@ -92,12 +93,12 @@ impl WorldSim {
 
         // Generate map
         let mut map_builder = match self.settings.mode {
-            GameMode::VillageSim => crate::map_builders::village_builder(new_depth, self.settings.mapsize),
-            GameMode::RL => crate::map_builders::rl_builder(new_depth, self.settings.mapsize),
-            GameMode::OrcHalls => crate::map_builders::orc_halls_builder(new_depth, self.settings.mapsize),
-            GameMode::MapDemo => crate::map_builders::random_builder(new_depth, self.settings.mapsize),
-            GameMode::OrcArena => crate::map_builders::arena_builder(new_depth, self.settings.mapsize),
-            GameMode::TestMode => crate::map_builders::village_builder(new_depth, self.settings.mapsize),
+            GameMode::VillageSim => map_builders::village_builder(new_depth, self.settings.mapsize),
+            GameMode::RL => map_builders::rl_builder(new_depth, self.settings.mapsize),
+            GameMode::OrcHalls => map_builders::orc_halls_builder(new_depth, self.settings.mapsize),
+            GameMode::MapDemo => map_builders::random_builder(new_depth, self.settings.mapsize),
+            GameMode::OrcArena => map_builders::arena_builder(new_depth, self.settings.mapsize),
+            GameMode::TestMode => map_builders::village_builder(new_depth, self.settings.mapsize),
         };
 
         map_builder.build_map();

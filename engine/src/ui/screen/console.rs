@@ -20,6 +20,7 @@ pub enum ConsoleMode {
     ItemInfo,
 }
 
+// todo add a way to dim a console, for overlay purposes
 #[derive(Debug)]
 pub struct Console {
     pub size: XY,
