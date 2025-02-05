@@ -13,14 +13,12 @@ use shipyard::{
 pub struct WorldSim {
     pub world: World,
     pub settings: GameSettings,
-    pub first_run: bool,
 }
 
 impl WorldSim {
     pub fn new(settings: GameSettings) -> Self {
         Self {
             world: World::new(),
-            first_run: false,
             settings,
         }
     }
