@@ -1,6 +1,6 @@
 use serde::{Serialize, Deserialize};
 
-use crate::colors::{Color, self, ColorUtils};
+use crate::ui::colors::{Color, self, ColorUtils};
 
 #[derive(PartialEq, Copy, Clone, Debug, Serialize, Deserialize)]
 pub enum TileType {

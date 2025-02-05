@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::ai::decisions::Action;
 use crate::ai::labors::AIBehaviors;
-use crate::colors::{*};
+use crate::ui::colors::{*};
 use crate::components::{
     Actor, ActorType, AreaOfEffect, BlocksTile, ChiefHouse, PhysicalStats, Confusion, Consumable, DealsDamage,
     DijkstraMapToMe, EquipmentSlot, Equippable, Faction, FishCleaner, Flammable, Inventory, Item, ItemType,

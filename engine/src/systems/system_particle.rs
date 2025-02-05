@@ -6,7 +6,7 @@ use shipyard::{
 use crate::{
     components::{Lifetime, Particle, Position, Renderable, Velocity, FrameTime},
     effects::{add_effect, EffectType},
-    RenderOrder, colors::Color,
+    RenderOrder, ui::colors::Color,
 };
 
 pub const PARTICLE_TIME: f32 = 100.0;

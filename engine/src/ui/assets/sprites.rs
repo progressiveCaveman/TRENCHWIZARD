@@ -30,7 +30,7 @@ impl Drawable for SpriteRef {
 }
 */
 
-use crate::colors::{Color, self};
+use crate::ui::colors::{Color, self};
 
 /// Sprites can be drawn and procedurally generated.
 ///

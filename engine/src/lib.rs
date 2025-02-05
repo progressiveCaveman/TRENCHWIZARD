@@ -18,7 +18,6 @@ pub mod map;
 pub mod utils;
 pub mod map_builders;
 pub mod entity_factory;
-pub mod colors;
 pub mod worldgen;
 pub mod game_modes;
 pub mod tiles;

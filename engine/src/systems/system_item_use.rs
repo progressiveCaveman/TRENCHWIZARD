@@ -1,4 +1,4 @@
-use crate::colors::{COLOR_UI_3, COLOR_BG};
+use crate::ui::colors::{COLOR_UI_3, COLOR_BG};
 use crate::components::{
     AreaOfEffect, PhysicalStats, Confusion, Consumable, DealsDamage, Equippable, Equipped, Inventory,
     Name, ProvidesHealing, WantsToUseItem, GameLog, PlayerID, CausesFire, Equipment,

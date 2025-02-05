@@ -1,4 +1,4 @@
-use crate::colors::{COLOR_BG, COLOR_UI_4};
+use crate::ui::colors::{COLOR_BG, COLOR_UI_4};
 use crate::components::GameLog;
 use crate::effects::{EffectType, Targets};
 use crate::{
