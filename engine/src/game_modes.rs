@@ -30,9 +30,9 @@ pub fn get_settings(mode: GameMode) -> GameSettings {
         },
         GameMode::RL => GameSettings {
             mode,
-            mapsize: (160, 80),
-            follow_player: true,
-            use_player_los: true,
+            mapsize: (70, 40),
+            follow_player: false, // true, 
+            use_player_los: false, // true,
             show_player: true,
         },
         GameMode::OrcHalls => GameSettings {
