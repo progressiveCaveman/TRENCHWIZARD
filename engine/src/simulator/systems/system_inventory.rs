@@ -1,7 +1,7 @@
 use shipyard::{IntoIter, IntoWithId, Remove, View, ViewMut, UniqueViewMut, EntityId, Get};
 
 use crate::components::{Inventory, WantsToPickupItem, GameLog, Player, WantsToUnequipItem, Equipped, Name};
-use crate::effects::{add_effect, EffectType};
+use crate::simulator::effects::{add_effect, EffectType};
 use crate::components::WantsToDropItem;
 
 pub fn run_inventory_system(vinv: View<Inventory>, vwants: View<WantsToPickupItem>) {

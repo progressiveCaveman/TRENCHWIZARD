@@ -5,7 +5,7 @@ use shipyard::{
 
 use crate::{
     components::{Lifetime, Particle, Position, Renderable, Velocity, FrameTime},
-    effects::{add_effect, EffectType},
+    simulator::effects::{add_effect, EffectType},
     RenderOrder, ui::colors::Color,
 };
 

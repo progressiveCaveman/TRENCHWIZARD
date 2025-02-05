@@ -18,14 +18,13 @@ pub mod utils;
 pub mod entity_factory;
 pub mod game_modes;
 pub mod tiles;
-pub mod systems;
-pub mod effects;
 pub mod ai;
 pub mod player;
 pub mod world_sim;
 pub mod game;
 pub mod ui;
 pub mod generators;
+pub mod simulator;
 
 
 pub const SHOW_MAPGEN_ANIMATION: bool = true;

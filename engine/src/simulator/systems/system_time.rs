@@ -1,5 +1,5 @@
 use crate::components::{Aging, Actor, ActorType, Turn, RNG, PlankHouse, Position};
-use crate::effects::{add_effect, EffectType, Targets};
+use crate::simulator::effects::{add_effect, EffectType, Targets};
 use crate::entity_factory::EntitySpawnTypes;
 use crate::map::Map;
 use shipyard::{IntoIter, IntoWithId, UniqueViewMut, View, ViewMut};

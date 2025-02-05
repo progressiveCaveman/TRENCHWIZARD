@@ -1,10 +1,11 @@
 use crate::components::{Equipped, Player, Position, Vision, PlayerID, GameLog, FrameTime, PPoint, Turn, RNG, Inventory};
-use crate::effects::{add_effect, EffectType};
+use crate::simulator::effects::{add_effect, EffectType};
 use crate::game_modes::{GameSettings, GameMode};
 use crate::generators::map_builders;
 use crate::map::Map;
-use crate::systems::system_particle;
-use crate::systems::system_gas;
+use crate::simulator::systems;
+use crate::simulator::systems::system_particle;
+use crate::simulator::systems::system_gas;
 
 use rltk::Point;
 use shipyard::{
@@ -45,7 +46,7 @@ impl WorldSim {
     }
 
     pub fn run_systems(&mut self) {
-        crate::systems::run_systems(&mut self.world, true, true);
+        systems::run_systems(&mut self.world, true, true);
     }
 
     pub fn entities_to_delete_on_level_change(world: &mut World) -> Vec<EntityId> {

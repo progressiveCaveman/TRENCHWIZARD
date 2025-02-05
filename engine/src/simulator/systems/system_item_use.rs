@@ -3,10 +3,10 @@ use crate::components::{
     AreaOfEffect, PhysicalStats, Confusion, Consumable, DealsDamage, Equippable, Equipped, Inventory,
     Name, ProvidesHealing, WantsToUseItem, GameLog, PlayerID, CausesFire, Equipment,
 };
-use crate::effects::add_effect;
-use crate::effects::{EffectType, Targets};
+use crate::simulator::effects::add_effect;
+use crate::simulator::effects::{EffectType, Targets};
 use crate::map::Map;
-use crate::{components::Position, systems::system_particle::ParticleBuilder};
+use crate::{components::Position, simulator::systems::system_particle::ParticleBuilder};
 use shipyard::{
     AddComponent, AllStoragesViewMut, EntityId, Get, IntoIter, IntoWithId, Remove, UniqueView, UniqueViewMut, View,
     ViewMut,

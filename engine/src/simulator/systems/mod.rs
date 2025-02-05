@@ -1,6 +1,8 @@
 use shipyard::World;
 
-use crate::{effects, DISABLE_AI};
+use crate::DISABLE_AI;
+
+use super::effects;
 
 pub mod system_ai;
 pub mod system_ai_fish;
