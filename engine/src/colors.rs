@@ -32,6 +32,57 @@ impl ColorUtils for Color {
     }
 }
 
+pub const COLOR_UI_1: Color = COLOR_DARK_PURPLE;
+pub const COLOR_UI_2: Color = COLOR_GREEN;
+pub const COLOR_UI_3: Color = COLOR_CYAN;
+pub const COLOR_UI_4: Color = COLOR_LIGHTER_PURPLE;
+pub const COLOR_WATER: Color = COLOR_DARK_BLUE;
+pub const COLOR_SAND: Color = COLOR_DESATURATED_YELLOW;
+pub const COLOR_DIRT: Color = COLOR_DARKEST_GREEN;
+pub const COLOR_STONE: Color = COLOR_GREY;
+pub const COLOR_BG: Color = [0, 0, 0, 200];
+pub const COLOR_HIGHLIGHT1: Color = COLOR_DARK_GREY;
+pub const COLOR_HIGHLIGHT2: Color = COLOR_GREY;
+pub const COLOR_ITEM: Color = COLOR_DARK_YELLOW;
+pub const COLOR_WALL: Color = COLOR_GREY;
+pub const COLOR_FLOOR: Color = COLOR_DARKEST_GREY;
+pub const COLOR_GRASS: Color = COLOR_DARKER_GREEN;
+
+pub const COLOR_FIRE: Color = COLOR_RED;
+
+// : RGBA = RGBA {
+//     r: 0.88,
+//     g: 0.34,
+//     b: 0.13,
+//     a: 1.,
+// };
+pub const COLOR_CEDAR: Color = COLOR_BRASS;
+
+// : RGBA = RGBA {
+//     r: 0.39,
+//     g: 0.22,
+//     b: 0.17,
+//     a: 1.,
+// };
+
+pub const FACTION_COLORS: [Color; 2] = [COLOR_CRIMSON, COLOR_AZURE];
+
+// pub const FACTION_COLORS: [RGBA; 2] = [
+//     RGBA {
+//         r: 1.0,
+//         g: 0.,
+//         b: 0.,
+//         a: 1.,
+//     },
+//     RGBA {
+//         r: 0.0,
+//         g: 0.0,
+//         b: 1.0,
+//         a: 1.,
+//     },
+// ];
+
+//  Basic Colors
 pub const COLOR_CLEAR: Color = [0, 0, 0, 0];
 pub const COLOR_BLACK: Color = [0, 0, 0, 255];
 pub const COLOR_DARKEST_GREY: Color = [31, 31, 31, 255];
@@ -223,55 +274,4 @@ pub const COLOR_GOLD: Color = [229, 191, 0, 255];
 pub const COLOR_SILVER: Color = [203, 203, 203, 255];
 pub const COLOR_CELADON: Color = [172, 255, 175, 255];
 pub const COLOR_PEACH: Color = [255, 159, 127, 255];
-
 pub const COLOR_BROWN: Color = [139, 69, 19, 255];
-
-pub const COLOR_UI_1: Color = COLOR_DARK_PURPLE;
-pub const COLOR_UI_2: Color = COLOR_GREEN;
-pub const COLOR_UI_3: Color = COLOR_CYAN;
-pub const COLOR_UI_4: Color = COLOR_LIGHTER_PURPLE;
-pub const COLOR_WATER: Color = COLOR_DARK_BLUE;
-pub const COLOR_SAND: Color = COLOR_DESATURATED_YELLOW;
-pub const COLOR_DIRT: Color = COLOR_DARKEST_GREEN;
-pub const COLOR_STONE: Color = COLOR_GREY;
-pub const COLOR_BG: Color = [0, 0, 0, 200];
-pub const COLOR_HIGHLIGHT1: Color = COLOR_DARK_GREY;
-pub const COLOR_HIGHLIGHT2: Color = COLOR_GREY;
-pub const COLOR_ITEM: Color = COLOR_DARK_YELLOW;
-pub const COLOR_WALL: Color = COLOR_GREY;
-pub const COLOR_FLOOR: Color = COLOR_DARKEST_GREY;
-pub const COLOR_GRASS: Color = COLOR_DARKER_GREEN;
-
-pub const COLOR_FIRE: Color = COLOR_RED;
-
-// : RGBA = RGBA {
-//     r: 0.88,
-//     g: 0.34,
-//     b: 0.13,
-//     a: 1.,
-// };
-pub const COLOR_CEDAR: Color = COLOR_BRASS;
-
-// : RGBA = RGBA {
-//     r: 0.39,
-//     g: 0.22,
-//     b: 0.17,
-//     a: 1.,
-// };
-
-pub const FACTION_COLORS: [Color; 2] = [COLOR_CRIMSON, COLOR_AZURE];
-
-// pub const FACTION_COLORS: [RGBA; 2] = [
-//     RGBA {
-//         r: 1.0,
-//         g: 0.,
-//         b: 0.,
-//         a: 1.,
-//     },
-//     RGBA {
-//         r: 0.0,
-//         g: 0.0,
-//         b: 1.0,
-//         a: 1.,
-//     },
-// ];

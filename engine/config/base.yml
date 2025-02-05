@@ -1,0 +1,5 @@
+mode:
+  mapsize: [200, 80],
+  follow_player: false,
+  use_player_los: false,
+  show_player: false,
