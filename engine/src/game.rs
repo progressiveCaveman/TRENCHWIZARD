@@ -1,7 +1,5 @@
-use engine::{components::{FrameTime, PhysicalStats, WantsToUseItem}, effects, game_modes::{get_settings, GameMode, GameSettings}, map::XY, systems::system_particle, utils::InvalidPoint, world_sim::WorldSim};
+use crate::{components::{FrameTime, PhysicalStats, WantsToUseItem}, effects, game_modes::{get_settings, GameMode, GameSettings}, map::XY, systems::system_particle, ui::{assets::Assets, screen::{console::ConsoleMode, menu_config::{MainMenuSelection, ModeSelectSelection}, RangedTargetResult, Screen}}, utils::InvalidPoint, world_sim::WorldSim, DISABLE_MAPGEN_ANIMATION, HEIGHT, WIDTH};
 use shipyard::{EntityId, Get, UniqueViewMut, View};
-
-use crate::{screen::{Screen, menu_config::{MainMenuSelection, ModeSelectSelection}, console::ConsoleMode, RangedTargetResult}, assets::Assets, WIDTH, HEIGHT, DISABLE_MAPGEN_ANIMATION};
 
 pub struct Game {
     pub world_sim: WorldSim,

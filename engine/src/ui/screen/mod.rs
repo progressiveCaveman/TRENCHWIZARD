@@ -1,11 +1,11 @@
 use std::cmp;
 
-use engine::{colors::{Color, self}, map::{XY, Map}};
+use crate::{colors::{Color, self}, map::{XY, Map}};
 use rltk::Point;
 use shipyard::World;
 
 use crate::{
-    assets::{Image, Assets}, WIDTH, game::Game,
+    ui::assets::{Image, Assets}, WIDTH, game::Game,
 };
 
 use self::console::{Console, ConsoleMode};

@@ -1,4 +1,4 @@
-use engine::{
+use crate::{
     components::{Item, PlayerID, Inventory, PPoint, WantsToUseItem, Ranged, PhysicalStats, Position, Actor},
     effects::{add_effect, EffectType},
     map::{Map, to_point},
@@ -8,7 +8,7 @@ use rltk::DistanceAlg;
 use shipyard::{EntityId, Get, UniqueView, UniqueViewMut, View, ViewMut, IntoIter, IntoWithId, AllStoragesViewMut};
 use winit::event::{WindowEvent, VirtualKeyCode, ElementState};
 
-use crate::{screen::menu_config::{MainMenuSelection, ModeSelectSelection}, game::{Game, GameState}};
+use crate::{ui::screen::menu_config::{MainMenuSelection, ModeSelectSelection}, game::{Game, GameState}};
 
 
 #[derive(Copy, Clone, PartialEq, Debug)]

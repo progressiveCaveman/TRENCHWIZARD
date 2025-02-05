@@ -1,4 +1,4 @@
-use engine::map::XY;
+use crate::map::XY;
 use image::GenericImageView;
 use image::{self};
 

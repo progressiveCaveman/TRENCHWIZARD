@@ -1,11 +1,11 @@
 use std::iter::zip;
 
-use engine::{map::{Map, XY}, colors::{self, Color}, components::{PhysicalStats, PPoint, FrameTime, Name, Position, Inventory, Equippable, Consumable, PlayerID, Vision, OnFire, Equipment, Turn}, player::get_player_map_knowledge, ai::decisions::Intent, utils::InvalidPoint};
+use crate::{map::{Map, XY}, colors::{self, Color}, components::{PhysicalStats, PPoint, FrameTime, Name, Position, Inventory, Equippable, Consumable, PlayerID, Vision, OnFire, Equipment, Turn}, player::get_player_map_knowledge, ai::decisions::Intent, utils::InvalidPoint};
 use rltk::Point;
 use shipyard::{UniqueView, View, Get, World, IntoIter, IntoWithId};
 use strum::EnumCount;
 
-use crate::{WIDTH, assets::{cp437_converter::{to_cp437, string_to_cp437}, Assets, sprites::Drawable}, game::{Game, GameState}, HEIGHT, screen::RangedTargetResult};
+use crate::{WIDTH, ui::assets::{cp437_converter::{to_cp437, string_to_cp437}, Assets, sprites::Drawable}, game::{Game, GameState}, HEIGHT, ui::screen::RangedTargetResult};
 
 use super::{Glyph, menu_config::{MainMenuSelection, ModeSelectSelection}, MAX_ZOOM};
 
