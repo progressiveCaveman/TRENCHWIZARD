@@ -1,4 +1,5 @@
-use super::decisions::{Action, Consideration, ConsiderationParam, ResponseCurveType, Task, InputType, InputTargets, IntentArchetype};
+use super::{action::Action, consideration::{Consideration, ConsiderationParam, ResponseCurveType}, input::{InputTargets, InputType}, intent::{IntentArchetype, Task}};
+
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum AIBehaviors {

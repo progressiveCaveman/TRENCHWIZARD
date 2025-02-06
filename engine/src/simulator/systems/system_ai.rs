@@ -1,5 +1,7 @@
-use crate::ai::decisions::{Intent, Task, InputTargets, AI};
+use crate::ai::input::InputTargets;
+use crate::ai::intent::{Intent, Task};
 use crate::ai::labors::AIBehaviors;
+use crate::ai::AI;
 use crate::simulator::components::{Actor, ActorType, DijkstraMapToMe, Faction, Position, Spawner, SpawnerType, Turn, PlayerID, Vision, Item, ItemType};
 use crate::simulator::effects::{add_effect, EffectType};
 use crate::entity_factory;

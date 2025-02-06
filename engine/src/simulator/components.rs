@@ -7,8 +7,7 @@ use strum::IntoEnumIterator; // 0.17.1
 use strum_macros::EnumIter; // 0.17.1
 
 use crate::{
-    simulator::map::Map,
-    RenderOrder, tiles::{TileType, GasType}, ui::colors::{COLOR_BG, Color}, ai::{labors::AIBehaviors, decisions::{InputTargets, Action}}, utils::Target,
+    ai::{action::Action, input::InputTargets, labors::AIBehaviors}, simulator::map::Map, tiles::{GasType, TileType}, ui::colors::{Color, COLOR_BG}, utils::Target, RenderOrder
 };
 
 /// Unique components

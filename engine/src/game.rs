@@ -42,7 +42,7 @@ pub enum GameState {
 impl Game {
     pub fn new() -> Self {
         Self {
-            world_sim: WorldSim::new(get_settings(GameMode::RL)),
+            world_sim: WorldSim::new(get_settings(GameMode::RL)), //todo reset_engine has to be called, so this settings option is meaningless
             screen: Screen::new((WIDTH, HEIGHT)),
             assets: Assets::new(),
             tick: 0,

@@ -5,7 +5,6 @@ use crate::generators::map_builders;
 use crate::simulator::map::Map;
 use crate::simulator::systems;
 use crate::simulator::systems::system_particle;
-use crate::simulator::systems::system_gas;
 
 use rltk::Point;
 use shipyard::{

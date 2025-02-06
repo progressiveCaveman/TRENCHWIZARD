@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::ai::decisions::Action;
+use crate::ai::action::Action;
 use crate::ai::labors::AIBehaviors;
 use crate::ui::colors::{*};
 use crate::simulator::components::{
