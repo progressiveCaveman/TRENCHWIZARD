@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # RUST_BACKTRACE=1 cargo run
-sudo RUST_BACKTRACE=1 cargo run --release
+RUST_BACKTRACE=1 cargo run
 
 # for profiling
 # sudo cargo flamegraph
