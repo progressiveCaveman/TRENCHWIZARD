@@ -1,5 +1,5 @@
-use crate::simulator::components::{BlocksTile, Position};
-use crate::simulator::map::Map;
+use crate::world::components::{BlocksTile, Position};
+use crate::world::map::Map;
 use shipyard::{Get, IntoIter, IntoWithId, UniqueViewMut, View, ViewMut};
 
 pub fn run_map_indexing_system(mut map: UniqueViewMut<Map>, vpos: View<Position>, vblocks: ViewMut<BlocksTile>) {

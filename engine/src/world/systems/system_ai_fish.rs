@@ -1,6 +1,6 @@
-use crate::simulator::components::{Actor, ActorType, Position};
-use crate::simulator::effects::{add_effect, EffectType};
-use crate::simulator::map::Map;
+use crate::world::components::{Actor, ActorType, Position};
+use crate::world::effects::{add_effect, EffectType};
+use crate::world::map::Map;
 use crate::tiles::TileType;
 use rand::prelude::SliceRandom;
 use rand::thread_rng;

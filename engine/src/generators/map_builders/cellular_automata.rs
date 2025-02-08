@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use rltk::{Point, RandomNumberGenerator};
 use shipyard::{AllStoragesViewMut, World};
 
-use crate::{entity_factory, SHOW_MAPGEN_ANIMATION, tiles::TileType, simulator::map::XY};
+use crate::{entity_factory, SHOW_MAPGEN_ANIMATION, tiles::TileType, world::map::XY};
 
 use super::{Map, MapBuilder, Position};
 

@@ -1,5 +1,5 @@
-use crate::simulator::components::{PhysicalStats, Equipped, Inventory, Name, Player, GameLog};
-use crate::simulator::effects::{add_effect, EffectType};
+use crate::world::components::{PhysicalStats, Equipped, Inventory, Name, Player, GameLog};
+use crate::world::effects::{add_effect, EffectType};
 use shipyard::{Get, IntoIter, IntoWithId, Remove, UniqueViewMut, View, ViewMut};
 
 pub fn run_cleanup_system(

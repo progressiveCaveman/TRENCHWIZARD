@@ -4,8 +4,8 @@ use shipyard::{
 };
 
 use crate::{
-    simulator::components::{Lifetime, Particle, Position, Renderable, Velocity, FrameTime},
-    simulator::effects::{add_effect, EffectType},
+    world::components::{Lifetime, Particle, Position, Renderable, Velocity, FrameTime},
+    world::effects::{add_effect, EffectType},
     RenderOrder, ui::colors::Color,
 };
 

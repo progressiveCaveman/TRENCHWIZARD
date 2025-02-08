@@ -1,7 +1,7 @@
 use serde::Serialize;
 use shipyard::{Component, EntityId};
 
-use crate::{simulator::components::{self, Turn}, utils::Target};
+use crate::{world::components::{self, Turn}, utils::Target};
 
 use super::input::InputTargets;
 

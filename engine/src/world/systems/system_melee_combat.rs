@@ -1,10 +1,10 @@
 use crate::ui::colors::{COLOR_BG, COLOR_UI_4};
-use crate::simulator::components::GameLog;
-use crate::simulator::effects::{EffectType, Targets};
+use crate::world::components::GameLog;
+use crate::world::effects::{EffectType, Targets};
 use crate::{
-    simulator::components::{PhysicalStats, Equipped, MeleeDefenseBonus, MeleePowerBonus, Name, Position, WantsToAttack},
-    simulator::effects::add_effect,
-    simulator::systems::system_particle::ParticleBuilder,
+    world::components::{PhysicalStats, Equipped, MeleeDefenseBonus, MeleePowerBonus, Name, Position, WantsToAttack},
+    world::effects::add_effect,
+    world::systems::system_particle::ParticleBuilder,
 };
 use shipyard::{AllStoragesView, EntityId, Get, IntoIter, IntoWithId, Remove, UniqueViewMut, View, ViewMut};
 

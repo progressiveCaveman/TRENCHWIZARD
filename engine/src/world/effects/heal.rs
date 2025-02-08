@@ -1,7 +1,7 @@
 use shipyard::{Get, ViewMut};
 
 use super::*;
-use crate::simulator::components::PhysicalStats;
+use crate::world::components::PhysicalStats;
 
 pub fn heal(store: &AllStoragesViewMut, effect: &EffectSpawner) {
     if let EffectType::Heal { amount, target } = &effect.effect_type {

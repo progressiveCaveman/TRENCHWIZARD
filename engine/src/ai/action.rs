@@ -1,7 +1,7 @@
 use serde::Serialize;
 use shipyard::{AllStorages, UniqueView, View, EntityId, Get, IntoIter, IntoWithId};
 
-use crate::{simulator::{components::{Inventory, Item, ItemType, Position, SpatialKnowledge, Turn}, map::Map}, tiles::TileType, utils::Target};
+use crate::{world::{components::{Inventory, Item, ItemType, Position, SpatialKnowledge, Turn}, map::Map}, tiles::TileType, utils::Target};
 use crate::ai::intent::IntentArchetype;
 use super::{consideration::Consideration, input::{InputTargets, InputType}, intent::{Intent, Task}};
 

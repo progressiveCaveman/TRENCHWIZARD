@@ -1,5 +1,5 @@
-use crate::simulator::components::{Position, AddsGas, RNG, RemovesGas};
-use crate::simulator::map::Map;
+use crate::world::components::{Position, AddsGas, RNG, RemovesGas};
+use crate::world::map::Map;
 use crate::tiles::STABLE_GAS_AMOUNT;
 use crate::utils::{InvalidPoint, get_neighbors};
 use shipyard::{IntoIter, IntoWithId, View, ViewMut, UniqueViewMut};

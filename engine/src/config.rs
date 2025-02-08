@@ -1,7 +1,7 @@
 use config::{Config, File, FileFormat};
 use serde::{Deserialize, Serialize};
 
-use crate::simulator::map::XY;
+use crate::world::map::XY;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 struct Settings {

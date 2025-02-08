@@ -1,5 +1,5 @@
 use super::*;
-use crate::simulator::components::Confusion;
+use crate::world::components::Confusion;
 
 pub fn inflict_confusion(store: &mut AllStoragesViewMut, confusion: &EffectSpawner) {
     if let EffectType::Confusion { turns, target } = &confusion.effect_type {

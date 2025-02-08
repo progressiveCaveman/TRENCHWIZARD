@@ -1,6 +1,6 @@
 use shipyard::{EntityId, View, Get, AllStoragesViewMut};
 
-use crate::simulator::components::{Vision, Position};
+use crate::world::components::{Vision, Position};
 
 pub fn vision_contains(store: &AllStoragesViewMut, vision: Vision, id: EntityId) -> bool{
     return store.run(|vpos: View<Position>| {

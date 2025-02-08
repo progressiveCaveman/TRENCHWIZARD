@@ -1,6 +1,6 @@
 use serde::Serialize;
 use serde::Deserialize;
-use crate::simulator::components::ItemType;
+use crate::world::components::ItemType;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum InputType {

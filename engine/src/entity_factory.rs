@@ -3,13 +3,13 @@ use std::collections::HashMap;
 use crate::ai::action::Action;
 use crate::ai::labors::AIBehaviors;
 use crate::ui::colors::{*};
-use crate::simulator::components::{
+use crate::world::components::{
     Actor, ActorType, AreaOfEffect, BlocksTile, ChiefHouse, PhysicalStats, Confusion, Consumable, DealsDamage,
     DijkstraMapToMe, EquipmentSlot, Equippable, Faction, FishCleaner, Flammable, Inventory, Item, ItemType,
     LocomotionType, Locomotive, LumberMill, MeleeDefenseBonus, MeleePowerBonus, Name, PlankHouse, Player, Position,
     ProvidesHealing, Ranged, Renderable, SpatialKnowledge, Spawner, SpawnerType, Tree, Vision, RNG, CausesFire, Equipment, AddsGas, RemovesGas, Aging, Fish, Orc,
 };
-use crate::simulator::map::{Map, XY};
+use crate::world::map::{Map, XY};
 use crate::RenderOrder;
 use crate::tiles::{TileType, GasType};
 use crate::utils::rect::Rect;

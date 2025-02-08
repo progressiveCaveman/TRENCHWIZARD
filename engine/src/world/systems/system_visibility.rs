@@ -1,5 +1,5 @@
-use crate::simulator::components::{Position, SpatialKnowledge, Vision};
-use crate::simulator::map::Map;
+use crate::world::components::{Position, SpatialKnowledge, Vision};
+use crate::world::map::Map;
 use crate::utils::InvalidPoint;
 use rltk;
 use rltk::Point;

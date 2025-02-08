@@ -21,7 +21,7 @@ pub mod world_sim;
 pub mod game;
 pub mod ui;
 pub mod generators;
-pub mod simulator;
+pub mod world;
 pub mod config;
 
 

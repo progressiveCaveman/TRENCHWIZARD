@@ -1,8 +1,8 @@
 use shipyard::{IntoIter, IntoWithId, Remove, View, ViewMut, UniqueViewMut, EntityId, Get};
 
-use crate::simulator::components::{Inventory, WantsToPickupItem, GameLog, Player, WantsToUnequipItem, Equipped, Name};
-use crate::simulator::effects::{add_effect, EffectType};
-use crate::simulator::components::WantsToDropItem;
+use crate::world::components::{Inventory, WantsToPickupItem, GameLog, Player, WantsToUnequipItem, Equipped, Name};
+use crate::world::effects::{add_effect, EffectType};
+use crate::world::components::WantsToDropItem;
 
 pub fn run_inventory_system(vinv: View<Inventory>, vwants: View<WantsToPickupItem>) {
     for (id, (_, wants_pickup)) in (&vinv, &vwants).iter().with_id() {

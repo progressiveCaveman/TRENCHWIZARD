@@ -1,7 +1,7 @@
-use crate::simulator::components::{Aging, Actor, ActorType, Turn, RNG, PlankHouse, Position};
-use crate::simulator::effects::{add_effect, EffectType, Targets};
+use crate::world::components::{Aging, Actor, ActorType, Turn, RNG, PlankHouse, Position};
+use crate::world::effects::{add_effect, EffectType, Targets};
 use crate::entity_factory::EntitySpawnTypes;
-use crate::simulator::map::Map;
+use crate::world::map::Map;
 use shipyard::{IntoIter, IntoWithId, UniqueViewMut, View, ViewMut};
 
 pub fn run_time_system(

@@ -1,5 +1,5 @@
 use crate::{
-    config::GameMode, entity_factory, player, simulator::{components::{Actor, Inventory, Item, PPoint, PhysicalStats, PlayerID, Position, Ranged, WantsToUseItem}, effects::{add_effect, EffectType}, map::{to_point, Map}}, utils::{dir_to_offset, dir_to_point, InvalidPoint}
+    config::GameMode, entity_factory, player, world::{components::{Actor, Inventory, Item, PPoint, PhysicalStats, PlayerID, Position, Ranged, WantsToUseItem}, effects::{add_effect, EffectType}, map::{to_point, Map}}, utils::{dir_to_offset, dir_to_point, InvalidPoint}
 };
 use rltk::DistanceAlg;
 use shipyard::{EntityId, Get, UniqueView, UniqueViewMut, View, ViewMut, IntoIter, IntoWithId, AllStoragesViewMut};

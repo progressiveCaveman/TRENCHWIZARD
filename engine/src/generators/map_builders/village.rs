@@ -2,8 +2,8 @@ use rltk::{Point, RandomNumberGenerator};
 use shipyard::{AllStoragesViewMut, World};
 
 use crate::{
-    simulator::components::{Faction, SpawnerType},
-    entity_factory, SHOW_MAPGEN_ANIMATION, tiles::TileType, simulator::map::XY, ai::labors::{get_actions, AIBehaviors},
+    world::components::{Faction, SpawnerType},
+    entity_factory, SHOW_MAPGEN_ANIMATION, tiles::TileType, world::map::XY, ai::labors::{get_actions, AIBehaviors},
 };
 
 use super::{Map, MapBuilder, Position};
