@@ -2,7 +2,7 @@ use rltk::{Algorithm2D, Point, BaseMap, NavigationPath};
 use serde::{Serialize, Deserialize};
 use shipyard::{EntityId, View, Get, Unique, World};
 
-use crate::{simulator::components::{Position, Renderable}, utils::Target, tiles::{TileType, TileRenderable, GasType, STABLE_GAS_AMOUNT}, game_modes::GameSettings, player, ui::colors::{COLOR_BG, ColorUtils, COLOR_FIRE, COLOR_WHITE, COLOR_RED}, DISABLE_FOV, RenderOrder};
+use crate::{config::GameSettings, player, simulator::components::{Position, Renderable}, tiles::{GasType, TileRenderable, TileType, STABLE_GAS_AMOUNT}, ui::colors::{ColorUtils, COLOR_BG, COLOR_FIRE, COLOR_RED, COLOR_WHITE}, utils::Target, RenderOrder, DISABLE_FOV};
 
 pub type XY = (i32, i32);
 pub fn to_point(xy: XY) -> Point {

@@ -1,7 +1,7 @@
+use config::{GameMode, get_config};
 use error_iter::ErrorIter as _;
 
 use game::{Game, GameState};
-use game_modes::{get_settings, GameMode};
 use log::error;
 use pixels::{Pixels, SurfaceTexture};
 use ui::input_handler;
@@ -14,7 +14,6 @@ extern crate lazy_static;
 
 pub mod utils;
 pub mod entity_factory;
-pub mod game_modes;
 pub mod tiles;
 pub mod ai;
 pub mod player;
@@ -23,6 +22,7 @@ pub mod game;
 pub mod ui;
 pub mod generators;
 pub mod simulator;
+pub mod config;
 
 
 pub const SHOW_MAPGEN_ANIMATION: bool = true;
@@ -87,8 +87,8 @@ impl Engine {
         };
     
         let mut game = Game::new();
-        game.world_sim.reset_engine(get_settings(GameMode::RL));
-        // game.engine.get_log_mut().messages.push("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.".to_string());
+        game.world_sim.reset_engine(get_config(GameMode::VillageSim).unwrap()); // todo don't get settings here
+        game.world_sim.get_log_mut().messages.push("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.".to_string());
         game.screen.setup_consoles();
         game.set_state(GameState::PreTurn);
 

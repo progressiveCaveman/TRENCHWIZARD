@@ -1,0 +1,31 @@
+settings:
+  - mode: "roguelike"
+    mapsize: [160, 80]
+    follow_player: false
+    use_player_los: true
+    show_player: true
+  - mode: "map_demo"
+    mapsize: [160, 80]
+    follow_player: false
+    use_player_los: false
+    show_player: false
+  - mode: "village_sim"
+    mapsize: [200, 80]
+    follow_player: false
+    use_player_los: false
+    show_player: false
+  - mode: "orc_halls"
+    mapsize: [80, 40]
+    follow_player: true
+    use_player_los: false
+    show_player: true
+  - mode: "orc_arena"
+    mapsize: [160, 80]
+    follow_player: false
+    use_player_los: false
+    show_player: false
+  - mode: "test_mode"
+    mapsize: [160, 80]
+    follow_player: false
+    use_player_los: false
+    show_player: true

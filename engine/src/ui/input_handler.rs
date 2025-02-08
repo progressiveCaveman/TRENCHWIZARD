@@ -1,8 +1,5 @@
 use crate::{
-    simulator::components::{Item, PlayerID, Inventory, PPoint, WantsToUseItem, Ranged, PhysicalStats, Position, Actor},
-    simulator::effects::{add_effect, EffectType},
-    simulator::map::{Map, to_point},
-    utils::{dir_to_point, InvalidPoint, dir_to_offset}, game_modes::{GameMode, get_settings}, player, entity_factory,
+    config::{get_config, GameMode}, entity_factory, player, simulator::{components::{Actor, Inventory, Item, PPoint, PhysicalStats, PlayerID, Position, Ranged, WantsToUseItem}, effects::{add_effect, EffectType}, map::{to_point, Map}}, utils::{dir_to_offset, dir_to_point, InvalidPoint}
 };
 use rltk::DistanceAlg;
 use shipyard::{EntityId, Get, UniqueView, UniqueViewMut, View, ViewMut, IntoIter, IntoWithId, AllStoragesViewMut};
@@ -174,10 +171,10 @@ impl InputCommand {
                     GameState::ModeSelect { selection } => {
                         game.screen.reset();
                         match selection {
-                            ModeSelectSelection::MapDemo => game.reset(Some(get_settings(GameMode::MapDemo))),
-                            ModeSelectSelection::RL => game.reset(Some(get_settings(GameMode::RL))),
-                            ModeSelectSelection::VillageSim => game.reset(Some(get_settings(GameMode::VillageSim))),
-                            ModeSelectSelection::OrcArena => game.reset(Some(get_settings(GameMode::OrcArena))),
+                            ModeSelectSelection::MapDemo => game.reset(Some(get_config(GameMode::MapDemo).unwrap())),
+                            ModeSelectSelection::RL => game.reset(Some(get_config(GameMode::RL).unwrap())),
+                            ModeSelectSelection::VillageSim => game.reset(Some(get_config(GameMode::VillageSim).unwrap())),
+                            ModeSelectSelection::OrcArena => game.reset(Some(get_config(GameMode::OrcArena).unwrap())),
                         }
 
                         GameState::ShowMapHistory

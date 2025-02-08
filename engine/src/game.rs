@@ -1,4 +1,4 @@
-use crate::{simulator::components::{FrameTime, PhysicalStats, WantsToUseItem}, simulator::effects, game_modes::{get_settings, GameMode, GameSettings}, simulator::map::XY, simulator::systems::system_particle, ui::{assets::Assets, screen::{console::ConsoleMode, menu_config::{MainMenuSelection, ModeSelectSelection}, RangedTargetResult, Screen}}, utils::InvalidPoint, world_sim::WorldSim, DISABLE_MAPGEN_ANIMATION, HEIGHT, WIDTH};
+use crate::{config::{get_config, GameMode, GameSettings}, simulator::{components::{FrameTime, PhysicalStats, WantsToUseItem}, effects, map::XY, systems::system_particle}, ui::{assets::Assets, screen::{console::ConsoleMode, menu_config::{MainMenuSelection, ModeSelectSelection}, RangedTargetResult, Screen}}, utils::InvalidPoint, world_sim::WorldSim, DISABLE_MAPGEN_ANIMATION, HEIGHT, WIDTH};
 use shipyard::{EntityId, Get, UniqueViewMut, View};
 
 pub struct Game {
@@ -41,8 +41,10 @@ pub enum GameState {
 
 impl Game {
     pub fn new() -> Self {
+        let settings = get_config(GameMode::RL);
+        
         Self {
-            world_sim: WorldSim::new(get_settings(GameMode::RL)), //todo reset_engine has to be called, so this settings option is meaningless
+            world_sim: WorldSim::new(settings.unwrap()), //todo reset_engine has to be called, so this settings option is meaningless
             screen: Screen::new((WIDTH, HEIGHT)),
             assets: Assets::new(),
             tick: 0,
