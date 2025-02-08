@@ -1,6 +1,6 @@
 settings:
   - mode: "roguelike"
-    mapsize: [160, 80]
+    mapsize: [70, 40]
     follow_player: false
     use_player_los: true
     show_player: true

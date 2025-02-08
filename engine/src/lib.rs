@@ -1,4 +1,4 @@
-use config::{GameMode, get_config};
+use config::GameMode;
 use error_iter::ErrorIter as _;
 
 use game::{Game, GameState};
@@ -86,9 +86,8 @@ impl Engine {
             Pixels::new(WIDTH as u32, HEIGHT as u32, surface_texture).unwrap() //todo error check unwrap
         };
     
-        let mut game = Game::new();
-        game.world_sim.reset_engine(get_config(GameMode::VillageSim).unwrap()); // todo don't get settings here
-        game.world_sim.get_log_mut().messages.push("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.".to_string());
+        let mut game = Game::new(GameMode::VillageSim);
+        // game.world_sim.get_log_mut().messages.push("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.".to_string());
         game.screen.setup_consoles();
         game.set_state(GameState::PreTurn);
 

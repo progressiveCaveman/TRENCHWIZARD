@@ -1,4 +1,4 @@
-use crate::{config::{get_config, GameMode, GameSettings}, simulator::{components::{FrameTime, PhysicalStats, WantsToUseItem}, effects, map::XY, systems::system_particle}, ui::{assets::Assets, screen::{console::ConsoleMode, menu_config::{MainMenuSelection, ModeSelectSelection}, RangedTargetResult, Screen}}, utils::InvalidPoint, world_sim::WorldSim, DISABLE_MAPGEN_ANIMATION, HEIGHT, WIDTH};
+use crate::{config::{get_config, GameMode}, simulator::{components::{FrameTime, PhysicalStats, WantsToUseItem}, effects, map::XY, systems::system_particle}, ui::{assets::Assets, screen::{console::ConsoleMode, menu_config::{MainMenuSelection, ModeSelectSelection}, RangedTargetResult, Screen}}, utils::InvalidPoint, world_sim::WorldSim, DISABLE_MAPGEN_ANIMATION, HEIGHT, WIDTH};
 use shipyard::{EntityId, Get, UniqueViewMut, View};
 
 pub struct Game {
@@ -40,11 +40,20 @@ pub enum GameState {
 }
 
 impl Game {
-    pub fn new() -> Self {
-        let settings = get_config(GameMode::RL);
-        
+    pub fn new(mode: GameMode) -> Self {
+        let settings = match get_config(mode) {
+            Ok(config) => config,
+            Err(e) => {
+                eprintln!("Failed to load configuration: {}", e);
+                std::process::exit(1); // Exit the program with an error code
+            }
+        };
+
+        let mut world = WorldSim::new(settings);
+        world.reset_engine(settings);
+
         Self {
-            world_sim: WorldSim::new(settings.unwrap()), //todo reset_engine has to be called, so this settings option is meaningless
+            world_sim: world, //todo reset_engine has to be called, so this settings option is meaningless
             screen: Screen::new((WIDTH, HEIGHT)),
             assets: Assets::new(),
             tick: 0,
@@ -166,11 +175,22 @@ impl Game {
         self.state = state;
     }
 
-    pub fn reset(&mut self, settings: Option<GameSettings>) {
+    pub fn reset(&mut self, mode: Option<GameMode>) {
         self.state = GameState::ShowMapHistory;
-        match settings {
-            Some(s) => self.world_sim.reset_engine(s),
-            None => self.world_sim.reset_engine(self.world_sim.settings),
-        }
+
+        let mode = match mode {
+            Some(m) => m,
+            None => GameMode::RL,
+        };
+
+        let settings = match get_config(mode) {
+            Ok(config) => config,
+            Err(e) => {
+                eprintln!("Failed to load configuration: {}", e);
+                std::process::exit(1); // Exit the program with an error code
+            }
+        };
+
+        self.world_sim.reset_engine(settings);
     }
 }

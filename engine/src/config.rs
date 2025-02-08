@@ -104,15 +104,7 @@ impl From<Settings> for GameSettings {
 
 pub fn get_config(mode: GameMode) -> Result<GameSettings, Box<dyn std::error::Error>> {
     let settings = Config::builder()
-        // Base configuration
-        // .add_source(File::new("config/base", FileFormat::Yaml))
-        
-        // Environment-specific configuration
         .add_source(File::new(&format!("config/{}", "game_modes"), FileFormat::Yaml).required(true))
-        
-        // Environment variables
-        // .add_source(config::Environment::with_prefix("MYAPP"))
-        
         .build()?
         .try_deserialize::<SettingsList>()?;
 
@@ -131,25 +123,10 @@ pub fn get_config(mode: GameMode) -> Result<GameSettings, Box<dyn std::error::Er
         }
     }
 
-    dbg!("settings not found, using first setting");
+    Err("Settings not found".into())
 
-    let s = GameSettings::from(settings.settings[0].clone());
-    Ok(s)
+    // dbg!("settings not found, using first setting");
 
-    // dbg!(settings);
-    // dbg!(GameSettings {
-    //     mode,
-    //     mapsize: settings.mapsize.into(),
-    //     follow_player: settings.follow_player,
-    //     use_player_los: settings.use_player_los,
-    //     show_player: settings.show_player,
-    // });
-
-    // Ok(GameSettings {
-    //     mode,
-    //     mapsize: settings.mapsize.into(),
-    //     follow_player: settings.follow_player,
-    //     use_player_los: settings.use_player_los,
-    //     show_player: settings.show_player,
-    // })
+    // let s = GameSettings::from(settings.settings[0].clone());
+    // Ok(s)
 }
