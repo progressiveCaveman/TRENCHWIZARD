@@ -3,7 +3,6 @@ use pixels::Error;
 
 use winit::event_loop::EventLoop;
 
-
 fn main() -> Result<(), Error> {
     let delegate = VillageModeDelegate;
 

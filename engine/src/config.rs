@@ -1,12 +1,13 @@
 use config::{Config, File, FileFormat};
 use serde::{Deserialize, Serialize};
+use strum_macros::Display;
 
 use crate::world::map::XY;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 struct Settings {
     mode: String,
-    mapsize: [i32; 2],  
+    mapsize: [i32; 2],
     follow_player: bool,
     use_player_los: bool,
     show_player: bool,
@@ -26,12 +27,12 @@ pub struct GameSettings {
     pub show_player: bool,
 }
 
-#[derive(Copy, Clone, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Copy, Clone, PartialEq, Debug, Serialize, Deserialize, Display)]
 pub enum GameMode {
     TestMode,
     RL,
     VillageSim,
-    OrcHalls, 
+    OrcHalls,
     MapDemo,
     OrcArena,
 }
