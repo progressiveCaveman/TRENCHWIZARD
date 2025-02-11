@@ -1,12 +1,12 @@
 use config::GameMode;
 use error_iter::ErrorIter as _;
 
-use game::{Game, GameState};
 use log::error;
 use pixels::{Pixels, SurfaceTexture};
 use ui::input_handler;
 use winit::{dpi::LogicalSize, event::Event, event_loop::{ControlFlow, EventLoop}, window::{Window, WindowBuilder}};
 use winit_input_helper::WinitInputHelper;
+use world::{Game, GameState};
 
 
 #[macro_use]
@@ -18,7 +18,7 @@ pub mod tiles;
 pub mod ai;
 pub mod player;
 pub mod world_sim;
-pub mod game;
+// pub mod game;
 pub mod ui;
 pub mod generators;
 pub mod world;
@@ -54,16 +54,22 @@ pub enum RenderOrder {
     Particle,
 }
 
+pub trait EngineDelegate {
+    fn update(&mut self);
+    fn time_advanced(&mut self);
+}
+
 pub struct Engine {
     input: WinitInputHelper,
     window: Window,
     pixels: Pixels,
 
+    pub delegate: Box<dyn EngineDelegate>,
     pub game: Game,
 }
 
 impl Engine {
-    pub fn new(event_loop: &EventLoop<()>) -> Self {
+    pub fn new(event_loop: &EventLoop<()>, delegate: Box<dyn EngineDelegate>) -> Self {
         env_logger::init();
 
         // create the window
@@ -96,6 +102,7 @@ impl Engine {
             window,
             pixels,
             game: game,
+            delegate,
         }
     }
 
@@ -137,7 +144,11 @@ impl Engine {
             }
 
             // Update internal state and request a redraw
+            self.delegate.update();
             self.game.update();
+            if self.game.state == GameState::PostTurn {
+                self.delegate.time_advanced();
+            }
             self.window.request_redraw();
         }
 
